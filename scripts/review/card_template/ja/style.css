@@ -1,0 +1,184 @@
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: left;
+    color: black;
+    background-color: white;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+.label {
+    color: #8a7967;
+}
+.usage {
+    color: #00205b;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.italic {
+    font-style: italic;
+}
+p {
+    margin: 4px;
+}
+
+.wr	{
+    font-size: 140%;
+}
+
+.pinyin {
+    display:none;
+}
+
+.pinyin_h {
+    padding-left:12px;
+    color: gray;
+    font-size: 80%;
+}
+
+
+p[data-orgtag="meaning"] b {
+    color: #229122 !important;
+}
+
+
+p[data-orgtag="example"] {
+    color:#007B7B;
+    margin: 3px;
+}
+
+span[type="語義区分2"] {
+    color:red;
+}
+
+div[data-orgtag="column"]::after {
+    content:"♥";
+    color: purle;
+}
+
+
+
+span.black-square {
+    color: #fff;
+    background: #D7514A;
+    padding-top: 2px;
+    padding-right: 5px;
+    padding-bottom: 2px;
+    padding-left: 5px;
+}
+
+span.white-square {
+    color: black;
+    padding: 2px 5px;
+    margin-left: 2px;
+    font-size: 0.85em;
+    background: gold;
+}
+
+
+span.sx {
+    font-size:60%;
+    color:#FF1D8F;
+}
+
+div[data-orgtag="subheadword"] {
+    margin: 20px 0 4px 0;
+    color:#229122 !important;
+}
+div[data-orgtag="subheadword"][type="複合語"]::before {
+    content: "複合語";
+    color: black !important;
+    background: antiquewhite;
+    padding: 2px 5px;
+    margin-right: 5px;
+    font-size: 0.9em;
+}
+
+div[data-orgtag="subheadword"][type="慣用句"]::before {
+    content: "慣用句";
+    color: black !important;
+    background: antiquewhite;
+    padding: 2px 5px;
+    margin-right: 5px;
+    font-size: 0.9em;
+}
+
+
+div[data-orgtag="subhead"] {
+    margin: 5px;
+    font-weight:bold;
+    display:block;
+    color:black !important;
+}
+
+div[data-orgtag="subheadword"] {
+    font-weight:bold;
+    color:#f55d5d !important;
+    display:inline;
+    padding-right: 10px;
+}
+
+jae {
+    color:#0B4CE5 !important;
+    padding-left: 10px;
+}
+
+jae::before {
+    content: "‣ ";
+}
+
+ja_cn {
+    padding-left: 10px;
+    font-style: normal;
+    display:inline;
+    color: grey;
+}
+
+.subhw_meaning {
+    display:inline;
+    color:grey;
+}
+#xexampleMainMeaning{
+    margin-top: 30px;
+    color: grey;
+
+}
+#xexampleCn {
+    font-style:italic;
+    color: #0099e5;
+    margin-top: 15px;
+}
+#xexampleEn {
+    margin-top: 20px;
+    color:black;
+}
+#term {
+    color: #0099e5;
+}
+
+
+#xdefEl {
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 40px;
+}
+@media (max-width: 900px) {
+    #xdefEl {
+        width: 90%;
+    }
+}
+.xdef-item {
+    margin-bottom: 20px;
+    list-style-type: decimal;
+}
+.xdef-item.highlight {
+    color: #f85a40;
+}
