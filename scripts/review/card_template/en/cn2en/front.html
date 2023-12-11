@@ -139,7 +139,7 @@
     const definitionBox = document.createElement('div')
     definitionBox.classList.add('clue-definition', 'highlight')
     addLabel(definitionBox, item.label)
-    addUsage(definitionBox, item.usage)
+    addUsage(definitionBox, item.usage ? item.usage.replaceAll(term, '~') : '')
     addContent(definitionBox, item.definition + item.def_cn)
     container.appendChild(definitionBox)
 
@@ -165,7 +165,7 @@
       const itemBox = document.createElement('div')
       itemBox.classList.add('clue-example')
       addLabel(itemBox, example.label)
-      addUsage(itemBox, example.usage)
+      addUsage(itemBox, example.usage ? example.usage.replaceAll(term, '~') : '')
       const contentEl = addContent(itemBox, example.cn || example.en)
       container.appendChild(itemBox)
 
