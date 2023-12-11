@@ -144,18 +144,21 @@
     container.appendChild(definitionBox)
 
 
-    definitionBox.addEventListener("click", function () {
-      definitionBox.classList.toggle("highlight");
-      let highlightLog = localStorage.getItem(logPrefix + term);
-      highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
-      const log = highlightLog || [];
-      const index = log.indexOf(item.index);
-      if (index === -1) {
-        log.push(item.index);
-      } else {
-        log.splice(index, 1);
+    definitionBox.addEventListener("click", function (ev) {
+      // except dblclick
+      if (ev.detail === 1) {
+        definitionBox.classList.toggle("highlight");
+        let highlightLog = localStorage.getItem(logPrefix + term);
+        highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
+        const log = highlightLog || [];
+        const index = log.indexOf(item.index);
+        if (index === -1) {
+          log.push(item.index);
+        } else {
+          log.splice(index, 1);
+        }
+        localStorage.setItem(logPrefix + term, JSON.stringify(log));
       }
-      localStorage.setItem(logPrefix + term, JSON.stringify(log));
     });
     if (item.example) {
       const example = item.example
@@ -167,8 +170,7 @@
 
       if (example.cn) {
         contentEl.title = example.en
-        container.addEventListener("dblclick", function (ev) {
-          // ev.stopPropagation()
+        container.addEventListener("dblclick", function () {
           contentEl.classList.toggle("answer")
           if (contentEl.classList.contains("answer")) {
             contentEl.textContent = example.en
