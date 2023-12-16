@@ -33,29 +33,34 @@
       contentEl.classList.add("content");
       parent.appendChild(contentEl);
     }
+    function getRandom(arr, n) {
+      if (!arr.length) return [];
+      if (n > arr.length) n = arr.length;
+
+      var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+
+      while (n--) {
+        var x = Math.floor(Math.random() * len);
+        result[n] = arr[x in taken ? taken[x] : x];
+        taken[x] = --len in taken ? taken[len] : len;
+      }
+      return result;
+    }
+
     try {
       var adata = JSON.parse(examplesJson);
       var chose = adata[Math.floor(Math.random() * adata.length)]
-      var defs = chose.defs
+      var defs = chose.defs || (chose.compounds && getRandom(chose.compounds, 1)[0].defs) || (chose.idioms && getRandom(chose.idioms, 1)[0].defs)
       if (Array.isArray(defs) && defs.length > 0) {
-        var randomIndex;
-        let highlightLog = localStorage.getItem("jp_xhighlight_" + term);
-        highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
-        if (Array.isArray(highlightLog) && highlightLog.length) {
-          randomIndex =
-            highlightLog[Math.floor(Math.random() * highlightLog.length)];
-        } else {
-          randomIndex = Math.floor(Math.random() * defs.length);
-        }
-
-        var curDef = defs[randomIndex];
+        var curDef = getRandom(defs, 1)[0];
         if (curDef.label) addLabel(exampleMainMeaning, curDef.label);
         if (curDef.usage) addUsage(exampleMainMeaning, curDef.usage);
         addContent(exampleMainMeaning, (curDef.definition || '') + curDef.def_cn);
         if (Array.isArray(curDef.examples) && curDef.examples.length > 0) {
           isSameExample = true;
-          var curExample =
-            curDef.examples[Math.floor(Math.random() * curDef.examples.length)];
+          var curExample = getRandom(curDef.examples, 1)[0];
           if (curExample.label) addLabel(exampleCn, curExample.label);
           if (curExample.usage) addUsage(exampleCn, curExample.usage);
           addContent(exampleCn, curExample.cn || curExample.ja);
