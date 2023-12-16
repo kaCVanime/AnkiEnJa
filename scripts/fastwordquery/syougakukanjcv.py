@@ -90,7 +90,7 @@ class syogakukanjcv(MdxService):
                 text_content = meaning.get_text()
                 if first_text_node_text.startswith(("⇒", "→")):
                     continue
-                if first_text_node_text.startswith(("[", "<")):
+                if first_text_node_text.startswith(("[", "<", "〈")):
                     if first_text_node_text == text_content:
                         result["label"] = result.get("label", "") + text_content
                         continue
