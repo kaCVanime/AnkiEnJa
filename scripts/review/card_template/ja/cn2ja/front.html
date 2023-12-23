@@ -1,75 +1,81 @@
 <div id=deck deck_name="{{Deck}}"></div>
-{{type:term}}
-<data id=examplesJson style="display:none">{{examplesJson}}</data>
+<div class="root">
+  {{type:term}}
+  <data id=examplesJson style="display:none">{{examplesJson}}</data>
 
-<div id=xexamples>
-  <div id=xexampleMainMeaning></div>
-  <div id=xexampleMainMeaningTranslation></div>
-  <div id=xexampleCn></div>
-  <data id=xterm style="display:none">{{term}}</data>
-  <script>
-    var term = document.getElementById("xterm").textContent;
-    var examplesJson = document.getElementById("examplesJson").textContent;
-    var exampleMainMeaning = document.getElementById("xexampleMainMeaning");
-    var exampleCn = document.getElementById("xexampleCn");
-    var isSameEntry = true;
-    var isSameExample = false;
+  <div id=xexamples>
+    <div id=xexampleMainMeaning></div>
+    <div id=xexampleMainMeaningTranslation></div>
+    <div id=xexampleCn></div>
+    <data id=xterm style="display:none">{{term}}</data>
+  </div>
+</div>
+<script>
+  var term = document.getElementById("xterm").textContent;
+  var examplesJson = document.getElementById("examplesJson").textContent;
+  var exampleMainMeaning = document.getElementById("xexampleMainMeaning");
+  var exampleCn = document.getElementById("xexampleCn");
+  var isSameEntry = true;
+  var isSameExample = false;
 
-    function addLabel(parent, content) {
-      const labelEl = document.createElement("span");
-      labelEl.textContent = content;
-      labelEl.classList.add("label", "italic");
-      parent.appendChild(labelEl);
+  function addLabel(parent, content) {
+    const labelEl = document.createElement("span");
+    labelEl.textContent = content;
+    labelEl.classList.add("label", "italic");
+    parent.appendChild(labelEl);
+  }
+
+  function addUsage(parent, content) {
+    const usageEl = document.createElement("span");
+    usageEl.textContent = content;
+    usageEl.classList.add("usage");
+    parent.appendChild(usageEl);
+  }
+
+  function addContent(parent, content) {
+    const contentEl = document.createElement("span");
+    contentEl.textContent = content;
+    contentEl.classList.add("content");
+    parent.appendChild(contentEl);
+  }
+
+  function getRandom(arr, n) {
+    if (!arr.length) return [];
+    if (n > arr.length) n = arr.length;
+
+    var result = new Array(n),
+      len = arr.length,
+      taken = new Array(len);
+
+    while (n--) {
+      var x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
+      taken[x] = --len in taken ? taken[len] : len;
     }
-    function addUsage(parent, content) {
-      const usageEl = document.createElement("span");
-      usageEl.textContent = content;
-      usageEl.classList.add("usage");
-      parent.appendChild(usageEl);
-    }
-    function addContent(parent, content) {
-      const contentEl = document.createElement("span");
-      contentEl.textContent = content;
-      contentEl.classList.add("content");
-      parent.appendChild(contentEl);
-    }
-    function getRandom(arr, n) {
-      if (!arr.length) return [];
-      if (n > arr.length) n = arr.length;
+    return result;
+  }
 
-      var result = new Array(n),
-        len = arr.length,
-        taken = new Array(len);
-
-      while (n--) {
-        var x = Math.floor(Math.random() * len);
-        result[n] = arr[x in taken ? taken[x] : x];
-        taken[x] = --len in taken ? taken[len] : len;
+  try {
+    var adata = JSON.parse(examplesJson);
+    var chose = adata[Math.floor(Math.random() * adata.length)]
+    var defs = chose.defs || (chose.compounds && getRandom(chose.compounds, 1)[0].defs) || (chose.idioms && getRandom(chose.idioms, 1)[0].defs)
+    if (Array.isArray(defs) && defs.length > 0) {
+      var curDef = getRandom(defs, 1)[0];
+      if (curDef.label) addLabel(exampleMainMeaning, curDef.label);
+      if (curDef.usage) addUsage(exampleMainMeaning, curDef.usage);
+      addContent(exampleMainMeaning, (curDef.definition || '') + curDef.def_cn);
+      if (Array.isArray(curDef.examples) && curDef.examples.length > 0) {
+        isSameExample = true;
+        var curExample = getRandom(curDef.examples, 1)[0];
+        if (curExample.label) addLabel(exampleCn, curExample.label);
+        if (curExample.usage) addUsage(exampleCn, curExample.usage);
+        addContent(exampleCn, curExample.cn || curExample.ja);
       }
-      return result;
+    } else {
+      throw new Error("");
     }
-
-    try {
-      var adata = JSON.parse(examplesJson);
-      var chose = adata[Math.floor(Math.random() * adata.length)]
-      var defs = chose.defs || (chose.compounds && getRandom(chose.compounds, 1)[0].defs) || (chose.idioms && getRandom(chose.idioms, 1)[0].defs)
-      if (Array.isArray(defs) && defs.length > 0) {
-        var curDef = getRandom(defs, 1)[0];
-        if (curDef.label) addLabel(exampleMainMeaning, curDef.label);
-        if (curDef.usage) addUsage(exampleMainMeaning, curDef.usage);
-        addContent(exampleMainMeaning, (curDef.definition || '') + curDef.def_cn);
-        if (Array.isArray(curDef.examples) && curDef.examples.length > 0) {
-          isSameExample = true;
-          var curExample = getRandom(curDef.examples, 1)[0];
-          if (curExample.label) addLabel(exampleCn, curExample.label);
-          if (curExample.usage) addUsage(exampleCn, curExample.usage);
-          addContent(exampleCn, curExample.cn || curExample.ja);
-        }
-      } else {
-        throw new Error("");
-      }
-    } catch (err) {
-      isSameEntry = false;
-    }
-  </script>
+  } catch (err) {
+    isSameEntry = false;
+  }
+</script>
 
