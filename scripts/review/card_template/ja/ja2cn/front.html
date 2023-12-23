@@ -1,8 +1,12 @@
 <div id=deck deck_name="{{Deck}}"></div>
 <div class="root">
-  <h2 class="center">{{term}}<span id=hyouki>{{hyouki}}</span></h3>
-    <div class="center">{{AmEPhonetic}}</div>
-  </h2>
+  <h2 class="center">{{term}}</h2>
+  <div class="center" id="hyouki" title="×不常用的汉字
+▽不常用的读音
+‐熟字训且常用汉字
+＝熟字训且不常用汉字">{{hyouki}}
+  </div>
+  <div class="center">{{AmEPhonetic}}</div>
 
 
   <data id=examplesJson style="display:none">{{examplesJson}}</data>
@@ -15,7 +19,7 @@
 
   var examplesJson = document.getElementById("examplesJson").textContent;
   var term = document.getElementById("xterm").textContent;
-  var hyouki = document.getElementById("hyouki").textContent;
+  var hyouki = document.getElementById("hyouki").textContent
 
   var defEl = document.getElementById("xdefEl");
   var errorEl = document.getElementById("xerrors");
