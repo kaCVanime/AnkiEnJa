@@ -1,15 +1,21 @@
-{{type:term}}
 <div class="root">
-  {{AmEPhonetic}}
-  <h2 id=term>{{term}}<span id=hyouki>{{hyouki}}</span></h2>
-  <div id=xexampleEn></div>
-  <data id=full style="display:none">{{Full}}</data>
+  {{type:term}}
+  <div>{{AmEPhonetic}}</div>
+  <h2 id="term">{{term}}</h2>
+  <div id="hyouki">{{hyouki}}</div>
+  <div class=line></div>
+  <div id="xexampleEn"></div>
+  <data id="full" style="display:none">{{Full}}</data>
 </div>
 <script>
   var exampleEn = document.getElementById('xexampleEn')
   var full = document.getElementById('full')
   var term = document.getElementById('term')
-
+  var hyoukiEl = document.getElementById("hyouki")
+  var hyouki = hyoukiEl.textContent;
+  if (hyouki.slice(1, -1) === term.textContent) {
+    hyoukiEl.parentNode.removeChild(hyoukiEl)
+  }
   if (isSameEntry && isSameExample) {
     exampleEn.textContent = curExample.ja
   } else {

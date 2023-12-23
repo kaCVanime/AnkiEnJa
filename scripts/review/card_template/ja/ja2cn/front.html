@@ -19,7 +19,11 @@
 
   var examplesJson = document.getElementById("examplesJson").textContent;
   var term = document.getElementById("xterm").textContent;
-  var hyouki = document.getElementById("hyouki").textContent
+  var hyoukiEl = document.getElementById("hyouki")
+  var hyouki = hyoukiEl.textContent;
+  if (hyouki.slice(1, -1) === term) {
+    hyoukiEl.parentNode.removeChild(hyoukiEl)
+  }
 
   var defEl = document.getElementById("xdefEl");
   var errorEl = document.getElementById("xerrors");
