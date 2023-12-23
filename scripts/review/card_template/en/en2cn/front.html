@@ -59,7 +59,7 @@
     return data.map(function (item, index) {
       const example =
         Array.isArray(item.examples) && item.examples.length > 0
-          ? item.examples[Math.floor(Math.random() * item.examples.length)]
+          ? getRandom(item.examples, 1)[0]
           : null;
       return {
         index,
@@ -159,24 +159,21 @@
     return result;
   }
 
-  function shuffle(array) {
-    let currentIndex = array.length,
-      randomIndex;
+  // https://stackoverflow.com/questions/19269545/how-to-get-a-number-of-random-elements-from-an-array
+  function getRandom(arr, n) {
+    if (!arr.length) return [];
+    if (n > arr.length) n = arr.length;
 
-    // While there remain elements to shuffle.
-    while (currentIndex > 0) {
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
+    var result = new Array(n),
+      len = arr.length,
+      taken = new Array(len);
 
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
+    while (n--) {
+      var x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
+      taken[x] = --len in taken ? taken[len] : len;
     }
-
-    return array;
+    return result;
   }
 
   try {
@@ -205,7 +202,7 @@
         .concat(phrvItemEls)
         .concat(idiomItemEls)
         .slice(0, 15);
-    // shuffle(defItemEls)
+
     defEl.append(...defItemEls);
   } catch (err) {
     console.log(err);
