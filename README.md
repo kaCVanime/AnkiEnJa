@@ -9,7 +9,7 @@
 
 # 使用
 
-1. 下载.apkg文件（日语为JEV.apkg，英语为COCA.apkg)
+1. 下载 [日语学习用牌组](https://ankiweb.net/shared/info/1863612946) 或 [英语学习用牌组](https://ankiweb.net/shared/info/1542849605)
 2. 运行Anki(版本>2.1.50)
 3. 选择文件-导入，选择刚下载的apkg文件
 4. 开始学习
