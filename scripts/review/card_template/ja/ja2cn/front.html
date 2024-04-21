@@ -33,6 +33,23 @@
     (label) => !labelsNeedOrNot[label]
   );
 
+  // https://stackoverflow.com/questions/19269545/how-to-get-a-number-of-random-elements-from-an-array
+  function getRandom(arr, n) {
+    if (!arr.length) return [];
+    if (n > arr.length) n = arr.length;
+
+    var result = new Array(n),
+      len = arr.length,
+      taken = new Array(len);
+
+    while (n--) {
+      var x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
+      taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  }
+
   function getItems(data = [], onlyWithExample, excludeLabels) {
     if (onlyWithExample) {
       data = data.filter(
@@ -58,30 +75,17 @@
     return data.map(function (item, index) {
       const example =
         Array.isArray(item.examples) && item.examples.length > 0
-          ? item.examples[Math.floor(Math.random() * item.examples.length)]
+          ? getRandom(item.examples, 1)[0]
           : null;
       return {
         index,
-        definition: item.definition,
+        definition: item.definition || '',
         label: item.label,
         usage: item.usage,
         def_cn: item.def_cn,
         example,
       };
     });
-  }
-
-  function convertPhrvData(data = []) {
-    return data.reduce((result, item) => {
-      if (Array.isArray(item.defs)) {
-        result = result.concat(
-          item.defs.map((def) =>
-            Object.assign({}, def, {usage: def.usage || item.usage})
-          )
-        );
-      }
-      return result;
-    }, []);
   }
 
   function makeDefElement(data = [], logPrefix) {
@@ -173,26 +177,6 @@
     }, []);
   }
 
-  function shuffle(array) {
-    let currentIndex = array.length,
-      randomIndex;
-
-    // While there remain elements to shuffle.
-    while (currentIndex > 0) {
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
-    }
-
-    return array;
-  }
-
   try {
     var adata = examplesJson ? JSON.parse(examplesJson) : [];
     var chose = adata[Math.floor(Math.random() * adata.length)]
@@ -219,7 +203,7 @@
           .concat(idiomItemEls)
           .concat(idiomItemEls)
           .slice(0, 15);
-      // shuffle(defItemEls)
+
       defEl.append(...defItemEls);
     }
   } catch (err) {
