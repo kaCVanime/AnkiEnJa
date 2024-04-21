@@ -1,14 +1,16 @@
+{{type:term}}
 <div class="root">
-  {{type:term}}
-  <div>{{AmEPhonetic}}</div>
+  <div id="hyouki" title="×不常用的汉字
+▽不常用的读音
+‐熟字训且常用汉字
+＝熟字训且不常用汉字">{{hyouki}}</div>
+  <div >{{AmEPhonetic}}</div>
   <h2 id="term">{{term}}</h2>
-  <div id="hyouki">{{hyouki}}</div>
   <div class=line></div>
   <div id="xexampleEn"></div>
   <data id="full" style="display:none">{{Full}}</data>
 </div>
 <script>
-  var exampleEn = document.getElementById('xexampleEn')
   var full = document.getElementById('full')
   var term = document.getElementById('term')
   var hyoukiEl = document.getElementById("hyouki")
@@ -16,11 +18,77 @@
   if (hyouki.slice(1, -1) === term.textContent) {
     hyoukiEl.parentNode.removeChild(hyoukiEl)
   }
-  if (isSameEntry && isSameExample) {
-    exampleEn.textContent = curExample.ja
-  } else {
+  function addSpanElements(parent, content, classlist = []) {
+    if (!content) return parent;
+    const el = document.createElement("span");
+    el.textContent = content
+    el.classList.add(...classlist);
+    parent.appendChild(el)
+    return el
+  }
+
+  function addLabel(parent, content) {
+    return addSpanElements(parent, content, ["label", "italic"])
+  }
+
+  function addUsage(parent, content) {
+    return addSpanElements(parent, content, ["usage"])
+  }
+
+  function addContent(parent, content) {
+    return addSpanElements(parent, content, ["content"])
+  }
+
+  function makeTestAnswerItem(item) {
+    const container = document.createElement('li')
+    container.classList.add('meaning-test-item')
+
+    const definitionBox = document.createElement('div')
+    definitionBox.classList.add('clue-definition')
+    addLabel(definitionBox, item.label)
+    addUsage(definitionBox, item.usage)
+    addContent(definitionBox, (item.definition || '') + item.def_cn)
+    container.appendChild(definitionBox)
+
+    if (item.example) {
+      const example = item.example
+      const itemBox = document.createElement('div')
+      itemBox.classList.add('clue-example', "answer")
+      addLabel(itemBox, example.label)
+      addUsage(itemBox, example.usage)
+      const contentEl = addContent(itemBox, example.ja || example.cn)
+      container.appendChild(itemBox)
+
+      if (example.cn) {
+        contentEl.title = example.cn
+        container.addEventListener("dblclick", function () {
+          contentEl.classList.toggle("answer")
+          if (contentEl.classList.contains("answer")) {
+            contentEl.textContent = example.ja
+          } else {
+            contentEl.textContent = example.cn
+          }
+        })
+      }
+    }
+
+    return container
+  }
+
+  try {
+    const noErrorFlag = localStorage.getItem("x_ja_test_noError")
+    if (noErrorFlag === "true") {
+
+      const items = JSON.parse(localStorage.getItem("x_ja_test_items"))
+      const exampleEn = document.getElementById('xexampleEn')
+      exampleEn.append(...items.map(makeTestAnswerItem))
+    } else {
+      full.style.display = "block"
+      term.style.display = "none"
+    }
+  } catch (e) {
     full.style.display = "block"
-    term.style.display = "none"
+    full.textContent = e
   }
 
 </script>

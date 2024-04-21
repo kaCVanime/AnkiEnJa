@@ -1,51 +1,31 @@
 <div id=deck deck_name="{{Deck}}"></div>
+{{type:term}}
 <div class="root">
-  {{type:term}}
   <data id=examplesJson style="display:none">{{examplesJson}}</data>
-
-  <div id=xexamples>
-    <div id=xexampleMainMeaning></div>
-    <div id=xexampleMainMeaningTranslation></div>
-    <div id=xexampleCn></div>
-    <data id=xterm style="display:none">{{term}}</data>
-  </div>
+  <data id=xterm style="display:none">{{term}}</data>
+  <div id=definitions style="display:none"></div>
+  <div id=xexamples></div>
 </div>
 <script>
   var term = document.getElementById("xterm").textContent;
   var examplesJson = document.getElementById("examplesJson").textContent;
-  var exampleMainMeaning = document.getElementById("xexampleMainMeaning");
-  var exampleCn = document.getElementById("xexampleCn");
-  var isSameEntry = true;
-  var isSameExample = false;
 
-  function addLabel(parent, content) {
-    const labelEl = document.createElement("span");
-    labelEl.textContent = content;
-    labelEl.classList.add("label", "italic");
-    parent.appendChild(labelEl);
-  }
+  var xexamplesContainer = document.getElementById("xexamples");
+  var definitions = document.getElementById("definitions")
 
-  function addUsage(parent, content) {
-    const usageEl = document.createElement("span");
-    usageEl.textContent = content;
-    usageEl.classList.add("usage");
-    parent.appendChild(usageEl);
-  }
+  var labelsNeedOrNot = {};
 
-  function addContent(parent, content) {
-    const contentEl = document.createElement("span");
-    contentEl.textContent = content;
-    contentEl.classList.add("content");
-    parent.appendChild(contentEl);
-  }
+  var excludeLabels = Object.keys(labelsNeedOrNot).filter(
+      (label) => !labelsNeedOrNot[label]
+  );
 
   function getRandom(arr, n) {
     if (!arr.length) return [];
     if (n > arr.length) n = arr.length;
 
     var result = new Array(n),
-      len = arr.length,
-      taken = new Array(len);
+        len = arr.length,
+        taken = new Array(len);
 
     while (n--) {
       var x = Math.floor(Math.random() * len);
@@ -55,27 +35,168 @@
     return result;
   }
 
+  function addSpanElements(parent, content, classlist = []) {
+    if (!content) return parent;
+    const el = document.createElement("span");
+    el.textContent = content
+    el.classList.add(...classlist);
+    parent.appendChild(el)
+    return el
+  }
+
+  function addLabel(parent, content) {
+    return addSpanElements(parent, content, ["label", "italic"])
+  }
+
+  function addUsage(parent, content) {
+    return addSpanElements(parent, content, ["usage"])
+  }
+
+  function addContent(parent, content) {
+    return addSpanElements(parent, content, ["content"])
+  }
+
+
+  function getHighlightedItem(data, highlightLog) {
+    if (!highlightLog || (Array.isArray(highlightLog) && !highlightLog.length)) return data;
+    return highlightLog.map(index => data[index])
+  }
+
+  function onlyWithExampleFilter(item) {
+    return Array.isArray(item.examples) && item.examples.length > 0
+  }
+
+  function filterData(data, excludeLabels) {
+    if (excludeLabels) {
+      data = data.filter(item => !item.label || !excludeLabels.some((label) => item.label.indexOf(label) > -1))
+      data.forEach((item) => {
+        if (Array.isArray(item.examples)) {
+          item.examples = item.examples.filter(
+              (ex) =>
+                  !ex.label ||
+                  !excludeLabels.some((label) => ex.label.indexOf(label) > -1)
+          );
+        }
+      });
+    }
+    return data.map(function (item, index) {
+      const example =
+          Array.isArray(item.examples) && item.examples.length > 0
+              ? getRandom(item.examples, 1)[0]
+              : null;
+      return {
+        index,
+        definition: item.definition,
+        label: item.label,
+        usage: item.usage,
+        def_cn: item.def_cn,
+        example,
+      };
+    });
+  }
+
+  function initHighlightLogs(data, logPrefix) {
+    let highlightLog = localStorage.getItem(logPrefix + term);
+    highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
+    if (!highlightLog) {
+      highlightLog = data.map(item => item.index)
+      localStorage.setItem(logPrefix + term, JSON.stringify(highlightLog));
+    }
+    return highlightLog
+  }
+
+  function makeTestItem(item, logPrefix) {
+    const container = document.createElement('li')
+    container.classList.add('meaning-test-item')
+
+    const definitionBox = document.createElement('div')
+    definitionBox.classList.add('clue-definition', 'highlight')
+    addLabel(definitionBox, item.label)
+    addUsage(definitionBox, item.usage ? item.usage.replaceAll(term, '~') : '')
+    addContent(definitionBox, (item.definition || '') + item.def_cn)
+    container.appendChild(definitionBox)
+
+
+    definitionBox.addEventListener("click", function (ev) {
+      // except dblclick
+      if (ev.detail === 1) {
+        definitionBox.classList.toggle("highlight");
+        let highlightLog = localStorage.getItem(logPrefix + term);
+        highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
+        const log = highlightLog || [];
+        const index = log.indexOf(item.index);
+        if (index === -1) {
+          log.push(item.index);
+        } else {
+          log.splice(index, 1);
+        }
+        localStorage.setItem(logPrefix + term, JSON.stringify(log));
+      }
+    });
+    if (item.example) {
+      const example = item.example
+      const itemBox = document.createElement('div')
+      itemBox.classList.add('clue-example')
+      addLabel(itemBox, example.label)
+      addUsage(itemBox, example.usage ? example.usage.replaceAll(term, '~') : '')
+      const contentEl = addContent(itemBox, example.cn || example.ja)
+      container.appendChild(itemBox)
+
+      if (example.cn) {
+        contentEl.title = example.ja
+        container.addEventListener("dblclick", function () {
+          contentEl.classList.toggle("answer")
+          if (contentEl.classList.contains("answer")) {
+            contentEl.textContent = example.ja
+          } else {
+            contentEl.textContent = example.cn
+          }
+        })
+      }
+    }
+
+    return container
+  }
+
+  function convertPhrvData(data = []) {
+    return data.reduce((result, item) => {
+      if (Array.isArray(item.defs)) {
+        result = result.concat(
+          item.defs.map((def) =>
+            Object.assign({}, def, {usage: def.usage || item.usage})
+          )
+        );
+      }
+      return result;
+    }, []);
+  }
+
   try {
+    const testItemCount = 3
+    const _logPrefix = "x_ja_highlight_test_"
+
     var adata = JSON.parse(examplesJson);
     var chose = adata[Math.floor(Math.random() * adata.length)]
-    var defs = chose.defs || (chose.compounds && getRandom(chose.compounds, 1)[0].defs) || (chose.idioms && getRandom(chose.idioms, 1)[0].defs)
-    if (Array.isArray(defs) && defs.length > 0) {
-      var curDef = getRandom(defs, 1)[0];
-      if (curDef.label) addLabel(exampleMainMeaning, curDef.label);
-      if (curDef.usage) addUsage(exampleMainMeaning, curDef.usage);
-      addContent(exampleMainMeaning, (curDef.definition || '') + curDef.def_cn);
-      if (Array.isArray(curDef.examples) && curDef.examples.length > 0) {
-        isSameExample = true;
-        var curExample = getRandom(curDef.examples, 1)[0];
-        if (curExample.label) addLabel(exampleCn, curExample.label);
-        if (curExample.usage) addUsage(exampleCn, curExample.usage);
-        addContent(exampleCn, curExample.cn || curExample.ja);
-      }
-    } else {
-      throw new Error("");
-    }
+
+    const filtered = filterData([
+      ...(chose.defs || []),
+      ...convertPhrvData(chose.compounds).filter(onlyWithExampleFilter),
+      ...convertPhrvData(chose.idioms).filter(onlyWithExampleFilter)
+    ], excludeLabels)
+
+    const highlightLog = initHighlightLogs(filtered, _logPrefix)
+    const highlightedItems = getHighlightedItem(filtered, highlightLog)
+
+    const randomDefs = getRandom(highlightedItems, testItemCount)
+    const testItemEls = randomDefs.map(item => makeTestItem(item, _logPrefix))
+    xexamplesContainer.append(...testItemEls)
+    localStorage.setItem("x_ja_test_items", JSON.stringify(randomDefs))
+    localStorage.setItem("x_ja_test_noError", "true")
+
   } catch (err) {
-    isSameEntry = false;
+    definitions.style.display = 'block'
+    localStorage.setItem("x_ja_test_noError", "false")
+    definitions.textContent = err
   }
 </script>
 

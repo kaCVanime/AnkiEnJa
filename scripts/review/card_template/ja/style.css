@@ -1,5 +1,4 @@
 .card {
-    font-family: arial;
     font-size: 20px;
     text-align: left;
     color: black;
@@ -146,23 +145,43 @@ ja_cn {
     display:inline;
     color:grey;
 }
-#xexampleMainMeaning{
-    margin-top: 30px;
-    color: grey;
 
-}
-#xexampleCn {
-    font-style:italic;
-    color: #0099e5;
-    margin-top: 15px;
-}
-#xexampleEn {
-    margin-top: 20px;
-    color:black;
-}
 #term {
     color: #0099e5;
 }
+
+/*----------------------------------------*/
+/*卡片2(cn->en)相关样式*/
+
+.meaning-test-item {
+    margin-top: 30px;
+    list-style-type: numeric;
+}
+
+.meaning-test-item .clue-definition {
+    color: grey;
+    display: inline-block;
+}
+
+.meaning-test-item .clue-definition.highlight {
+    color: #102B92;
+}
+
+.meaning-test-item:only-child .clue-definition.highlight {
+    color: grey;
+}
+
+.meaning-test-item .clue-example {
+    font-style: italic;
+    color: #43a9db;
+    margin-top: 15px;
+}
+
+.meaning-test-item .clue-example.answer {
+    color: black;
+    font-family: Yu Gothic;
+}
+
 
 
 #xdefEl {
