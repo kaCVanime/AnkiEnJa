@@ -13,7 +13,7 @@
 2. 运行Anki(版本>2.1.50)
 3. 选择文件-导入，选择刚下载的apkg文件
 4. 开始学习
-5. （可选）（推荐）用[fsrs4anki](https://github.com/open-spaced-repetition/fsrs4anki)此插件来优化复习间隔
+5. （版本<23.10）（可选）（推荐）用[fsrs4anki](https://github.com/open-spaced-repetition/fsrs4anki)此插件来优化复习间隔
 
 # 预览
 
