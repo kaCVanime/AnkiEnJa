@@ -146,6 +146,10 @@ ja_cn {
     color:grey;
 }
 
+maccentaudiog a {
+    display: none;
+}
+
 #term {
     color: #0099e5;
 }
@@ -188,6 +192,9 @@ ja_cn {
     width: 50%;
     margin: 0 auto;
     margin-top: 40px;
+}
+#xdefEl li {
+  font-family: Yu Gothic;
 }
 @media (max-width: 900px) {
     #xdefEl {
