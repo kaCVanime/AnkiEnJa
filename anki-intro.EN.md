@@ -19,10 +19,34 @@
 > - 2024.2.5 修复排版错乱问题; 去除一些无效卡片
 > - 2023.12.11 在`中文->英语`的卡片中加入用法作为hint; 修复双击例句会误触高亮
 
+#### DEMO
+##### 卡片模板 - 英文->中文 (学习读)
+1. 尝试把(随机的)英文例句翻译成中文  
+a. _卡片正面_  
+![enzh1_front](https://i.postimg.cc/4ykRSHxN/enzh1-front.png)  
+b. _卡片背面_  
+![enzh1_back](https://i.postimg.cc/DZbK6PFM/enzh1-back.png)  
+c. _在卡片正面双击例句临时展现中文释义_  
+![enzh1a_front](https://i.postimg.cc/j2HY0qD6/enzh1a-front.png)  
+2. 当单词有多种释义时，同时展现  
+a. _多释义卡片正面_  
+![enzh2_front](https://i.postimg.cc/CxLTXgSD/enzh2-front.png)  
+b. _单击例句将已掌握的释义标记为移出本轮学习_  
+![enzh2a_front](https://i.postimg.cc/RZs5zDZY/enzh2a-front.png)  
+c. _在本轮学习中再次遇到该卡片时_  
+![enzh2b_front](https://i.postimg.cc/1RwQNBvg/enzh2b-front.png)  
+
+##### 卡片模板 - 中文->英文 (学习写)
+1. 尝试把(随机的)中文例句翻译成英文  
+a. _卡片正面_  
+![zhen1_front](https://i.postimg.cc/4NGTvc0W/zhen1-front.png)  
+b. _卡片背面_  
+![zhen1_back](https://i.postimg.cc/qMGH1RV4/zhen1-back.png)  
+
 
 # 可配置项
 
-#### 字太小/太大
+#### 字太小/太大/不居中
 
 1. Anki首页，点击“牌组”
 2. 点击所要改变字体大小的牌组名称

@@ -15,6 +15,29 @@
 > - 2024.2.5 去除一些无效卡片
 > - 2023.12.23 "中文->日语"卡片支持考察习语、复合语等用法；加入自定义缩放因子以改变整体字体大小(如嫌字体小请参考下文的配置方法)；修复部分单词展示空白
 
+#### DEMO
+##### 卡片模板 - 日文->中文 (学习读)
+1. 尝试把(随机的)日文例句翻译成中文  
+a. _卡片正面_  
+![jazh1_front](https://i.postimg.cc/zvxbFdSK/jazh1-front.png)  
+b. _卡片背面_  
+![jazh1_back](https://i.postimg.cc/L59gfdfm/jazh1-back.png)  
+c. _在卡片正面双击例句临时展现中文释义_  
+![jazh1a_front](https://i.postimg.cc/1RBqSthX/jazh1a-front.png)  
+2. 当单词有多种释义时，同时展现  
+a. _多释义卡片正面_  
+![jazh2_front](https://i.postimg.cc/Prq85jT4/jazh2-front.png)  
+b. _单击例句将已掌握的释义标记为移出本轮学习_  
+![jazh2a_front](https://i.postimg.cc/jjyDFq4s/jazh2a-front.png)  
+c. _在本轮学习中再次遇到该卡片时_  
+![jazh2b_front](https://i.postimg.cc/3Jb0ycwH/jazh2b-front.png)  
+
+##### 卡片模板 - 中文->日文 (学习写)
+1. 尝试把(随机的)中文例句翻译成日文  
+a. _卡片正面_  
+![zhja1_front](https://i.postimg.cc/nhjjqGs9/zhja1-front.png)  
+b. _卡片背面_  
+![zhja1_back](https://i.postimg.cc/RZk3dJfs/zhja1-back.png)  
 
 # 可配置项
 
