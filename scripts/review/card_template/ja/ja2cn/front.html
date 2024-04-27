@@ -15,7 +15,12 @@
   <div id=xerrors style="display:none"></div>
 </div>
 <script>
-  var labelsNeedOrNot = {};
+  var labelsNeedOrNot = {
+    "相撲": false,
+    "囲碁": false,
+    "経済": false,
+    "仏教": false
+  };
 
   var examplesJson = document.getElementById("examplesJson").textContent;
   var term = document.getElementById("xterm").textContent;
@@ -209,6 +214,6 @@
   } catch (err) {
     console.log(err);
     errorEl.style.display = "block";
-    errorEl.textContent = err;
+    errorEl.textContent = err.stack;
   }
 </script>

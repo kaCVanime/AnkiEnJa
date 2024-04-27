@@ -13,7 +13,12 @@
   var xexamplesContainer = document.getElementById("xexamples");
   var definitions = document.getElementById("definitions")
 
-  var labelsNeedOrNot = {};
+  var labelsNeedOrNot = {
+    "相撲": false,
+    "囲碁": false,
+    "経済": false,
+    "仏教": false
+  };
 
   var excludeLabels = Object.keys(labelsNeedOrNot).filter(
       (label) => !labelsNeedOrNot[label]
@@ -175,28 +180,29 @@
     const testItemCount = 3
     const _logPrefix = "x_ja_highlight_test_"
 
-    var adata = JSON.parse(examplesJson);
+    var adata = examplesJson ? JSON.parse(examplesJson) : [];
     var chose = adata[Math.floor(Math.random() * adata.length)]
+    if (chose) {
+      const filtered = filterData([
+        ...(chose.defs || []),
+        ...convertPhrvData(chose.compounds).filter(onlyWithExampleFilter),
+        ...convertPhrvData(chose.idioms).filter(onlyWithExampleFilter)
+      ], excludeLabels)
 
-    const filtered = filterData([
-      ...(chose.defs || []),
-      ...convertPhrvData(chose.compounds).filter(onlyWithExampleFilter),
-      ...convertPhrvData(chose.idioms).filter(onlyWithExampleFilter)
-    ], excludeLabels)
+      const highlightLog = initHighlightLogs(filtered, _logPrefix)
+      const highlightedItems = getHighlightedItem(filtered, highlightLog).filter(item => !!item)
 
-    const highlightLog = initHighlightLogs(filtered, _logPrefix)
-    const highlightedItems = getHighlightedItem(filtered, highlightLog)
-
-    const randomDefs = getRandom(highlightedItems, testItemCount)
-    const testItemEls = randomDefs.map(item => makeTestItem(item, _logPrefix))
-    xexamplesContainer.append(...testItemEls)
-    localStorage.setItem("x_ja_test_items", JSON.stringify(randomDefs))
-    localStorage.setItem("x_ja_test_noError", "true")
+      const randomDefs = getRandom(highlightedItems, testItemCount)
+      const testItemEls = randomDefs.map(item => makeTestItem(item, _logPrefix))
+      xexamplesContainer.append(...testItemEls)
+      localStorage.setItem("x_ja_test_items", JSON.stringify(randomDefs))
+      localStorage.setItem("x_ja_test_noError", "true")
+    }
 
   } catch (err) {
     definitions.style.display = 'block'
     localStorage.setItem("x_ja_test_noError", "false")
-    definitions.textContent = err
+    definitions.textContent = err.stack
   }
 </script>
 
