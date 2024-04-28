@@ -21,7 +21,18 @@
     "経済": false,
     "仏教": false,
     "野球": false,
-    "馬": false
+    "馬": false,
+    "電気": false,
+    "鉄道": false,
+    "機械": false,
+    "医学": false,
+    "物理": false,
+    "化学": false,
+    "剣道": false,
+    "印刷": false,
+    "法": false,
+    "植物": false,
+    "動物": false
   };
 
   var examplesJson = document.getElementById("examplesJson").textContent;
@@ -64,18 +75,20 @@
       );
     }
     if (excludeLabels) {
-      data = data.filter(
+      const filteredDef = data.filter(
         (item) =>
           !item.label ||
           !excludeLabels.some((label) => item.label.indexOf(label) > -1)
       );
+      if (filteredDef.length) data = filteredDef;
       data.forEach((item) => {
         if (Array.isArray(item.examples)) {
-          item.examples = item.examples.filter(
+          const filteredExamples = item.examples.filter(
             (ex) =>
               !ex.label ||
               !excludeLabels.some((label) => ex.label.indexOf(label) > -1)
           );
+          if (filteredExamples.length) item.examples = filteredExamples;
         }
       });
     }
