@@ -1,0 +1,229 @@
+<div id=deck deck_name="{{Deck}}"></div>
+{{type:term}}
+<div class="root">
+  <data id=examplesJson style="display:none">{{examplesJson}}</data>
+  <data id=xterm style="display:none">{{term}}</data>
+  <div id=definitions style="display:none"></div>
+  <div id=xexamples></div>
+</div>
+<script>
+  var term = document.getElementById("xterm").textContent;
+  var examplesJson = document.getElementById("examplesJson").textContent;
+
+  var xexamplesContainer = document.getElementById("xexamples");
+  var definitions = document.getElementById("definitions")
+
+  var labelsNeedOrNot = {
+    "相撲": false,
+    "囲碁": false,
+    "経済": false,
+    "仏教": false,
+    "野球": false,
+    "馬": false,
+    "電気": false,
+    "鉄道": false,
+    "機械": false,
+    "医学": false,
+    "物理": false,
+    "化学": false,
+    "剣道": false,
+    "印刷": false,
+    "法": false,
+    "植物": false,
+    "動物": false,
+    "将棋": false,
+    "書道": false,
+    "テニス": false,
+    "卓球": false,
+    "服飾": false,
+    "芸能": false
+  };
+
+  var excludeLabels = Object.keys(labelsNeedOrNot).filter(
+      (label) => !labelsNeedOrNot[label]
+  );
+
+  function getRandom(arr, n) {
+    if (!arr.length) return [];
+    if (n > arr.length) n = arr.length;
+
+    var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+
+    while (n--) {
+      var x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
+      taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  }
+
+  function addSpanElements(parent, content, classlist = []) {
+    if (!content) return parent;
+    const el = document.createElement("span");
+    el.textContent = content
+    el.classList.add(...classlist);
+    parent.appendChild(el)
+    return el
+  }
+
+  function addLabel(parent, content) {
+    return addSpanElements(parent, content, ["label", "italic"])
+  }
+
+  function addUsage(parent, content) {
+    return addSpanElements(parent, content, ["usage"])
+  }
+
+  function addContent(parent, content) {
+    return addSpanElements(parent, content, ["content"])
+  }
+
+
+  function getHighlightedItem(data, highlightLog) {
+    if (!highlightLog || (Array.isArray(highlightLog) && !highlightLog.length)) return data;
+    return highlightLog.map(index => data[index])
+  }
+
+  function onlyWithExampleFilter(item) {
+    return Array.isArray(item.examples) && item.examples.length > 0
+  }
+
+  function filterData(data, excludeLabels) {
+    if (excludeLabels) {
+      const filteredDef = data.filter(item => !item.label || !excludeLabels.some((label) => item.label.indexOf(label) > -1))
+      if (filteredDef.length) data = filteredDef;
+      data.forEach((item) => {
+        if (Array.isArray(item.examples)) {
+          const filteredExamples =  item.examples.filter(
+              (ex) =>
+                  !ex.label ||
+                  !excludeLabels.some((label) => ex.label.indexOf(label) > -1)
+          );
+          if (filteredExamples.length) item.examples = filteredExamples;
+        }
+      });
+    }
+    return data.map(function (item, index) {
+      const example =
+          Array.isArray(item.examples) && item.examples.length > 0
+              ? getRandom(item.examples, 1)[0]
+              : null;
+      return {
+        index,
+        definition: item.definition,
+        label: item.label,
+        usage: item.usage,
+        def_cn: item.def_cn,
+        example,
+      };
+    });
+  }
+
+  function initHighlightLogs(data, logPrefix) {
+    let highlightLog = localStorage.getItem(logPrefix + term);
+    highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
+    if (!highlightLog) {
+      highlightLog = data.map(item => item.index)
+      localStorage.setItem(logPrefix + term, JSON.stringify(highlightLog));
+    }
+    return highlightLog
+  }
+
+  function makeTestItem(item, logPrefix) {
+    const container = document.createElement('li')
+    container.classList.add('meaning-test-item')
+
+    const definitionBox = document.createElement('div')
+    definitionBox.classList.add('clue-definition', 'highlight')
+    addLabel(definitionBox, item.label)
+    addUsage(definitionBox, item.usage ? item.usage.replaceAll(term, '~') : '')
+    addContent(definitionBox, (item.definition || '') + item.def_cn)
+    container.appendChild(definitionBox)
+
+
+    definitionBox.addEventListener("click", function (ev) {
+      // except dblclick
+      if (ev.detail === 1) {
+        definitionBox.classList.toggle("highlight");
+        let highlightLog = localStorage.getItem(logPrefix + term);
+        highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
+        const log = highlightLog || [];
+        const index = log.indexOf(item.index);
+        if (index === -1) {
+          log.push(item.index);
+        } else {
+          log.splice(index, 1);
+        }
+        localStorage.setItem(logPrefix + term, JSON.stringify(log));
+      }
+    });
+    if (item.example) {
+      const example = item.example
+      const itemBox = document.createElement('div')
+      itemBox.classList.add('clue-example')
+      addLabel(itemBox, example.label)
+      addUsage(itemBox, example.usage ? example.usage.replaceAll(term, '~') : '')
+      const contentEl = addContent(itemBox, example.cn || example.ja)
+      container.appendChild(itemBox)
+
+      if (example.cn) {
+        contentEl.title = example.ja
+        container.addEventListener("dblclick", function () {
+          contentEl.classList.toggle("answer")
+          if (contentEl.classList.contains("answer")) {
+            contentEl.textContent = example.ja
+          } else {
+            contentEl.textContent = example.cn
+          }
+        })
+      }
+    }
+
+    return container
+  }
+
+  function convertPhrvData(data = []) {
+    return data.reduce((result, item) => {
+      if (Array.isArray(item.defs)) {
+        result = result.concat(
+          item.defs.map((def) =>
+            Object.assign({}, def, {usage: def.usage || item.usage})
+          )
+        );
+      }
+      return result;
+    }, []);
+  }
+
+  try {
+    const testItemCount = 3
+    const _logPrefix = "x_ja_highlight_test_"
+
+    var adata = examplesJson ? JSON.parse(examplesJson) : [];
+    var chose = adata[Math.floor(Math.random() * adata.length)]
+    if (chose) {
+      const filtered = filterData([
+        ...(chose.defs || []),
+        ...convertPhrvData(chose.compounds).filter(onlyWithExampleFilter),
+        ...convertPhrvData(chose.idioms).filter(onlyWithExampleFilter)
+      ], excludeLabels)
+
+      const highlightLog = initHighlightLogs(filtered, _logPrefix)
+      const highlightedItems = getHighlightedItem(filtered, highlightLog).filter(item => !!item)
+
+      const randomDefs = getRandom(highlightedItems, testItemCount)
+      const testItemEls = randomDefs.map(item => makeTestItem(item, _logPrefix))
+      xexamplesContainer.append(...testItemEls)
+      localStorage.setItem("x_ja_test_items", JSON.stringify(randomDefs))
+      localStorage.setItem("x_ja_test_noError", "true")
+    }
+
+  } catch (err) {
+    definitions.style.display = 'block'
+    localStorage.setItem("x_ja_test_noError", "false")
+    definitions.textContent = err.stack
+  }
+</script>
+

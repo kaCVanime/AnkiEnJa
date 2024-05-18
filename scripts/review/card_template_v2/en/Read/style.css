@@ -1,0 +1,86 @@
+/*通用*/
+.root {
+    transform: scale(0.9);
+    transform-origin: 0 0;
+}
+
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: left;
+    color: black;
+    background-color: white;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+.ml-10 {
+	margin-left: 10px;
+}
+
+.label {
+    color: #8a7967;
+}
+
+.usage {
+    color: #00205b;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.hide {
+	display: none;
+}
+
+/*头部*/
+
+#term {
+    color: #0099e5;
+}
+
+.phonetic:not(.hide) + .phonetic {
+	margin-left: 10px;
+}
+.BrEPhonetic {
+	color: #147db1;
+}
+.AmEPhonetic {
+	color: #b11433;
+}
+
+
+
+/*主体*/
+main {
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 40px;
+}
+
+@media (max-width: 900px) {
+    main {
+        width: 90%;
+    }
+}
+
+#eg-box .content {
+    color: grey;
+}
+
+#def-box {
+    margin-top: 30px;
+    color: #5498b9;
+}
+
+

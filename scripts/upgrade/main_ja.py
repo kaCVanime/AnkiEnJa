@@ -11,17 +11,20 @@ from models.models import ModelListen, ModelRead, ModelWrite
 
 logger = logging.getLogger(__name__)
 
-new_deck_name = "KEXP"
+new_deck_name = "KJAP"
 filter_label = [
-    "AustralE",
-    "SAfrE",
-    "NEngE",
-    "IndE",
-    "ScotE",
-    "WAfrE",
-    "WelshE",
-    "IrishE",
-    "specialist",
+    "相撲",
+    "囲碁",
+    "経済",
+    "仏教",
+    "野球",
+    "馬",
+    "電気",
+    "鉄道",
+    "機械",
+    "剣道",
+    "法",
+    "将棋",
 ]
 
 
@@ -39,7 +42,7 @@ def create_decks(deck_name):
 
 
 def get_last_note_id():
-    last_note_file = Path("last_note.txt")
+    last_note_file = Path("last_note_ja.txt")
     if last_note_file.is_file():
         with open(last_note_file, mode="r", encoding="utf-8") as f:
             return f.readline()
@@ -143,7 +146,7 @@ def get_new_note_fields(note, definition_item, definition_idx):
 
 def main():
     logging.basicConfig(
-        filename="upgrade.log",
+        filename="upgrade_ja.log",
         level=logging.INFO,
         format="%(levelname)s:%(name)s: %(asctime)s %(message)s",
     )

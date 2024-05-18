@@ -1,0 +1,240 @@
+<div id=deck deck_name="{{Deck}}"></div>
+<div class="root">
+  <h2 class="center">{{term}}</h2>
+  <div class="center" id="hyouki" title="×不常用的汉字
+▽不常用的读音
+‐熟字训且常用汉字
+＝熟字训且不常用汉字">{{hyouki}}
+  </div>
+  <div class="center">{{AmEPhonetic}}</div>
+
+
+  <data id=examplesJson style="display:none">{{examplesJson}}</data>
+  <data id=xterm style="display:none">{{term}}</data>
+  <div id=xdefEl></div>
+  <div id=xerrors style="display:none"></div>
+</div>
+<script>
+  var labelsNeedOrNot = {
+    "相撲": false,
+    "囲碁": false,
+    "経済": false,
+    "仏教": false,
+    "野球": false,
+    "馬": false,
+    "電気": false,
+    "鉄道": false,
+    "機械": false,
+    "医学": false,
+    "物理": false,
+    "化学": false,
+    "剣道": false,
+    "印刷": false,
+    "法": false,
+    "植物": false,
+    "動物": false,
+    "将棋": false,
+    "書道": false,
+    "テニス": false,
+    "卓球": false,
+    "服飾": false,
+    "芸能": false
+  };
+
+  var examplesJson = document.getElementById("examplesJson").textContent;
+  var term = document.getElementById("xterm").textContent;
+  var hyoukiEl = document.getElementById("hyouki")
+  var hyouki = hyoukiEl.textContent;
+  if (hyouki.slice(1, -1) === term) {
+    hyoukiEl.parentNode.removeChild(hyoukiEl)
+  }
+
+  var defEl = document.getElementById("xdefEl");
+  var errorEl = document.getElementById("xerrors");
+
+
+  var removeItemThatHasLabelOf = Object.keys(labelsNeedOrNot).filter(
+    (label) => !labelsNeedOrNot[label]
+  );
+
+  // https://stackoverflow.com/questions/19269545/how-to-get-a-number-of-random-elements-from-an-array
+  function getRandom(arr, n) {
+    if (!arr.length) return [];
+    if (n > arr.length) n = arr.length;
+
+    var result = new Array(n),
+      len = arr.length,
+      taken = new Array(len);
+
+    while (n--) {
+      var x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
+      taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  }
+
+  function getItems(data = [], onlyWithExample, excludeLabels) {
+    if (onlyWithExample) {
+      data = data.filter(
+        (item) => Array.isArray(item.examples) && item.examples.length > 0
+      );
+    }
+    if (excludeLabels) {
+      const filteredDef = data.filter(
+        (item) =>
+          !item.label ||
+          !excludeLabels.some((label) => item.label.indexOf(label) > -1)
+      );
+      if (filteredDef.length) data = filteredDef;
+      data.forEach((item) => {
+        if (Array.isArray(item.examples)) {
+          const filteredExamples = item.examples.filter(
+            (ex) =>
+              !ex.label ||
+              !excludeLabels.some((label) => ex.label.indexOf(label) > -1)
+          );
+          if (filteredExamples.length) item.examples = filteredExamples;
+        }
+      });
+    }
+    return data.map(function (item, index) {
+      const example =
+        Array.isArray(item.examples) && item.examples.length > 0
+          ? getRandom(item.examples, 1)[0]
+          : null;
+      return {
+        index,
+        definition: item.definition || '',
+        label: item.label,
+        usage: item.usage,
+        def_cn: item.def_cn,
+        example,
+      };
+    });
+  }
+
+  function makeDefElement(data = [], logPrefix) {
+    let highlightLog = localStorage.getItem(logPrefix + term);
+    highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
+    const result = [];
+    if (!highlightLog) {
+      highlightLog = [];
+      for (let i = 0; i < data.length; i++) highlightLog.push(data[i].index);
+      localStorage.setItem(logPrefix + term, JSON.stringify(highlightLog));
+    }
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      const div = document.createElement("li");
+      const translationContent =
+        (item.def_cn || item.definition || "") +
+        (item.example ? ":\n" + (item.example.cn || item.example.ja) : "");
+      div.title = translationContent;
+      div.classList.add("xdef-item");
+
+      if (highlightLog.includes(item.index)) div.classList.add("highlight");
+      if (item.label || (item.example && item.example.label)) {
+        const labelEl = document.createElement("span");
+        labelEl.textContent = (item.example && item.example.label) || item.label;
+        labelEl.classList.add("label", "italic");
+        div.appendChild(labelEl);
+      }
+      if (item.usage || (item.example && item.example.usage)) {
+        const usageEl = document.createElement("span");
+        usageEl.textContent = (item.example && item.example.usage) || item.usage;
+        usageEl.classList.add("usage");
+        div.appendChild(usageEl);
+      }
+      const contentEl = document.createElement("span");
+      if (item.example) contentEl.classList.add("italic");
+      const textContent = item.example ? item.example.ja : item.definition;
+      contentEl.textContent = textContent
+      let displayTranslation = false
+      div.appendChild(contentEl);
+      div.addEventListener("click", function () {
+        div.classList.toggle("highlight");
+        highlightLog = localStorage.getItem(logPrefix + term);
+        highlightLog = highlightLog ? JSON.parse(highlightLog) : null;
+        const log = highlightLog || [];
+        const index = log.indexOf(item.index);
+        if (index === -1) {
+          log.push(item.index);
+        } else {
+          log.splice(index, 1);
+        }
+        localStorage.setItem(logPrefix + term, JSON.stringify(log));
+      });
+      div.addEventListener("dblclick", function () {
+          displayTranslation = !displayTranslation
+          if (displayTranslation) {
+            contentEl.textContent = translationContent
+          } else {
+            contentEl.textContent = textContent
+          }
+        }
+      )
+      result.push(div);
+    }
+
+    result.sort(function (a, b) {
+      const aHighlighted = a.classList.contains("highlight");
+      const bHighlighted = b.classList.contains("highlight");
+      if (aHighlighted && bHighlighted) {
+        return Math.random() - Math.random();
+      } else if (!aHighlighted) {
+        return 1;
+      } else if (!bHighlighted) {
+        return -1;
+      }
+    });
+    return result;
+  }
+
+  function convertPhrvData(data = []) {
+    return data.reduce((result, item) => {
+      if (Array.isArray(item.defs)) {
+        result = result.concat(
+          item.defs.map((def) =>
+            Object.assign({}, def, {usage: def.usage || item.usage})
+          )
+        );
+      }
+      return result;
+    }, []);
+  }
+
+  try {
+    var adata = examplesJson ? JSON.parse(examplesJson) : [];
+    var chose = adata[Math.floor(Math.random() * adata.length)]
+    if (chose) {
+      const exampleItemEls = makeDefElement(
+        getItems(chose.defs, false, removeItemThatHasLabelOf),
+        "ja_xhighlight_"
+      );
+      const idiomItemEls = makeDefElement(
+        getItems(convertPhrvData(chose.idioms), true, removeItemThatHasLabelOf),
+        "ja_xhighlight_idiom_"
+      );
+      const compoundItemEls = makeDefElement(
+        getItems(convertPhrvData(chose.compounds), false, removeItemThatHasLabelOf),
+        "ja_xhighlight_compound_"
+      );
+      let defItemEls = exampleItemEls
+        .concat(compoundItemEls)
+        .concat(idiomItemEls)
+        .filter((el) => el.classList.contains("highlight"))
+        .slice(0, 15);
+      if (!defItemEls.length)
+        defItemEls = exampleItemEls
+          .concat(idiomItemEls)
+          .concat(idiomItemEls)
+          .slice(0, 15);
+
+      defEl.append(...defItemEls);
+    }
+  } catch (err) {
+    console.log(err);
+    errorEl.style.display = "block";
+    errorEl.textContent = err.stack;
+  }
+</script>
