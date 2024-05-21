@@ -6,7 +6,6 @@ from anki_connect import invoke as anki_invoke
 from pathlib import Path
 from tqdm import tqdm
 
-# from ai.manager import AIManager
 from models.models import ModelListen, ModelRead, ModelWrite
 
 logger = logging.getLogger(__name__)
