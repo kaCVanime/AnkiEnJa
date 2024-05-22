@@ -4,6 +4,12 @@
     transform-origin: 0 0;
 }
 
+#typeans {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .transparent {
     opacity: 0;
 }
@@ -72,7 +78,7 @@
 main {
     width: 50%;
     margin: 0 auto;
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 @media (max-width: 900px) {
@@ -82,7 +88,7 @@ main {
 }
 
 #eg-box {
-    margin-top: 20px;
+    margin-top: 30px;
     margin-bottom: 30px;
     padding: 30px 20px;
     background-color: #f6f6f6;

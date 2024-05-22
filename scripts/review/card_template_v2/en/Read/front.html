@@ -7,9 +7,10 @@
       <span class="phonetic AmEPhonetic italic">{{AmEPhonetic}}</span>
     </div>
     <div class="center italic label mt-10">{{label}}</div>
-    <div class="center italic label mt-10">{{usage}}</div>
+    <div id="tag-box"></div>
   </header>
   <main>
+    <div class="center italic label mt-10">{{usage}}</div>
     <div id="eg-box"></div>
 
     <div id="error" class="hide"></div>
@@ -22,13 +23,15 @@
     AmE: true,
     informal: true,
     formal: true,
-    "old-fashioned": true,
+    "old-fashioned": false,
     humorous: true,
   };
 
   var examplesJson = `{{examples}}`
+  var tags = `{{Tags}}`
 
   var egBoxEl = document.getElementById("eg-box")
+  var tagBoxEl = document.getElementById("tag-box")
   var errEl = document.getElementById("error")
 
   var removeItemThatHasLabelOf = Object.keys(labelsNeedOrNot).filter(
@@ -79,30 +82,14 @@
     return div
   }
 
-  // https://stackoverflow.com/questions/19269545/how-to-get-a-number-of-random-elements-from-an-array
-  function getRandom(arr, n) {
-    if (!arr.length) return [];
-    if (n > arr.length) n = arr.length;
-
-    var result = new Array(n),
-      len = arr.length,
-      taken = new Array(len);
-
-    while (n--) {
-      var x = Math.floor(Math.random() * len);
-      result[n] = arr[x in taken ? taken[x] : x];
-      taken[x] = --len in taken ? taken[len] : len;
-    }
-    return result;
+  function getRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)]
   }
 
   function addRandomExample() {
-    console.log(examplesJson)
     const exampleData = parseJson(examplesJson) || []
-    console.log(exampleData)
     const filtered = filterLabels(exampleData, removeItemThatHasLabelOf)
-    console.log(filtered)
-    const picked = getRandom(filtered, 1)[0]
+    const picked = getRandom(filtered)
     const exampleEl = makeElement(picked)
     if (exampleEl) {
       egBoxEl.appendChild(exampleEl)
