@@ -57,6 +57,7 @@ def get_note_ids_from_last(ids=None, id=None):
         ids = []
     if not id:
         return ids
+    id = int(id)
     if id in ids:
         index = ids.index(id)
         return ids[index:]

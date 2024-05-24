@@ -14,6 +14,10 @@ with open(cwd / 'hint.txt', mode='r', encoding='utf-8') as f:
 model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=content)
 
 
+def test():
+    resp = model.generate_content('write a story about magic in 50 words')
+    print(resp.text)
+
 def construct_question(words):
     question = ''
     for idx, (word, definition) in enumerate(words):
