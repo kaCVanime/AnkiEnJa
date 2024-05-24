@@ -6,7 +6,6 @@ from anki_connect import invoke as anki_invoke
 from pathlib import Path
 from tqdm import tqdm
 
-# from ai.manager import AIManager
 from models.models import ModelListen, ModelRead, ModelWrite
 
 logger = logging.getLogger(__name__)
@@ -58,6 +57,7 @@ def get_note_ids_from_last(ids=None, id=None):
         ids = []
     if not id:
         return ids
+    id = int(id)
     if id in ids:
         index = ids.index(id)
         return ids[index:]
