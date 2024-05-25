@@ -1,71 +1,37 @@
-# AnkiJaEn
-强化Anki下的英语和日语学习场景
+# AnkiEnJa
+Anki英语日语卡组，功能超级加倍版
 
-# 功能
+# 亮点
+1. 针对"一个词可能有多种释义、词组、习语"，将其全部拆成独立卡片。**一卡一释义**，最大化记忆效率。
+2. 每次学习展示**随机例句**。对填鸭学习说不，配合语境理解单词。
+3. 通过AI生成基于**词义**的使用频率，并对其分类。超高可定制化，只学习感兴趣的领域和高低频词。
+4. 将"阅读理解"和"写作"拆分成**独立子卡组**。给不同的学习活动分配特有的记忆参数，进一步优化复习效率。
 
-1. 通过*随机例句*学习“英语/日语 -> 中文”与“中文 -> 英语/日语”
-2. 不仅学习一个词的多种释义，也会掺入学习各种用法(习语、动词短语、书面/口语等)
-3. 对于一个单词所已熟练的释义/用法，可点击句子取消高亮，该释义/用法不会在本次学习的后续中出现
+# 展示
+### "阅读理解"卡片
+![Read](screenshots/v2_read.png)
+### "写作"卡片
+![Write](screenshots/v2_write.png)
 
-# 使用
+# 下载地址
+https://ankiweb.net/shared/info/1018349790
 
-1. 下载 [日语学习用牌组](https://ankiweb.net/shared/info/1863612946) 或 [英语学习用牌组](https://ankiweb.net/shared/info/1542849605)
-2. 运行Anki(版本>2.1.50)
-3. 选择文件-导入，选择刚下载的apkg文件
-4. 开始学习
-5. （版本<23.10）（可选）（推荐）用[fsrs4anki](https://github.com/open-spaced-repetition/fsrs4anki)此插件来优化复习间隔
+# 未来计划
+1. 加入英美演员的AI例句配音，单独训练"听"，培养"语感"
 
-# 预览
+# 进阶用法
+### 将其他牌组的学习记录迁移过来
+https://ankiweb.net/shared/info/1249258442
 
-## 英语/日语 -> 中文
+### 根据tag批量暂停不想学习的卡片
+https://ankiweb.net/shared/info/342205704
 
-___
-![front1](screenshots/front1.png)
-___
-![front2](screenshots/front2.png)
-___
-![front3](screenshots/front3.png)
-___
-![front4](screenshots/front4.png)
-___
-
-## 中文 -> 英语/日语
-
-![back1](screenshots/back1.png)
-
-# 可配置项
-
-#### 字太小/太大
-
-1. Anki首页，点击“牌组”
-2. 点击所要改变字体大小的牌组名称
-3. 点击“浏览”
-4. 点击右侧的"卡片..."按钮
-5. 点击左侧的“样式”按钮
-6. 找到`.root { `
-7. 把`transform: scale(0.8)`中的`0.8`改成想要的缩放率(例. 放大1.5倍则改成1.5)
-8. 点击右下的保存
-
-#### 过滤掉不想学习的用法(英式、美式、澳式、口语、书面、幽默、旧用法等)(目前只支持英语牌组)
-
-（默认显示美式、口语、书面、旧用法、幽默，不显示英式、澳式、南非式、北英式、印式、专用语）
-
-1. Anki首页，点击“牌组”
-2. 点击英语牌组
-3. 点击“浏览”
-4. 点击右侧的"卡片..."按钮
-5. 点击"卡片模板: "的下拉框，选择第一个
-6. 点击"正面内容模板"
-7. 找到`var labelsNeedOrNot = {`
-8. 把想要的改成true, 不想要的改成false。（例: 启用英式则把`BrE: false,`改成`BrE: true,`；禁用美式则把`AmE: true,`
-   改为`ArE: false,`；注意有无`,`
-9. 点击保存
-
-# Acknowledgement
+# 鸣谢
 日本語教育語彙表
 中日・日中辞典（第3版）  
 小学馆-日中辞典第三版.mdx @okayer  
 COCA(Corpus of Contemporary American English)  
 牛津高阶英汉双解词典  
 牛津高阶英汉双解词典(第9版)_V3.1.2版.mdx @Origin by Robot athenawang29@gmail.com @v3.1.2 by A*ure  
-[fastwordquery](https://github.com/sth2018/FastWordQuery)
+[fastwordquery](https://github.com/sth2018/FastWordQuery)  
+Google Gemini
