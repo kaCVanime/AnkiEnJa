@@ -21,6 +21,9 @@
     align-items: center;
     justify-content: center;
 }
+.flex-col {
+    flex-direction: column;
+}
 
 .mt-10 {
     margin-top: 10px;
