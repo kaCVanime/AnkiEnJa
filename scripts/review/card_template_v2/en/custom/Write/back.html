@@ -1,9 +1,8 @@
-<div id=deck deck_name="{{Deck}}"></div>
 <div class="root">
   <header>
     <h2 id="term" class="center">{{term}}</h2>
-    <div class="center flex-col">
-      <span class="phonetic BrEPhonetic italic">{{BrEPhonetic}}</span>
+    <div class="center">
+      <span class="phonetic BrEPhonetic italic hide">{{BrEPhonetic}}</span>
       <span class="phonetic AmEPhonetic italic">{{AmEPhonetic}}</span>
     </div>
     <div id="tag-box">
@@ -16,34 +15,26 @@
       </div>
     </div>
   </header>
-  <main>
-    <div class="center italic label mt-10">{{usage}}</div>
-    <div id="eg-box"></div>
 
+  <main>
+    <div class="center italic label mt-10 mb-10">{{usage}}</div>
+    {{type:term}}
+    <div id="eg-box"></div>
+    <div id="def-box">
+      <span class="definition">{{definition}}</span>
+      <span class="def_cn">{{def_cn}}</span>
+    </div>
+    <div id="brief" class="mt-10">{{brief}}</div>
     <div id="error" class="hide"></div>
   </main>
 
+
 </div>
 <script>
-  var labelsNeedOrNot = {
-    BrE: true,
-    AmE: true,
-    informal: true,
-    formal: true,
-    "old-fashioned": true,
-    humorous: true,
-  };
-
   var examplesJson = `{{examples}}`
-
-
 
   var egBoxEl = document.getElementById("eg-box")
   var errEl = document.getElementById("error")
-
-  var removeItemThatHasLabelOf = Object.keys(labelsNeedOrNot).filter(
-    (label) => !labelsNeedOrNot[label]
-  );
 
   var tags = `{{Tags}}`
   tags = tags.split(" ")
@@ -89,11 +80,6 @@
     }
   }
 
-  function filterLabels(data = [], excludeLabels = []) {
-    const result = data.filter(item => !item.label || !excludeLabels.some((label) => item.label.indexOf(label) > -1))
-    return result.length ? result : data
-  }
-
   function addSpanElements(parent, content, classlist = []) {
     if (!content) return parent;
     const el = document.createElement("span");
@@ -124,25 +110,19 @@
     return div
   }
 
-  function getRandom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-  }
-
-  function addRandomExample() {
+  function addExample() {
+    const egName = localStorage.getItem("KEXP_WRITE")
+    if (!egName) return;
     const exampleData = parseJson(examplesJson) || []
-    const filtered = filterLabels(exampleData, removeItemThatHasLabelOf)
-    const picked = getRandom(filtered)
+    const picked = exampleData.find(item => item.name === egName)
     const exampleEl = makeElement(picked)
     if (exampleEl) {
       egBoxEl.appendChild(exampleEl)
-      localStorage.setItem("KEXP_READ", picked.name)
-    } else {
-      localStorage.removeItem("KEXP_READ")
     }
   }
 
   try {
-    addRandomExample()
+    addExample()
   } catch (err) {
     console.log(err);
     errEl.classList.remove('hide')

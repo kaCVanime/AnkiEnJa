@@ -2,11 +2,19 @@
 <div class="root">
   <header>
     <h2 id="term" class="center transparent">{{term}}</h2>
-    <div class="center transparent">
-      <span class="phonetic BrEPhonetic italic hide">{{BrEPhonetic}}</span>
+    <div class="center transparent flex-col">
+      <span class="phonetic BrEPhonetic italic">{{BrEPhonetic}}</span>
       <span class="phonetic AmEPhonetic italic">{{AmEPhonetic}}</span>
     </div>
-    <div class="center italic label mt-10">{{label}}</div>
+    <div id="tag-box">
+      <div id="frequency-tag">
+        <span class="bar-1"></span>
+        <span class="bar-2"></span>
+        <span class="bar-3"></span>
+        <span class="bar-4"></span>
+        <span class="bar-4"></span>
+      </div>
+    </div>
   </header>
   <main>
     <div class="center italic label mt-10 mb-10 transparent">{{usage}}</div>
@@ -22,24 +30,57 @@
 
 <script>
   var labelsNeedOrNot = {
-    BrE: false,
+    BrE: true,
     AmE: true,
     informal: true,
     formal: true,
-    "old-fashioned": false,
+    "old-fashioned": true,
     humorous: true,
   };
 
   var examplesJson = `{{examples}}`
-  var tags = `{{Tags}}`
 
   var egBoxEl = document.getElementById("eg-box")
-  var tagBoxEl = document.getElementById("tag-box")
   var errEl = document.getElementById("error")
 
   var removeItemThatHasLabelOf = Object.keys(labelsNeedOrNot).filter(
     (label) => !labelsNeedOrNot[label]
   );
+
+  var tags = `{{Tags}}`
+  tags = tags.split(" ")
+  var tagBoxEl = document.getElementById("tag-box")
+
+  var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+  var originalTags = tags.filter(tag => tag.startsWith("L_"))
+  var aiTags = tags.filter(tag => !tag.startsWith("K_") && !tag.startsWith("L_"))
+  setFrequency(frequencyTag)
+  originalTags.forEach(tag => addSpanElements(tagBoxEl, tag.replace("L_", ""), ["tag", "original-tag"]))
+  aiTags.forEach(tag => addSpanElements(tagBoxEl, tag, ["tag", "ai-tag"]))
+
+
+  function setFrequency(tag) {
+    const el = document.getElementById("frequency-tag")
+    switch (tag) {
+      case 'K_daily':
+        el.classList.add('star-5')
+        break
+      case 'K_usual':
+        el.classList.add('star-4')
+        break
+      case 'K_occasional':
+        el.classList.add('star-3')
+        break
+      case 'K_infrequent':
+        el.classList.add('star-2')
+        break
+      case 'K_rare':
+        el.classList.add('star-1')
+        break
+      default:
+        el.classList.add('star-1')
+    }
+  }
 
   function parseJson(json) {
     try {

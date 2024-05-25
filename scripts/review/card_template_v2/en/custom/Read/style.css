@@ -1,6 +1,6 @@
 /*通用*/
 .root {
-    transform: scale(1);
+    transform: scale(0.9);
     transform-origin: 0 0;
 }
 
@@ -20,9 +20,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.flex-col {
-    flex-direction: column;
 }
 
 .mt-10 {
@@ -123,7 +120,7 @@ header {
 }
 
 .phonetic:not(.hide) + .phonetic {
-	margin-top: 10px;
+	margin-left: 10px;
 }
 .BrEPhonetic {
 	color: #147db1;

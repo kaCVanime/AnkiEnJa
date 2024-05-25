@@ -1,7 +1,13 @@
 /*通用*/
 .root {
-    transform: scale(1);
+    transform: scale(0.9);
     transform-origin: 0 0;
+}
+
+#typeans {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .transparent {
@@ -20,9 +26,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.flex-col {
-    flex-direction: column;
 }
 
 .mt-10 {
@@ -48,16 +51,12 @@
 .italic {
     font-style: italic;
 }
-.bold {
-    font-weight: bold;
-}
 
 .hide {
 	display: none;
 }
 
 /* 业务通用 */
-/*tag*/
 header {
     position: relative;
 }
@@ -108,13 +107,11 @@ header {
 #tag-box .ai-tag {
     background-color: #cedef2;
 }
-
 /*释义的使用频度介绍*/
 #brief {
     font-size: 16px;
     color: #9b9b9b;
 }
-
 
 /*头部*/
 
@@ -123,7 +120,7 @@ header {
 }
 
 .phonetic:not(.hide) + .phonetic {
-	margin-top: 10px;
+	margin-left: 10px;
 }
 .BrEPhonetic {
 	color: #147db1;
@@ -138,7 +135,7 @@ header {
 main {
     width: 50%;
     margin: 0 auto;
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 @media (max-width: 900px) {
@@ -148,7 +145,7 @@ main {
 }
 
 #eg-box {
-    margin-top: 20px;
+    margin-top: 30px;
     margin-bottom: 30px;
     padding: 30px 20px;
     background-color: #f6f6f6;

@@ -2,8 +2,8 @@
 <div class="root">
   <header>
     <h2 id="term" class="center">{{term}}</h2>
-    <div class="center flex-col">
-      <span class="phonetic BrEPhonetic italic">{{BrEPhonetic}}</span>
+    <div class="center">
+      <span class="phonetic BrEPhonetic italic hide">{{BrEPhonetic}}</span>
       <span class="phonetic AmEPhonetic italic">{{AmEPhonetic}}</span>
     </div>
     <div id="tag-box">
@@ -26,11 +26,11 @@
 </div>
 <script>
   var labelsNeedOrNot = {
-    BrE: true,
+    BrE: false,
     AmE: true,
     informal: true,
     formal: true,
-    "old-fashioned": true,
+    "old-fashioned": false,
     humorous: true,
   };
 

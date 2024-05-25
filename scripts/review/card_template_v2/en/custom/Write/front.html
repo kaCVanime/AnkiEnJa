@@ -1,9 +1,9 @@
 <div id=deck deck_name="{{Deck}}"></div>
 <div class="root">
   <header>
-    <h2 id="term" class="center">{{term}}</h2>
-    <div class="center flex-col">
-      <span class="phonetic BrEPhonetic italic">{{BrEPhonetic}}</span>
+    <h2 id="term" class="center transparent">{{term}}</h2>
+    <div class="center transparent">
+      <span class="phonetic BrEPhonetic italic hide">{{BrEPhonetic}}</span>
       <span class="phonetic AmEPhonetic italic">{{AmEPhonetic}}</span>
     </div>
     <div id="tag-box">
@@ -17,26 +17,28 @@
     </div>
   </header>
   <main>
-    <div class="center italic label mt-10">{{usage}}</div>
+    <div class="center italic label mt-10 mb-10 transparent">{{usage}}</div>
+    {{type:term}}
     <div id="eg-box"></div>
-
+    <div id="def-box">
+      <span class="definition">{{definition}}</span>
+      <span class="def_cn">{{def_cn}}</span>
+    </div>
     <div id="error" class="hide"></div>
   </main>
-
 </div>
+
 <script>
   var labelsNeedOrNot = {
-    BrE: true,
+    BrE: false,
     AmE: true,
     informal: true,
     formal: true,
-    "old-fashioned": true,
+    "old-fashioned": false,
     humorous: true,
   };
 
   var examplesJson = `{{examples}}`
-
-
 
   var egBoxEl = document.getElementById("eg-box")
   var errEl = document.getElementById("error")
@@ -89,12 +91,12 @@
     }
   }
 
-  function filterLabels(data = [], excludeLabels = []) {
+  function filterLabels(data=[], excludeLabels=[]) {
     const result = data.filter(item => !item.label || !excludeLabels.some((label) => item.label.indexOf(label) > -1))
     return result.length ? result : data
   }
 
-  function addSpanElements(parent, content, classlist = []) {
+   function addSpanElements(parent, content, classlist = []) {
     if (!content) return parent;
     const el = document.createElement("span");
     el.textContent = content
@@ -120,7 +122,7 @@
     const div = document.createElement("div")
     if (item.label) addLabel(div, item.label)
     if (item.usage) addUsage(div, item.usage)
-    addContent(div, item.en)
+    addContent(div, item.cn)
     return div
   }
 
@@ -135,9 +137,9 @@
     const exampleEl = makeElement(picked)
     if (exampleEl) {
       egBoxEl.appendChild(exampleEl)
-      localStorage.setItem("KEXP_READ", picked.name)
+      localStorage.setItem("KEXP_WRITE", picked.name)
     } else {
-      localStorage.removeItem("KEXP_READ")
+      localStorage.removeItem("KEXP_WRITE")
     }
   }
 
