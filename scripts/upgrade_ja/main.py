@@ -43,9 +43,11 @@ def process(item):
     html = lookup(word, yomi)
     if not html:
         return
-        
+
     result = parser.parse(html)
     if result:
+        if not result['word'] and not result['kanji']:
+            logger.error(f"{word}: no word or kanji found")
         logger.info("{word} - {kanji}".format(word=result['word'], kanji=result['kanji']))
     else:
         logger.error(f"{word}: parse failed")
@@ -58,8 +60,8 @@ def process(item):
 
 def run():
     logging.basicConfig(
-        filename="main.log",
-        level=logging.DEBUG,
+        filename="upgrade.log",
+        level=logging.ERROR,
         format="%(levelname)s:%(name)s: %(asctime)s %(message)s",
         encoding='utf-8'
     )
@@ -67,7 +69,7 @@ def run():
     jev_list = get_jev_list()
     todo = [item for item in jev_list if item not in completed_items]
 
-    thread_map(process, todo, max_workers=10)
+    thread_map(process, todo)
 
 
 

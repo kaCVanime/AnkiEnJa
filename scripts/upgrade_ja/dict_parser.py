@@ -6,18 +6,11 @@ from utils import is_hiragana, is_katakana
 
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(
-        filename="parser.log",
-        level=logging.DEBUG,
-        format="%(levelname)s:%(name)s: %(asctime)s %(message)s",
-        encoding='utf-8'
-    )
-
 class ParserManager:
     def __init__(self):
         pass
     def get_dict_type(self, input):
-        soup = BeautifulSoup(input, parser="html.parser")
+        soup = BeautifulSoup(input, "html.parser")
         dict_type = None
         if "xsjrh.css" in str(soup):
             dict_type = "XSJ"
@@ -43,9 +36,14 @@ class ParserManager:
         else:
             return None
 
+        word = parser.get_word()
+        kanji = parser.get_kanji()
+        if not word and not kanji:
+            logger.error("get word and kanji failed")
+            logger.error(str(soup))
         return {
-            "word": parser.get_word(),
-            "kanji": parser.get_kanji()
+            "word": word,
+            "kanji": kanji
         }
 
 
@@ -75,6 +73,8 @@ class Base(ABC):
     #     pass
 
 class XSJParser(Base):
+
+    # TODO special case 気に入る
     def get_word(self):
         tag = self.html.find('span', class_='xsjrh-word1')
         return tag.get_text() if tag else None
@@ -103,8 +103,9 @@ class MojiParser(Base):
         entry = self.html.find('h3', class_="entry_name")
         entry = entry.get_text() if entry else None
         if entry and "【" not in entry:
-            logger.error("get_word error")
-            logger.debug(self.html)
+            see_also = self.html.find('div', class_="seealso")
+            if see_also:
+                return see_also.find("a").get_text()
             return None
         return entry
     def get_word(self):

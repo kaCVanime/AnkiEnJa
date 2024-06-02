@@ -89,13 +89,6 @@ def pick(word, yomi, results):
     return result
 
 def lookup(word, yomi):
-    logging.basicConfig(
-        filename="lookup.log",
-        level=logging.ERROR,
-        format="%(levelname)s:%(name)s: %(asctime)s %(message)s",
-        encoding='utf-8'
-    )
-
     # 全角英文转半角
     word = jaconv.z2h(word, kana=False, ascii=True, digit=True)
 
