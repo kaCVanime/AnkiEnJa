@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 
 from tqdm.contrib.concurrent import thread_map
-from dict_lookup import lookup
+from dict_lookup import lookup, mdx_helper
 from dict_parser import ParserManager
 
 parser = ParserManager()
@@ -70,6 +70,8 @@ def run():
     todo = [item for item in jev_list if item not in completed_items]
 
     thread_map(process, todo)
+
+    print(mdx_helper.xsj_count, mdx_helper.moji_count, mdx_helper.djs_count)
 
 
 

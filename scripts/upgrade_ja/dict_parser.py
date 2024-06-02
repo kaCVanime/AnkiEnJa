@@ -64,9 +64,9 @@ class Base(ABC):
     # def get_yomi(self):
     #     pass
     #
-    # @abstractmethod
-    # def get_accent(self):
-    #     pass
+    @abstractmethod
+    def get_accent(self):
+        pass
     #
     # @abstractmethod
     # def get_definition_and_examples(self):
@@ -83,6 +83,9 @@ class XSJParser(Base):
         tag = self.html.find('span', class_='xsjrh-word2')
         return tag.get_text() if tag else None
 
+    def get_accent(self):
+        return None
+
 
 class DJSParser(Base):
     def get_word(self):
@@ -92,6 +95,11 @@ class DJSParser(Base):
     def get_kanji(self):
         tag = self.html.find('headword', class_='表記')
         return tag.get_text() if tag else None
+
+    def get_accent(self):
+        tag = self.html.find('maccentaudiog')
+        return tag.get_text() if tag else None
+
 
 
 def kata_only(s):
@@ -120,6 +128,13 @@ class MojiParser(Base):
         if entry:
             index = entry.index("【")
             return f"【{entry[:index]}】"
+        return None
+
+    def get_accent(self):
+        entry = self._get_entry_str()
+        if entry:
+            index = entry.index("【")
+            return entry[index+1:-1]
         return None
 
 

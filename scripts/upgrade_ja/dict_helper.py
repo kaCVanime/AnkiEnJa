@@ -11,6 +11,9 @@ class DictHelper:
         self.xsj = IndexBuilder(str(xsj_path))
         self.djs = IndexBuilder(str(djs_path))
         self.moji = IndexBuilder(str(moji_path))
+        self.xsj_count = 0
+        self.djs_count = 0
+        self.moji_count = 0
 
         self._create_sqlite_if_not_exists(xsj_path, self.xsj)
         self._create_sqlite_if_not_exists(djs_path, self.djs)
@@ -22,7 +25,7 @@ class DictHelper:
             index_builder.make_sqlite()
 
     def query_all(self, word, select=None):
-        query_methods = [self.query_xsj, self.query_djs, self.query_moji]
+        query_methods = [self.query_xsj, self.query_moji, self.query_djs]
         if select:
             query_methods = query_methods[:select]
         results = []
@@ -33,7 +36,7 @@ class DictHelper:
         return results
 
     def query_best(self, word, select):
-        query_methods = [self.query_xsj, self.query_djs, self.query_moji]
+        query_methods = [self.query_xsj, self.query_moji, self.query_djs]
         query_methods = query_methods[:select]
         results = []
         for method in query_methods:
@@ -41,11 +44,20 @@ class DictHelper:
         return min(results, key=len)
 
     def query_xsj(self, word):
-        return self.xsj.mdx_lookup(word)
+        result = self.xsj.mdx_lookup(word)
+        if len(result):
+            self.xsj_count += 1
+        return result
 
     def query_djs(self, word):
-        return self.djs.mdx_lookup(word)
+        result = self.djs.mdx_lookup(word)
+        if len(result):
+            self.djs_count += 1
+        return result
 
     def query_moji(self, word):
-        return self.moji.mdx_lookup(word)
+        result = self.moji.mdx_lookup(word)
+        if len(result):
+            self.moji_count += 1
+        return result
 
