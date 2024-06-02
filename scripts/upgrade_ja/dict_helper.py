@@ -1,10 +1,10 @@
 from pathlib import Path
 from mdict_query.mdict_query import IndexBuilder
 
+
 xsj_path = Path('./assets/xinshijirihan.mdx')
 djs_path = Path('./assets/DJS.mdx')
 moji_path = Path('./assets/MOJi辞書.mdx')
-
 
 class DictHelper:
     def __init__(self):
@@ -20,6 +20,25 @@ class DictHelper:
         sqlite_db_path = Path(str(mdx_path) + '.sqlite.db')
         if not sqlite_db_path.is_file():
             index_builder.make_sqlite()
+
+    def query_all(self, word, select=None):
+        query_methods = [self.query_xsj, self.query_djs, self.query_moji]
+        if select:
+            query_methods = query_methods[:select]
+        results = []
+        for method in query_methods:
+            results = method(word)
+            if results:
+                return results
+        return results
+
+    def query_best(self, word, select):
+        query_methods = [self.query_xsj, self.query_djs, self.query_moji]
+        query_methods = query_methods[:select]
+        results = []
+        for method in query_methods:
+            results.append(method(word))
+        return min(results, key=len)
 
     def query_xsj(self, word):
         return self.xsj.mdx_lookup(word)
