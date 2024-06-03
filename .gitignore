@@ -1,2 +1,9 @@
 .idea
+
+*.mdx.db
+*.mdx.sqlite.db
+*.log
+*.pkl
+*test.py
+
 */__pycache__/*
