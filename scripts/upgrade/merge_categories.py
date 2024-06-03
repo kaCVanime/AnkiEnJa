@@ -31,12 +31,12 @@ def find_new_category(cat, mapping):
 
 
 def run():
-    logging.basicConfig(
-        filename="merge_categories.log",
-        level=logging.DEBUG,
-        format="%(levelname)s:%(name)s: %(asctime)s %(message)s",
-    )
-    logger.info("Start merge")
+    # logging.basicConfig(
+    #     filename="merge_categories.log",
+    #     level=logging.DEBUG,
+    #     format="%(levelname)s:%(name)s: %(asctime)s %(message)s",
+    # )
+    # logger.info("Start merge")
 
     anki_invoke("clearUnusedTags")
     tags = anki_invoke("getTags")
@@ -45,8 +45,10 @@ def run():
     #     cids = anki_invoke("findCards", query=f"deck:KEXP::Read tag:{tag}")
     #     result[tag] = len(cids)
 
+    ltags = set(filter(lambda tag: tag.startswith("L_"), tags))
     tags = set(filter(lambda tag: not tag.startswith("K_") and not tag.startswith("L_"), tags))
-
+    print(len(tags), len(ltags))
+    return
     all_mapping = [*custom, *merged1, *merged2, *merged3, *merged4, *merged5]
 
     for tag in tqdm(tags):
@@ -105,6 +107,6 @@ def output_categories():
         f.write(json.dumps(tags))
 
 if __name__ == "__main__":
-    # run()
+    run()
     # validate_custom()
-    find_small_categories()
+    # find_small_categories()
