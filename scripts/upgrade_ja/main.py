@@ -8,6 +8,8 @@ from tqdm.contrib.concurrent import thread_map
 from dict_lookup import lookup, mdx_helper
 from dict_parser import ParserManager
 
+from utils import is_string_katakana
+
 parser = ParserManager()
 
 
@@ -35,7 +37,13 @@ def get_jev_list():
     d1 = data.drop_duplicates(subset=["標準的な表記", "読み"])
     return d1.to_numpy().tolist()
 
-
+def get_fallback_accent(word, yomi, mode):
+    html = lookup(word, yomi, mode)
+    if html:
+        result = parser.parse(html)
+        if result and result["accent"]:
+            return result["accent"]
+    return None
 
 def process(item):
     word, yomi = item
@@ -46,9 +54,25 @@ def process(item):
 
     result = parser.parse(html)
     if result:
+        if not result['defs']:
+            logger.error(f"{word}-{result['dict_type']}: no defs found")
         if not result['word'] and not result['kanji']:
             logger.error(f"{word}: no word or kanji found")
         logger.info("{word} - {kanji}".format(word=result['word'], kanji=result['kanji']))
+
+        if not is_string_katakana(word) and not result['accent']:
+            if result['dict_type'] == 'DJS':
+                result['accent'] = get_fallback_accent(word, yomi, mode='MOJI')
+            elif result['dict_type'] == 'Moji':
+                result['accent'] = get_fallback_accent(word, yomi, mode='DJS')
+            elif result['dict_type'] == 'XSJ':
+                accent = get_fallback_accent(word, yomi, mode='DJS')
+                if not accent:
+                    accent = get_fallback_accent(word, yomi, mode='MOJI')
+                result['accent'] = accent
+
+        if not is_string_katakana(word) and not result['accent']:
+            logger.error(f"{word}: no accent found")
     else:
         logger.error(f"{word}: parse failed")
 

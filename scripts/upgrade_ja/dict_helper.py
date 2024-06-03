@@ -24,10 +24,9 @@ class DictHelper:
         if not sqlite_db_path.is_file():
             index_builder.make_sqlite()
 
-    def query_all(self, word, select=None):
+    def query_all(self, word, start=None, end=None):
         query_methods = [self.query_xsj, self.query_moji, self.query_djs]
-        if select:
-            query_methods = query_methods[:select]
+        query_methods = query_methods[start:end]
         results = []
         for method in query_methods:
             results = method(word)
@@ -35,9 +34,9 @@ class DictHelper:
                 return results
         return results
 
-    def query_best(self, word, select):
+    def query_best(self, word, start=None, end=None):
         query_methods = [self.query_xsj, self.query_moji, self.query_djs]
-        query_methods = query_methods[:select]
+        query_methods = query_methods[start:end]
         results = []
         for method in query_methods:
             results.append(method(word))
