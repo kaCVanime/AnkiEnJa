@@ -1,10 +1,16 @@
 from pathlib import Path
 from mdict_query.mdict_query import IndexBuilder
+from dict_parser import ParserManager
 
 
 xsj_path = Path('./assets/xinshijirihan.mdx')
 djs_path = Path('./assets/DJS.mdx')
 moji_path = Path('./assets/MOJi辞書.mdx')
+
+def preprocess_entry(entry):
+    if "<link rel=" in entry:
+        return ParserManager.remove_useless_part(entry)
+    return entry
 
 class DictHelper:
     def __init__(self):
@@ -25,7 +31,7 @@ class DictHelper:
             index_builder.make_sqlite()
 
     def query_all(self, word, start=None, end=None):
-        query_methods = [self.query_xsj, self.query_moji, self.query_djs]
+        query_methods = [self.query_xsj, self.query_djs, self.query_moji]
         query_methods = query_methods[start:end]
         results = []
         for method in query_methods:
@@ -35,7 +41,7 @@ class DictHelper:
         return results
 
     def query_best(self, word, start=None, end=None):
-        query_methods = [self.query_xsj, self.query_moji, self.query_djs]
+        query_methods = [self.query_xsj, self.query_djs, self.query_moji]
         query_methods = query_methods[start:end]
         results = []
         for method in query_methods:
@@ -43,19 +49,22 @@ class DictHelper:
         return min(results, key=len)
 
     def query_xsj(self, word):
-        result = self.xsj.mdx_lookup(word)
+        results = self.xsj.mdx_lookup(word)
+        result = list(filter(None, [preprocess_entry(e) for e in results]))
         if len(result):
             self.xsj_count += 1
         return result
 
     def query_djs(self, word):
-        result = self.djs.mdx_lookup(word)
+        results = self.djs.mdx_lookup(word)
+        result = list(filter(None, [preprocess_entry(e) for e in results]))
         if len(result):
             self.djs_count += 1
         return result
 
     def query_moji(self, word):
-        result = self.moji.mdx_lookup(word)
+        results = self.moji.mdx_lookup(word)
+        result = list(filter(None, [preprocess_entry(e) for e in results]))
         if len(result):
             self.moji_count += 1
         return result

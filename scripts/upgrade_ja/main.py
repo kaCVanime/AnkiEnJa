@@ -40,9 +40,21 @@ def get_jev_list():
 def get_fallback_accent(word, yomi, mode):
     html = lookup(word, yomi, mode)
     if html:
-        result = parser.parse(html)
+        result = parser.parse(html, mode='accent')
         if result and result["accent"]:
             return result["accent"]
+    return None
+
+def try_fallback_accent(result, word, yomi):
+    if result['dict_type'] == 'DJS':
+        return get_fallback_accent(word, yomi, mode='MOJI')
+    elif result['dict_type'] == 'Moji':
+        return get_fallback_accent(word, yomi, mode='DJS')
+    elif result['dict_type'] == 'XSJ':
+        accent = get_fallback_accent(word, yomi, mode='DJS')
+        if not accent:
+            return get_fallback_accent(word, yomi, mode='MOJI')
+
     return None
 
 def process(item):
@@ -53,28 +65,15 @@ def process(item):
         return
 
     result = parser.parse(html)
-    if result:
-        if not result['defs']:
-            logger.error(f"{word}-{result['dict_type']}: no defs found")
-        if not result['word'] and not result['kanji']:
-            logger.error(f"{word}: no word or kanji found")
-        logger.info("{word} - {kanji}".format(word=result['word'], kanji=result['kanji']))
+    if not result:
+        return
+    if not result['defs'] or (not result['word'] and not result['kanji']):
+        return
+    if not is_string_katakana(word) and not result['accent']:
+        result['accent'] = try_fallback_accent(result, word, yomi)
 
-        if not is_string_katakana(word) and not result['accent']:
-            if result['dict_type'] == 'DJS':
-                result['accent'] = get_fallback_accent(word, yomi, mode='MOJI')
-            elif result['dict_type'] == 'Moji':
-                result['accent'] = get_fallback_accent(word, yomi, mode='DJS')
-            elif result['dict_type'] == 'XSJ':
-                accent = get_fallback_accent(word, yomi, mode='DJS')
-                if not accent:
-                    accent = get_fallback_accent(word, yomi, mode='MOJI')
-                result['accent'] = accent
 
-        if not is_string_katakana(word) and not result['accent']:
-            logger.error(f"{word}: no accent found")
-    else:
-        logger.error(f"{word}: parse failed")
+
 
 
     with lock:
@@ -93,9 +92,10 @@ def run():
     jev_list = get_jev_list()
     todo = [item for item in jev_list if item not in completed_items]
 
+    # thread_map(process, todos, max_workers=1)
     thread_map(process, todo)
 
-    print(mdx_helper.xsj_count, mdx_helper.moji_count, mdx_helper.djs_count)
+    print(mdx_helper.xsj_count, mdx_helper.djs_count, mdx_helper.moji_count)
 
 
 

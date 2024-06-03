@@ -3,13 +3,33 @@ from bs4 import BeautifulSoup
 import logging
 import re
 
-from utils import is_hiragana, is_katakana, kata2hira
+from utils import is_hiragana, is_katakana, kata2hira, remove_any_in_parenthesis, remove_punctuations, remove_ord
 
 logger = logging.getLogger(__name__)
+
+def normalize_redirect_word(text):
+    methods = [remove_any_in_parenthesis, remove_punctuations, remove_ord]
+    for method in methods:
+        text = method(text)
+
+    return text.strip()
+
 
 class ParserManager:
     def __init__(self):
         pass
+
+    @staticmethod
+    def remove_useless_part(html):
+        dict_type = ParserManager.get_dict_type(html)
+        if dict_type == 'DJS' and "<HeaderTitle>大辞泉プラス</HeaderTitle>" in html:
+            parser = DJSParser(BeautifulSoup(html, "html.parser"))
+            defs = parser.get_defs_and_egs()
+            if defs:
+                return str(parser.html)
+            return None
+
+        return html
 
     @staticmethod
     def is_redirect_entry(html):
@@ -18,23 +38,19 @@ class ParserManager:
             return MojiParser.is_redirect_entry(html)
         if dict_type == 'XSJ':
             return XSJParser.is_redirect_entry(html)
+        if dict_type == 'DJS':
+            return DJSParser.is_redirect_entry(html)
         return False
 
     @staticmethod
     def get_best_redirect_entry(html, yomi):
         parser = ParserManager.get_parser(html)
-        if isinstance(parser, MojiParser):
-            return parser.get_best_redirect_entry(yomi)
-        if isinstance(parser, XSJParser):
-            return parser.get_best_redirect_entry(yomi)
-        return []
+        return parser.get_best_redirect_entry(yomi)
 
     @staticmethod
     def get_redirect_entries(html):
         parser = ParserManager.get_parser(html)
-        if isinstance(parser, MojiParser):
-            return parser.get_redirect_entries()
-        return []
+        return parser.get_redirect_entries()
 
     @staticmethod
     def get_parser(s):
@@ -64,11 +80,15 @@ class ParserManager:
             logger.error(input)
             return None
 
-    def parse(self, s):
+    def parse(self, s, mode=None):
         dict_type = self.get_dict_type(s)
 
         parser = self.get_parser(s)
 
+        if mode == 'accent':
+            return {
+                "accent": parser.get_accent(),
+            }
         word = parser.get_word()
         kanji = parser.get_kanji()
         accent = parser.get_accent()
@@ -176,7 +196,7 @@ class XSJParser(Base):
 
     def get_redirect_entries(self):
         defs = self.get_defs_and_egs()
-        return [d["definition"][1:] for d in defs if d["definition"].startswith("➪")]
+        return [normalize_redirect_word(d["definition"][1:]) for d in defs if d["definition"].startswith("➪")]
 
     def get_best_redirect_entry(self, yomi):
         entries = self.get_redirect_entries()
@@ -184,6 +204,17 @@ class XSJParser(Base):
 
 
 class DJSParser(Base):
+    def __init__(self, soup):
+        super().__init__(soup)
+        self.remove_djs_plus()
+
+    def remove_djs_plus(self):
+        header = self.html.find('header', class_='DJSP')
+        if header:
+            if header.next_sibling:
+                header.next_sibling.decompose()
+            header.decompose()
+
     def get_word(self):
         tag = self.html.find('headword', class_='見出')
         return tag.get_text() if tag else None
@@ -199,10 +230,17 @@ class DJSParser(Base):
     def get_defs_and_egs(self):
         prefix = self.get_entry_prefix()
         contents = self.html.find('contents')
-        defs = contents.find('span', class_='解説G').find_all("mg", id=bool)
+        if not contents:
+            return None
+        kaisetsu = contents.find('span', class_='解説G')
+        defs = kaisetsu.find_all("mg", id=bool)
+        if not defs:
+            defs = kaisetsu.find_all("mg", id=True)
         result = []
         for def_idx, definition_box in enumerate(defs):
             definition = definition_box.meaning
+            if not definition:
+                continue
             if definition.rect:
                 definition.rect.decompose()
             eg_boxs = definition.find_all('exg')
@@ -222,7 +260,24 @@ class DJSParser(Base):
             })
         return result
 
+    @staticmethod
+    def is_redirect_entry(s):
+        parser = DJSParser(BeautifulSoup(s, "html.parser"))
+        defs = parser.get_defs_and_egs()
+        if not defs:
+            return False
+        return len(defs) >= 1 and defs[0]["definition"].startswith("⇒")
 
+    def get_redirect_entries(self):
+        defs = self.get_defs_and_egs()
+        if defs:
+            return [normalize_redirect_word(d["definition"][1:]) for d in defs if d["definition"].startswith("⇒")]
+
+    def get_best_redirect_entry(self, yomi):
+        entries = self.get_redirect_entries()
+        if not entries:
+            return None
+        return [entries[0]]
 
 
 
@@ -316,7 +371,7 @@ class MojiParser(Base):
 
     def get_redirect_entries(self):
         see_alsos = self.html.find_all('div', class_="seealso")
-        return [also.a.get_text() for also in see_alsos]
+        return [remove_punctuations(remove_any_in_parenthesis(also.a.get_text())).strip() for also in see_alsos]
 
     def get_best_redirect_entry(self, yomi):
         entries = self.get_redirect_entries()
@@ -330,4 +385,7 @@ class MojiParser(Base):
 
 
 if __name__ == '__main__':
-    print(ParserManager.is_redirect_entry('<link rel="stylesheet" href="xsjrh.css" type="text/css"><div class="xsjrh-entry"><div class="xsjrh-head"><span class="xsjrh-word-block"><span class="xsjrh-word1">IQ</span><span class="xsjrh-word2"></span></span></div><div class="xsjrh-body"><span class="xsjrh-cat">〔intelligence quotient〕</span><div class="xsjrh-sense"><span class="xsjrh-sense-wrap"><span class="xsjrh-sense-li"><span class="xsjrh-j">➪知能指数</span></span></span></div></div></div>'))
+    html = '<link rel="stylesheet" type="text/css" href="DJS.css"/><a id="DJS029647" name="DJS029647"></a><Header xmlns="" class="DJS"><HeaderTitle>デジタル大辞泉</HeaderTitle></Header><Contents lang="ja"><span class="見出G"><headword class="見出">インスタント<Hhyphen>‐</Hhyphen>しょくひん</headword><headword class="表記">【インスタント食品】</headword><MAccentAudioG><span class="補足ロゴG"><span class="補足ロゴ">アクセント</span></span> インスタントしょ<MAccentM>↓</MAccentM>くひん <a href="sound://s00021237.aac"><img class="audio" src="Audio.png"/></a></MAccentAudioG></span><span class="解説G"><MG id=""><meaning>手間をかけずに簡単に飲食できる加工食品。即席食品。</meaning></MG></span></Contents>'
+    parser = ParserManager()
+    result = parser.parse(html)
+    pass
