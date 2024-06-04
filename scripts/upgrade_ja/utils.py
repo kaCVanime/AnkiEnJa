@@ -64,7 +64,7 @@ def normalize_redirect_word(text):
 
 
 def get_soup_text(soup):
-    return soup.get_text() if soup else ""
+    return soup.get_text().strip() if soup else ""
 
 
 def check_kakasi():
