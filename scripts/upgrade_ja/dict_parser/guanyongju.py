@@ -5,12 +5,36 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString, CData, RubyTextString
 from copy import copy
 
-kanji_correct_table = {
+kanji_correct_table = str.maketrans({
     "颏": "顔",
     "耧": "乗",
     "撙": "揃",
-    "砬": "砕"
-}
+    "砬": "砕",
+    "阊": "闇",
+    "挹": "払",
+    "蓠": "薬",
+    "烀": "焼",
+    "搿": "挙",
+    "阌": "関",
+    "焓": "煙",
+    "仨": "仮",
+    "菹": "蘊",
+    "鹈": "鵜",
+    "拚": "抜",
+    "庥": "応",
+    "陴": "隠",
+    "涞": "満",
+    "綦": "線",
+    "帻": "帯",
+    "囵": "団",
+    "耵": "恥",
+    "擤": "擡",
+    "迤": "込",
+    "阃": "闘",
+    "湄": "涙",
+    "囝": "図"
+})
+# "异": "異" 专->専 驮->駄 戏->戯 突->衝 囵->団 寄->奇 梦->夢
 
 class CommonIdiomsIterator:
     def __init__(self, html_dir):

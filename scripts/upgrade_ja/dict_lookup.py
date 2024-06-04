@@ -62,7 +62,8 @@ def check_entry(entry, word, yomi):
     if "々" in word:
         return check_entry(entry, replace_repeater(word), yomi)
 
-    yomi = kata2hira(yomi)
+    if yomi:
+        yomi = kata2hira(yomi)
     if f"{word}【{yomi}】" in entry or f"{yomi}【{word}】" in entry:
         return True
 
@@ -124,6 +125,8 @@ def get_query_method(mode="all"):
         return mdx_helper.query_djs
     elif mode == "MOJI":
         return mdx_helper.query_moji
+    elif mode == 'KJE':
+        return mdx_helper.query_kje
 
 
 def lookup(word, yomi, mode="all"):
@@ -153,5 +156,5 @@ def lookup(word, yomi, mode="all"):
 
 
 if __name__ == "__main__":
-    result = lookup("気", "キ", mode="DJS")
+    result = lookup("けっきにはやる", None, mode="KJE")
     pass

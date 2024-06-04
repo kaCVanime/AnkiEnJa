@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from .xsj import XSJParser
 from .djs import DJSParser
 from .moji import MojiParser
+from .kje import KJEParser
 
 
 class ParserManager:
@@ -53,6 +54,8 @@ class ParserManager:
             return DJSParser(soup)
         elif dict_type == "Moji":
             return MojiParser(soup)
+        elif dict_type == "KJE":
+            return KJEParser(soup)
         else:
             return None
 
@@ -64,6 +67,8 @@ class ParserManager:
             return "DJS"
         elif "mojicishu.css" in input:
             return "Moji"
+        elif "gcy.css" in input:
+            return "KJE"
         else:
             return None
 

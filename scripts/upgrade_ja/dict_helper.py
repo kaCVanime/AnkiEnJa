@@ -7,6 +7,7 @@ current_file_folder = Path(__file__).parent
 xsj_path = current_file_folder / "assets/xinshijirihan.mdx"
 djs_path = current_file_folder / "assets/DJS.mdx"
 moji_path = current_file_folder / "assets/MOJi辞書.mdx"
+kje_path = current_file_folder / "assets/広辞苑.mdx"
 
 
 def preprocess_entry(entry):
@@ -21,6 +22,7 @@ class DictHelper:
         self.xsj = IndexBuilder(str(xsj_path))
         self.djs = IndexBuilder(str(djs_path))
         self.moji = IndexBuilder(str(moji_path))
+        self.kje = IndexBuilder(str(kje_path))
         self.xsj_count = 0
         self.djs_count = 0
         self.moji_count = 0
@@ -28,6 +30,7 @@ class DictHelper:
         self._create_sqlite_if_not_exists(xsj_path, self.xsj)
         self._create_sqlite_if_not_exists(djs_path, self.djs)
         self._create_sqlite_if_not_exists(moji_path, self.moji)
+        self._create_sqlite_if_not_exists(kje_path, self.kje)
 
     def _create_sqlite_if_not_exists(self, mdx_path, index_builder):
         sqlite_db_path = Path(str(mdx_path) + ".sqlite.db")
@@ -71,4 +74,9 @@ class DictHelper:
         result = list(filter(None, [preprocess_entry(e) for e in results]))
         if len(result):
             self.moji_count += 1
+        return result
+
+    def query_kje(self, word):
+        results = self.kje.mdx_lookup(word)
+        result = list(filter(None, [preprocess_entry(e) for e in results]))
         return result
