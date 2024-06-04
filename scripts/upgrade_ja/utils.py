@@ -34,3 +34,12 @@ def swap_bracket_content(s):
     else:
         return s  # Return the original string if no match is found
 
+def normalize_redirect_word(text):
+    methods = [remove_any_in_parenthesis, remove_punctuations, remove_ord]
+    for method in methods:
+        text = method(text)
+
+    return text.strip()
+
+def get_soup_text(soup):
+    return soup.get_text() if soup else ''

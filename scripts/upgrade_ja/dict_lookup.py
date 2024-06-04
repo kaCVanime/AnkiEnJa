@@ -3,9 +3,9 @@ import jaconv
 import pykakasi
 import logging
 
-from dict_helper import DictHelper
-from dict_parser import ParserManager
-from utils import is_string_katakana, kata2hira, z2h, swap_bracket_content
+from .dict_helper import DictHelper
+from .dict_parser.manager import ParserManager
+from .utils import is_string_katakana, kata2hira, z2h, swap_bracket_content
 
 logger = logging.getLogger(__name__)
 kks = pykakasi.kakasi()

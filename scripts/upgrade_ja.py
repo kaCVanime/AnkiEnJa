@@ -5,10 +5,11 @@ import logging
 from pathlib import Path
 
 from tqdm.contrib.concurrent import thread_map
-from dict_lookup import lookup, mdx_helper
-from dict_parser import ParserManager
 
-from utils import is_string_katakana
+from upgrade_ja.dict_lookup import lookup, mdx_helper
+from upgrade_ja.dict_parser.manager import ParserManager
+
+from upgrade_ja.utils import is_string_katakana
 
 parser = ParserManager()
 

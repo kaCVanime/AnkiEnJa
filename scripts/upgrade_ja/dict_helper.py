@@ -1,6 +1,6 @@
 from pathlib import Path
-from mdict_query.mdict_query import IndexBuilder
-from dict_parser import ParserManager
+from .mdict_query.mdict_query import IndexBuilder
+from .dict_parser.manager import ParserManager
 
 
 xsj_path = Path('./assets/xinshijirihan.mdx')
