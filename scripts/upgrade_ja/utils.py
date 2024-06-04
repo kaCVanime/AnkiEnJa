@@ -1,5 +1,15 @@
+import importlib
+import pykakasi
+
 import jaconv
 import re
+
+kks = None
+
+
+def import_from(package, method):
+    module = importlib.import_module(package)
+    return getattr(module, method)
 
 
 def is_katakana(letter):
@@ -55,3 +65,25 @@ def normalize_redirect_word(text):
 
 def get_soup_text(soup):
     return soup.get_text() if soup else ""
+
+
+def check_kakasi():
+    global kks
+    if not kks:
+        kks = pykakasi.kakasi()
+    return kks
+
+
+def remove_last_word(text):
+    kks = check_kakasi()
+    results = kks.convert(text)
+    if results:
+        return "".join([r["orig"] for r in results[:-1]])
+    return ""
+
+
+# 絵付け　-> えつけ
+def convert_to_hiragana(word):
+    kks = check_kakasi()
+    results = kks.convert(word)
+    return "".join([block.get("hira", "") for block in results])

@@ -1,24 +1,16 @@
 import re
-import jaconv
-import pykakasi
 import logging
 
 from .dict_helper import DictHelper
-from .dict_parser.manager import ParserManager
-from .utils import is_string_katakana, kata2hira, z2h, swap_bracket_content
+from .utils import import_from, is_string_katakana, kata2hira, z2h, swap_bracket_content
 
 logger = logging.getLogger(__name__)
-kks = pykakasi.kakasi()
 mdx_helper = DictHelper()
 
 
-def convert_to_hiragana(word):
-    # 絵付け　-> えつけ
-    results = kks.convert(word)
-    return "".join([block.get("hira", "") for block in results])
-
-
 def redirect_if_link(result, word, yomi, mode="all"):
+    ParserManager = import_from("upgrade_ja.dict_parser.manager", "ParserManager")
+
     result = result.strip()
     LINK_KEYWORD = "@@@LINK="
     query = get_query_method(mode)
@@ -82,6 +74,8 @@ def check_entry(entry, word, yomi):
 
 
 def is_redirect_entry(html):
+    ParserManager = import_from("upgrade_ja.dict_parser.manager", "ParserManager")
+
     if html.startswith("@@@LINK="):
         return True
     return ParserManager.is_redirect_entry(html)
@@ -143,7 +137,7 @@ def lookup(word, yomi, mode="all"):
         logger.debug(replace_repeater(word))
         word = replace_repeater(word)
         results = query(word)
-    if not len(results):
+    if not len(results) and yomi:
         logger.warning(f"{word}: try mode full hiragana")
         # word = convert_to_hiragana(word)
         word = kata2hira(yomi)
@@ -159,5 +153,5 @@ def lookup(word, yomi, mode="all"):
 
 
 if __name__ == "__main__":
-    result = lookup("転々", "テンテン")
+    result = lookup("気", "キ", mode="DJS")
     pass

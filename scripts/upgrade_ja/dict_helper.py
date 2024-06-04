@@ -1,14 +1,16 @@
 from pathlib import Path
 from .mdict_query.mdict_query import IndexBuilder
-from .dict_parser.manager import ParserManager
+from .utils import import_from
 
+current_file_folder = Path(__file__).parent
 
-xsj_path = Path("./assets/xinshijirihan.mdx")
-djs_path = Path("./assets/DJS.mdx")
-moji_path = Path("./assets/MOJi辞書.mdx")
+xsj_path = current_file_folder / "assets/xinshijirihan.mdx"
+djs_path = current_file_folder / "assets/DJS.mdx"
+moji_path = current_file_folder / "assets/MOJi辞書.mdx"
 
 
 def preprocess_entry(entry):
+    ParserManager = import_from("upgrade_ja.dict_parser.manager", "ParserManager")
     if "<link rel=" in entry:
         return ParserManager.remove_useless_part(entry)
     return entry
