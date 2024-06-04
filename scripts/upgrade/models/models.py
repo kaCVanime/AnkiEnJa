@@ -3,7 +3,16 @@ from .base import ModelBase
 
 class ModelListen(ModelBase):
     name = "Listen"
-    fields = ["id", "term", "label", "usage", "definition", "def_cn", "examples", "audio"]
+    fields = [
+        "id",
+        "term",
+        "label",
+        "usage",
+        "definition",
+        "def_cn",
+        "examples",
+        "audio",
+    ]
     is_cloze = False
     card_templates = [
         {
@@ -64,7 +73,17 @@ class ModelWrite(ModelBase):
 
 class ModelListenJA(ModelBase):
     name = "Listen"
-    fields = ["id", "term", "kana", "label", "usage", "definition", "def_cn", "examples", "audio"]
+    fields = [
+        "id",
+        "term",
+        "kana",
+        "label",
+        "usage",
+        "definition",
+        "def_cn",
+        "examples",
+        "audio",
+    ]
     is_cloze = False
     card_templates = [
         {

@@ -1,13 +1,20 @@
 import logging
 from anki_connect import invoke as anki_invoke
 from tqdm import tqdm
-from main import get_note_fields, get_note_ids_from_last, get_last_note_id, set_last_note_id
+from main import (
+    get_note_fields,
+    get_note_ids_from_last,
+    get_last_note_id,
+    set_last_note_id,
+)
 
 logger = logging.getLogger(__name__)
+
 
 def normalize(tag):
     tag = tag.encode("ascii", errors="ignore").decode().strip()
     return f"L_{tag.replace(' ', '_')}"
+
 
 def run():
     logging.basicConfig(

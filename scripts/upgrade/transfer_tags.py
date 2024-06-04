@@ -13,9 +13,13 @@ def run():
     for nid in tqdm(src_nids):
         note = get_note_fields(nid)
         tags = anki_invoke("getNoteTags", note=nid)
-        target_nids = anki_invoke("findNotes", query=f"deck:KEXP::Write id:{note['id']}")
+        target_nids = anki_invoke(
+            "findNotes", query=f"deck:KEXP::Write id:{note['id']}"
+        )
         if len(target_nids):
             anki_invoke("addTags", notes=target_nids, tags=" ".join(tags))
+
+
 e
 
 if __name__ == "__main__":

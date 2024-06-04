@@ -13,8 +13,12 @@ def run():
         if anki_invoke("suspended", card=nid):
             infos = anki_invoke("cardsInfo", cards=[nid])
             card = infos[0]
-            target_nids = anki_invoke("findCards", query=f"deck:KEXP::Write id:{card['fields']['id']['value']}")
+            target_nids = anki_invoke(
+                "findCards",
+                query=f"deck:KEXP::Write id:{card['fields']['id']['value']}",
+            )
             anki_invoke("suspend", cards=target_nids)
+
 
 if __name__ == "__main__":
     run()

@@ -110,7 +110,7 @@ def get_new_note_fields(note, definition_item, definition_idx):
         "usage": definition_item.get("usage", ""),
         "definition": definition_item.get("definition", ""),
         "def_cn": definition_item.get("def_cn", ""),
-        "audio": ""
+        "audio": "",
     }
 
     # if definition_item["definition"]:
@@ -174,18 +174,16 @@ def main():
             if has_filter_label(definition_item):
                 continue
 
-            new_note_fields = get_new_note_fields(
-                note, definition_item, definition_idx
-            )
+            new_note_fields = get_new_note_fields(note, definition_item, definition_idx)
 
             read_model.add_note(new_note_fields)
             write_model.add_note(new_note_fields)
 
-        logger.info(f'note {nid} added')
+        logger.info(f"note {nid} added")
         set_last_note_id(nid)
     # except Exception as e:
     #     print(e)
-        # logger.error(e, exc_info=True)
+    # logger.error(e, exc_info=True)
 
     logger.info("End")
 

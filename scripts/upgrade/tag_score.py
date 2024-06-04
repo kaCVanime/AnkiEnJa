@@ -11,6 +11,7 @@ from ai.gemini import rate
 
 logger = logging.getLogger(__name__)
 
+
 def validate(result, len_buffer):
     if not isinstance(result, list):
         raise Exception("ai response is not a valid list")
@@ -24,29 +25,32 @@ def validate(result, len_buffer):
 
     return True
 
+
 def get_frequency_tag(score):
     try:
         score_int = int(score)
         if score_int >= 80:
-            return 'K_daily'
+            return "K_daily"
         if score_int >= 60:
-            return 'K_usual'
+            return "K_usual"
         if score_int >= 40:
-            return 'K_occasional'
+            return "K_occasional"
         if score_int >= 20:
-            return 'K_infrequent'
+            return "K_infrequent"
         else:
-            return 'K_rare'
+            return "K_rare"
     except Exception as e:
         logger.error(f"Unknown score {score}")
+
 
 def get_category_tag(culture):
     if not isinstance(culture, str):
         return []
-    if ',' in culture:
-        splited = culture.split(',')
+    if "," in culture:
+        splited = culture.split(",")
         return [element.strip() for element in splited]
     return [culture]
+
 
 def retry(max_retries, delay=1):
     def decorator_retry(func):
@@ -63,8 +67,11 @@ def retry(max_retries, delay=1):
                     time.sleep(delay)
                     last_error = e
             raise Exception(last_error)
+
         return wrapper
+
     return decorator_retry
+
 
 @retry(max_retries=5, delay=1)
 def try_to_get_valid_response(questions, len_buffer):
@@ -77,6 +84,7 @@ def try_to_get_valid_response(questions, len_buffer):
     except Exception as e:
         return e, None
 
+
 def tag_score(buffer):
     questions = [(word, definition) for _, word, definition in buffer]
 
@@ -84,26 +92,27 @@ def tag_score(buffer):
 
     if err:
         logger.error(err)
-        logger.debug(f'err question content:')
+        logger.debug(f"err question content:")
         for nid, word, definition in buffer:
             logger.debug(f'{nid}. "{word}": {definition}')
         return False
-
 
     for idx, item in enumerate(result):
         f_tag = get_frequency_tag(item["score"])
         c_tag = get_category_tag(item["culture"])
         brief = item["reason"]
-        anki_invoke("updateNote", note={
-            "id": buffer[idx][0],
-            "fields": {
-                "brief": brief
+        anki_invoke(
+            "updateNote",
+            note={
+                "id": buffer[idx][0],
+                "fields": {"brief": brief},
+                "tags": [f_tag, *c_tag],
             },
-            "tags": [f_tag, *c_tag]
-        })
+        )
         logger.info(f"note {buffer[idx][0]} successfully tagged.")
 
     return True
+
 
 def remove_non_ascii(text):
     return text.encode("ascii", errors="ignore").decode()
@@ -122,7 +131,7 @@ def run():
 
     # contains definition that is considered bad by ai
     blacklist = [1716005118535, 1716005118662]
-    bad_words = [' sex ', ' intercourse ']
+    bad_words = [" sex ", " intercourse "]
 
     buffer = []
     for idx, nid in enumerate(tqdm(nids)):
@@ -130,15 +139,18 @@ def run():
             continue
 
         if len(buffer) >= 16 or idx >= len(nids) - 1:
-            logger.info('start tagging')
+            logger.info("start tagging")
             result = tag_score(buffer)
             if not result:
-                logger.warning('tagging failed for {}'.format(', '.join([str(nid) for nid, _, _ in buffer])))
+                logger.warning(
+                    "tagging failed for {}".format(
+                        ", ".join([str(nid) for nid, _, _ in buffer])
+                    )
+                )
                 break
             buffer.clear()
-            logger.info('sleeping 4s')
+            logger.info("sleeping 4s")
             time.sleep(4)
-
 
         note = get_note_fields(nid)
 
@@ -149,7 +161,6 @@ def run():
                 usage = usage.replace("~", term)
             elif "+" in usage:
                 usage = usage.replace("+", f"{term} +")
-
 
         word = usage if usage else term
         word = remove_non_ascii(word)
@@ -165,7 +176,6 @@ def run():
                 continue
 
         buffer.append((nid, word, definition))
-
 
 
 if __name__ == "__main__":
