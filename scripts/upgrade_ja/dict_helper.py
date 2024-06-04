@@ -3,14 +3,16 @@ from .mdict_query.mdict_query import IndexBuilder
 from .dict_parser.manager import ParserManager
 
 
-xsj_path = Path('./assets/xinshijirihan.mdx')
-djs_path = Path('./assets/DJS.mdx')
-moji_path = Path('./assets/MOJi辞書.mdx')
+xsj_path = Path("./assets/xinshijirihan.mdx")
+djs_path = Path("./assets/DJS.mdx")
+moji_path = Path("./assets/MOJi辞書.mdx")
+
 
 def preprocess_entry(entry):
     if "<link rel=" in entry:
         return ParserManager.remove_useless_part(entry)
     return entry
+
 
 class DictHelper:
     def __init__(self):
@@ -26,7 +28,7 @@ class DictHelper:
         self._create_sqlite_if_not_exists(moji_path, self.moji)
 
     def _create_sqlite_if_not_exists(self, mdx_path, index_builder):
-        sqlite_db_path = Path(str(mdx_path) + '.sqlite.db')
+        sqlite_db_path = Path(str(mdx_path) + ".sqlite.db")
         if not sqlite_db_path.is_file():
             index_builder.make_sqlite()
 
@@ -68,4 +70,3 @@ class DictHelper:
         if len(result):
             self.moji_count += 1
         return result
-

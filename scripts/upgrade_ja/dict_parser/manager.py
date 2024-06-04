@@ -4,6 +4,7 @@ from .xsj import XSJParser
 from .djs import DJSParser
 from .moji import MojiParser
 
+
 class ParserManager:
     def __init__(self):
         pass
@@ -11,7 +12,7 @@ class ParserManager:
     @staticmethod
     def remove_useless_part(html):
         dict_type = ParserManager.get_dict_type(html)
-        if dict_type == 'DJS' and "<HeaderTitle>大辞泉プラス</HeaderTitle>" in html:
+        if dict_type == "DJS" and "<HeaderTitle>大辞泉プラス</HeaderTitle>" in html:
             parser = DJSParser(BeautifulSoup(html, "html.parser"))
             defs = parser.get_defs_and_egs()
             if defs:
@@ -23,11 +24,11 @@ class ParserManager:
     @staticmethod
     def is_redirect_entry(html):
         dict_type = ParserManager.get_dict_type(html)
-        if dict_type == 'Moji':
+        if dict_type == "Moji":
             return MojiParser.is_redirect_entry(html)
-        if dict_type == 'XSJ':
+        if dict_type == "XSJ":
             return XSJParser.is_redirect_entry(html)
-        if dict_type == 'DJS':
+        if dict_type == "DJS":
             return DJSParser.is_redirect_entry(html)
         return False
 
@@ -46,15 +47,14 @@ class ParserManager:
         dict_type = ParserManager.get_dict_type(s)
         soup = BeautifulSoup(s, "html.parser")
 
-        if dict_type == 'XSJ':
+        if dict_type == "XSJ":
             return XSJParser(soup)
-        elif dict_type == 'DJS':
+        elif dict_type == "DJS":
             return DJSParser(soup)
-        elif dict_type == 'Moji':
+        elif dict_type == "Moji":
             return MojiParser(soup)
         else:
             return None
-
 
     @staticmethod
     def get_dict_type(input):
@@ -72,7 +72,7 @@ class ParserManager:
 
         parser = self.get_parser(s)
 
-        if mode == 'accent':
+        if mode == "accent":
             return {
                 "accent": parser.get_accent(),
             }
@@ -86,5 +86,5 @@ class ParserManager:
             "word": word,
             "kanji": kanji,
             "accent": accent,
-            "defs": defs
+            "defs": defs,
         }
