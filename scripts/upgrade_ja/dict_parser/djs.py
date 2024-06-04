@@ -87,3 +87,9 @@ class DJSParser(Base):
         if not entries:
             return None
         return [entries[0]]
+
+    def get_idioms(self):
+        pass
+
+    def get_phrases(self, parent=None):
+        pass

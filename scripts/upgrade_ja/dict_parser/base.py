@@ -21,11 +21,19 @@ class Base(ABC):
     def get_accent(self):
         pass
 
-    def get_entry_prefix(self):
-        word = self.get_word()
-        kanji = self.get_kanji()
+    def get_entry_prefix(self, word=None, kanji=None):
+        word = word or self.get_word()
+        kanji = kanji or self.get_kanji()
         return "_".join(filter(None, [word, kanji]))
 
     @abstractmethod
     def get_defs_and_egs(self):
+        pass
+
+    @abstractmethod
+    def get_idioms(self):
+        pass
+
+    @abstractmethod
+    def get_phrases(self, parent=None):
         pass

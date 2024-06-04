@@ -80,6 +80,8 @@ class ParserManager:
         kanji = parser.get_kanji()
         accent = parser.get_accent()
         defs = parser.get_defs_and_egs()
+        idioms = parser.get_idioms()
+        phrases = parser.get_phrases({"word": word, "kanji": kanji, "accent": accent})
 
         return {
             "dict_type": dict_type,
@@ -87,4 +89,6 @@ class ParserManager:
             "kanji": kanji,
             "accent": accent,
             "defs": defs,
+            "idioms": idioms,
+            "phrases": phrases,
         }

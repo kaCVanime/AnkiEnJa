@@ -112,3 +112,9 @@ class MojiParser(Base):
             if word == kata2hira(yomi):
                 return [entry]
         return entries
+
+    def get_idioms(self):
+        pass
+
+    def get_phrases(self, parent=None):
+        pass
