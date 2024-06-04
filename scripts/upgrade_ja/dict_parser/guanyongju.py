@@ -5,6 +5,13 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString, CData, RubyTextString
 from copy import copy
 
+kanji_correct_table = {
+    "颏": "顔",
+    "耧": "乗",
+    "撙": "揃",
+    "砬": "砕"
+}
+
 class CommonIdiomsIterator:
     def __init__(self, html_dir):
         self.html_dir = html_dir
@@ -27,8 +34,21 @@ class CommonIdiomsIterator:
         page = self.pages.pop(0)
         with open(page, mode='r', encoding='utf-8') as f:
             html = ''.join([s.strip() for s in f.readlines()])
+            html = html.translate(kanji_correct_table)
 
         soup = BeautifulSoup(html, 'html.parser')
+
+        # with open(self.html_dir / 'rare_cn_character.txt', mode='r', encoding='utf-8') as f:
+        #     rare_string = [s.strip() for s in f.readlines()]
+        # with open(self.html_dir / 'common_ja_character.txt', mode='r', encoding='utf-8') as f:
+        #     common_string = [s.strip()[-1] for s in f.readlines()]
+        # soup.smooth()
+        # abc = []
+        # for c in str(soup):
+        #     if c in rare_string and c not in common_string:
+        #         abc.append(c)
+        # print(abc)
+
         entries = soup.find_all('p', class_='kindle-cn-para-no-indent')
         result = []
         for entry in entries:
