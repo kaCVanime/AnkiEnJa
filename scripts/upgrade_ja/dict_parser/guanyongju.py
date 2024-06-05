@@ -5,36 +5,6 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString, CData, RubyTextString
 from copy import copy
 
-kanji_correct_table = str.maketrans({
-    "颏": "顔",
-    "耧": "乗",
-    "撙": "揃",
-    "砬": "砕",
-    "阊": "闇",
-    "挹": "払",
-    "蓠": "薬",
-    "烀": "焼",
-    "搿": "挙",
-    "阌": "関",
-    "焓": "煙",
-    "仨": "仮",
-    "菹": "蘊",
-    "鹈": "鵜",
-    "拚": "抜",
-    "庥": "応",
-    "陴": "隠",
-    "涞": "満",
-    "綦": "線",
-    "帻": "帯",
-    "囵": "団",
-    "耵": "恥",
-    "擤": "擡",
-    "迤": "込",
-    "阃": "闘",
-    "湄": "涙",
-    "囝": "図"
-})
-# "异": "異" 专->専 驮->駄 戏->戯 突->衝 囵->団 寄->奇 梦->夢
 
 class CommonIdiomsIterator:
     def __init__(self, html_dir):
@@ -58,7 +28,7 @@ class CommonIdiomsIterator:
         page = self.pages.pop(0)
         with open(page, mode='r', encoding='utf-8') as f:
             html = ''.join([s.strip() for s in f.readlines()])
-            html = html.translate(kanji_correct_table)
+            # html = html.translate(kanji_correct_table)
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -100,6 +70,10 @@ class CommonIdiomsIterator:
                 if eg and 'kindle-cn-para-no-indent' not in body.get('class', ''):
                     examples = self._get_examples(eg.get_text().strip(), kanji)
 
+            # 同一条目下有两条释义时，第二条释义可能会把中文释义带上。
+            # TODO 适配两条以上释义
+            if definition.endswith("）"):
+                definition = re.sub('（.+）$', '', definition)
 
             result.append({
                 "word": word,
@@ -110,7 +84,6 @@ class CommonIdiomsIterator:
             })
         self.idioms = iter(result)
 
-
     def _get_word(self, header):
         rubys = header.find_all('ruby')
         for ruby in rubys:
@@ -119,8 +92,13 @@ class CommonIdiomsIterator:
     def _get_kanji(self, header):
         return header.get_text()
 
+    def _normalize_definition(self, text):
+        if text.startswith('► '):
+            text = text[1:]
+        return text.strip()
+
     def _get_definition(self, text):
-        return text.lstrip()[1:].strip()
+        return self._normalize_definition(text.lstrip())
 
     def _get_examples(self, text, prefix):
         egs = re.split('[\u2460-\u24FF]', text)[1:]
@@ -135,13 +113,9 @@ class CommonIdiomsIterator:
         return result
 
     def _get_definition_from_mix(self, text):
-        return text.split('◇')[0].lstrip()[1:].strip()
+        text = text.split('◇')[0].lstrip()
+        return self._normalize_definition(text)
 
     def _get_examples_from_mix(self, text, prefix):
         s = text.split('◇')[1]
-        idx = s.index('（')
-        return [{
-            "ja": s[:idx].strip(),
-            "cn": s[idx:].strip()[1:-1],
-            "name": f'{prefix}_0'
-        }]
+        return self._get_examples(s, prefix)

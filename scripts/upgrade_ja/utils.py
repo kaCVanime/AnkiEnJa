@@ -19,6 +19,12 @@ def is_katakana(letter):
 def is_hiragana(letter):
     return "\u3041" <= letter <= "\u3094" or "\u3099" <= letter <= "\u309e"
 
+def is_onaji(letter):
+    return letter == '々'
+
+def is_cjk(letter):
+    return "\u4e00" <= letter <= "\u9FFF"
+
 
 def is_string_katakana(text):
     return all(is_katakana(c) for c in text)
