@@ -1,8 +1,11 @@
 import json
 import logging
 from time import sleep
+from queue import Queue
 
 from tqdm.contrib.concurrent import thread_map
+
+from tasker import RateTasker, TranslateTasker, SenseTasker
 
 logging.basicConfig(
     filename="ai.log",
@@ -39,24 +42,40 @@ class Manager:
     def __init__(self, todos):
         self.results = []
         self.todos = todos
-        self.pool = []
+        self.pool = Queue()
         self.done = False
 
-        self.rate_queue = []
-        self.translate_queue = []
-        self.more_egs_queue = []
+        self.rate_tasker = RateTasker(self, '?')
+        self.rate_done = False
+        self.translate_tasker = TranslateTasker(self, '?')
+        self.translate_done = False
+        self.sense_tasker = SenseTasker(self, '?')
+        self.sense_done =False
 
-    def get_entry_type(self, entry):
+    def finish(self):
+        self.done = True
+        self.pool.join()
+
+    def finish_task(self, tasker_type):
+        if tasker_type == RateTasker:
+            self.rate_done = True
+        elif tasker_type == TranslateTasker:
+            self.translate_done = True
+        elif tasker_type == SenseTasker:
+            self.sense_done = True
+
+    def handle_result(self, result):
         pass
 
+
+
     def consume(self):
-        if self.pool:
-            return self.pool.pop(0)
-        elif self.done:
+        if self.done:
             return None
-        else:
-            sleep(3)
-            return self.consume()
+
+        result = self.pool.get()
+        self.pool.task_done()
+        return result
 
     def start(self):
         print('start processing entries')
