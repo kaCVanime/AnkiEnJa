@@ -106,8 +106,11 @@ class Parser:
                 definition = re.sub('（.+）$', '', definition)
 
             result.append({
+                "dict_type": "Common_Idioms",
                 "frequency": frequency,
+                "id": kanji,
                 "word": word,
+                "accent": word,
                 "kanji": kanji,
                 "definition": definition,
                 "def_cn": def_cn,

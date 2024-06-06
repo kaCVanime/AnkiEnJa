@@ -3,13 +3,16 @@ import pickle
 import threading
 import logging
 from pathlib import Path
+from itertools import chain
 
 from tqdm.contrib.concurrent import thread_map
 
 from upgrade_ja.dict_lookup import lookup, mdx_helper
 from upgrade_ja.dict_parser.manager import ParserManager
+from upgrade_ja.dict_parser.guanyongju import CommonIdiomsIterator
 
 from upgrade_ja.utils import is_string_katakana
+
 
 parser = ParserManager()
 
@@ -19,6 +22,8 @@ logger = logging.getLogger(__name__)
 lock = threading.Lock()
 
 progress_file = "progress.pkl"
+
+common_idioms_dir = Path('./upgrade_ja/assets/idioms_corrected')
 
 
 if Path(progress_file).is_file():
@@ -101,6 +106,11 @@ def process(item):
         completed_items.append(item)
         save_progress()
 
+    return result
+
+def enhance():
+    pass
+
 
 def run():
     global \
@@ -117,18 +127,28 @@ def run():
         encoding="utf-8",
     )
 
+    print('processing jev entries')
+
     jev_list = get_jev_list()
     todo = [item for item in jev_list if item not in completed_items]
 
     # thread_map(process, todos, max_workers=1)
-    thread_map(process, todo)
+    jev_results = filter(None, thread_map(process, todo))
 
-    print(mdx_helper.xsj_count, mdx_helper.djs_count, mdx_helper.moji_count)
-
-    print(f"{idiom_count}, {phrase_count}")
+    print('dict query count: XSJ: {xsj}; DJS: {djs}; Moji: {moji}.'.format(xsj=mdx_helper.xsj_count, djs=mdx_helper.djs_count, moji=mdx_helper.moji_count))
+    print(f"querying XSJ dict for idioms and phrases..")
+    print(f"Found {idiom_count} idioms, {phrase_count} phrases.")
     print(
-        f"{entry_has_idiom_count}, {entry_has_phrase_count}, {entry_has_idiom_and_phrase_count}"
+        f"There are {entry_has_idiom_count} entries has idiom.\n {entry_has_phrase_count} entries has phrases.\n {entry_has_idiom_and_phrase_count} entries has both idioms and phrases."
     )
+
+    print('processing common idioms from CommonIdioms dict')
+    common_idioms = CommonIdiomsIterator(common_idioms_dir)
+    common_idiom_results = filter(lambda r: not r["is_redirect"], common_idioms)
+
+    enhanced_results = thread_map(enhance, chain(jev_results, common_idiom_results))
+
+
 
 
 if __name__ == "__main__":
