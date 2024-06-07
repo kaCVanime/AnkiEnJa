@@ -1,10 +1,12 @@
 import re
-import logging
+from loguru import logger
 
 from .dict_helper import DictHelper
 from .utils import import_from, is_string_katakana, kata2hira, z2h, swap_bracket_content
 
-logger = logging.getLogger(__name__)
+# logger.remove()
+# logger.add('upgrade_ja.log')
+
 mdx_helper = DictHelper()
 
 

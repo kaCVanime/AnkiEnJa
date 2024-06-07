@@ -1,7 +1,7 @@
 import re
 import copy
 from bs4 import BeautifulSoup
-import logging
+from loguru import logger
 from .base import Base
 from ..utils import (
     import_from,
@@ -10,8 +10,8 @@ from ..utils import (
     remove_last_word,
 )
 
-
-logger = logging.getLogger(__name__)
+# logger.remove()
+# logger.add('upgrade_ja.log')
 
 
 class XSJParser(Base):

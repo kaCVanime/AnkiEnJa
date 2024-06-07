@@ -10,6 +10,8 @@ class CommonIdiomsIterator:
     def __init__(self, html_dir):
         self.html_dir = html_dir
         self.parser = Parser()
+        self.idioms = None
+        self.pages = []
     def __iter__(self):
         self.pages = list(Path(self.html_dir).glob('*.html'))
         self.idioms = None
@@ -33,7 +35,7 @@ class CommonIdiomsIterator:
 
         result = self.parser.parse(html)
 
-        self.idioms = iter(result)
+        self.idioms = filter(lambda d: not d["is_redirect"], result)
 
 class PageIterator:
     def __init__(self, html_dir):

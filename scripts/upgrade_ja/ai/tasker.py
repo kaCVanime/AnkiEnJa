@@ -1,18 +1,26 @@
 from abc import ABC, abstractmethod
 from .gemini import Rater, Translator, Senser
 from threading import Thread, Event
+from loguru import logger
 import queue
+
 
 
 
 class Base(ABC):
     capacity = 10
     def __init__(self, parent, ai):
-        self.parent = parent
-        self.buffer = queue.Queue(self.capacity)
-        self.queue = queue.Queue()
-        self.ai = ai
+        # logger.remove()
+        # logger.add('ai.log')
+
+        self._parent = parent
+        self._ai = ai
+
+        self._buffer = queue.Queue(self.capacity)
+        self._queue = queue.Queue()
+
         self._start = Event()
+
         self._porter_thread = Thread(target=self.porter, daemon=True)
         self._queryer_thread = Thread(target=self.queryer, daemon=True)
 
@@ -20,56 +28,76 @@ class Base(ABC):
         self._start.wait()
         self._porter_thread.start()
         self._queryer_thread.start()
-        self.queue.join()
-        self.finish()
+        self._queue.join()
+        logger.info('tasker {} terminated', type(self).__name__)
 
+    @logger.catch
     def porter(self):
+        logger.info('thread porter started')
         while True:
             todos = []
             try:
                 for i in range(self.capacity):
-                    todos.append(self.buffer.get(block=True, timeout=3))
+                    logger.debug('fetching from buffer')
+                    todos.append(self._buffer.get(block=True, timeout=3))
+                logger.debug('porting {}', todos)
+                self._queue.put(todos)
             except queue.Empty:
+                if todos:
+                    self._queue.put(todos)
+                self._queue.put(None)
+                logger.info('porter terminated')
                 break
-            finally:
-                self.queue.put(todos)
 
+    @logger.catch
     def queryer(self):
-        self._porter_thread.join()
+        logger.info('thread queryer started')
         while True:
-            entries = self.queue.get()
-            result = self.ai.query(entries)
-            self.response(result)
-            self.queue.task_done()
-            if self.queue.empty():
+            entries = self._queue.get()
+            self._queue.task_done()
+            if not entries:
+                logger.info('queryer terminated')
                 break
+            err, result = self._ai.query(entries)
+            if err:
+                logger.error(err)
+            else:
+                self.response(self.preprocess_result(result, entries))
 
+    @abstractmethod
+    def preprocess_result(self, results, entries):
+        pass
 
     def append(self, entry):
-        self.buffer.put(entry)
+        self._buffer.put(entry)
         self._start.set()
 
-    def finish(self):
-        self.parent.finish_task(type(self))
-
     def response(self, result):
-        self.parent.handle_response(type(self), result)
+        self._parent.handle_response(type(self), result)
 
 
 class RateTasker(Base):
-    def __init__(self, parent, hint_path):
-        super().__init__(parent, Rater(hint_path))
+    def __init__(self, parent):
+        super().__init__(parent, Rater())
 
+    def preprocess_result(self, results, entries):
+        return results
 
 
 class TranslateTasker(Base):
-    def __init__(self, parent, hint_path):
-        super().__init__(parent, Translator(hint_path))
+    def __init__(self, parent):
+        super().__init__(parent, Translator())
+
+    def preprocess_result(self, results, entries):
+        return results
 
 
 class SenseTasker(Base):
-    def __init__(self, parent, hint_path):
-        super().__init__(parent, Senser(hint_path))
+    def __init__(self, parent):
+        super().__init__(parent, Senser())
+
+    def preprocess_result(self, results, entries):
+        return results
 
 
 

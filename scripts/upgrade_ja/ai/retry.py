@@ -1,5 +1,9 @@
 from functools import wraps
 from time import sleep
+from loguru import logger
+
+# logger.remove()
+# logger.add('ai.log')
 
 
 def retry(max_retries, delay=1):
@@ -13,7 +17,7 @@ def retry(max_retries, delay=1):
                     return func(*args, **kwargs)
                 except Exception as e:
                     retries += 1
-                    print(f"Attempt {retries} failed: {e}")
+                    logger.warning(f"Attempt {retries} failed: {e}")
                     sleep(delay)
                     last_error = e
             raise Exception(last_error)

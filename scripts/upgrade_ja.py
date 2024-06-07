@@ -1,36 +1,36 @@
 import pandas
 import pickle
 import threading
-import logging
 from pathlib import Path
 from itertools import chain
 
 from tqdm.contrib.concurrent import thread_map
+from tqdm import tqdm
 
+from loguru import logger
+
+from upgrade_ja.recorder import Recorder
 from upgrade_ja.dict_lookup import lookup, mdx_helper
 from upgrade_ja.dict_parser.manager import ParserManager
 from upgrade_ja.dict_parser.guanyongju import CommonIdiomsIterator
+from upgrade_ja.ai.manager import ResultIterator
 
 from upgrade_ja.utils import is_string_katakana
+
+logger.add('upgrade_ja.log')
 
 
 parser = ParserManager()
 
-
-logger = logging.getLogger(__name__)
-
 lock = threading.Lock()
 
-progress_file = "progress.pkl"
+jev_progress_recorder = Recorder('progress.pkl')
+jev_results_recorder = Recorder('jev_results.pkl')
 
 common_idioms_dir = Path('./upgrade_ja/assets/idioms_corrected')
 
 
-if Path(progress_file).is_file():
-    with open(progress_file, "rb") as f:
-        completed_items = pickle.load(f)
-else:
-    completed_items = []
+
 entry_has_idiom_count = 0
 entry_has_phrase_count = 0
 entry_has_idiom_and_phrase_count = 0
@@ -38,13 +38,8 @@ idiom_count = 0
 phrase_count = 0
 
 
-def save_progress():
-    with open(progress_file, "wb") as f:
-        pickle.dump(completed_items, f)
-
-
 def get_jev_list():
-    jev = pandas.read_excel("./assets/JEV.xlsx", header=1, index_col=0)
+    jev = pandas.read_excel("./upgrade_ja/assets/JEV.xlsx", header=1, index_col=0)
     data = jev[["標準的な表記", "読み"]]
     d1 = data.drop_duplicates(subset=["標準的な表記", "読み"])
     return d1.to_numpy().tolist()
@@ -82,6 +77,10 @@ def process(item):
     word, yomi = item
 
     html = lookup(word, yomi)
+
+    with lock:
+        jev_progress_recorder.save(item)
+
     if not html:
         return
 
@@ -103,14 +102,12 @@ def process(item):
         entry_has_idiom_and_phrase_count += 1
 
     with lock:
-        completed_items.append(item)
-        save_progress()
+        jev_results_recorder.save(result)
 
     return result
 
-def enhance():
+def enhance(result):
     pass
-
 
 def run():
     global \
@@ -120,35 +117,33 @@ def run():
         entry_has_phrase_count, \
         entry_has_idiom_and_phrase_count
 
-    logging.basicConfig(
-        filename="upgrade.log",
-        level=logging.ERROR,
-        format="%(levelname)s:%(name)s: %(asctime)s %(message)s",
-        encoding="utf-8",
-    )
-
-    print('processing jev entries')
+    logger.info('start running')
+    logger.info('processing jev entries')
+    logger.remove()
+    logger.add('upgrade_ja.log')
 
     jev_list = get_jev_list()
+    completed_items = jev_progress_recorder.get()
     todo = [item for item in jev_list if item not in completed_items]
 
     # thread_map(process, todos, max_workers=1)
-    jev_results = filter(None, thread_map(process, todo))
+    jev_todo_results = filter(None, thread_map(process, todo))
+    jev_results = chain(jev_results_recorder.get(), jev_todo_results)
 
-    print('dict query count: XSJ: {xsj}; DJS: {djs}; Moji: {moji}.'.format(xsj=mdx_helper.xsj_count, djs=mdx_helper.djs_count, moji=mdx_helper.moji_count))
-    print(f"querying XSJ dict for idioms and phrases..")
-    print(f"Found {idiom_count} idioms, {phrase_count} phrases.")
-    print(
+    logger.info('dict query count: XSJ: {xsj}; DJS: {djs}; Moji: {moji}.'.format(xsj=mdx_helper.xsj_count, djs=mdx_helper.djs_count, moji=mdx_helper.moji_count))
+    logger.info(f"querying XSJ dict for idioms and phrases..")
+    logger.info(f"Found {idiom_count} idioms, {phrase_count} phrases.")
+    logger.info(
         f"There are {entry_has_idiom_count} entries has idiom.\n {entry_has_phrase_count} entries has phrases.\n {entry_has_idiom_and_phrase_count} entries has both idioms and phrases."
     )
 
-    print('processing common idioms from CommonIdioms dict')
-    common_idioms = CommonIdiomsIterator(common_idioms_dir)
-    common_idiom_results = filter(lambda r: not r["is_redirect"], common_idioms)
-
-    enhanced_results = thread_map(enhance, chain(jev_results, common_idiom_results))
-
-
+    common_idioms_iter = iter(CommonIdiomsIterator(common_idioms_dir))
+    logger.info('fetching AI enhanced results')
+    # thread_map(enhance, ResultIterator(chain(jev_results, common_idioms_iter)))
+    enhanced_results = iter(ResultIterator(chain(jev_results, common_idioms_iter)))
+    for i in enhanced_results:
+        logger.info(i)
+        pass
 
 
 if __name__ == "__main__":
