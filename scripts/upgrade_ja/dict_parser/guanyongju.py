@@ -203,7 +203,7 @@ class PageWriter:
         assert len(self.entries) == len(self.origin_entries)
 
     def _append_page_header(self):
-        h1 = self.page.new_tag("h1", class_="kindle-cn-heading-1")
+        h1 = self.page.new_tag("h1", attrs={"class": "kindle-cn-heading-1"})
         h1.string = self.name
         self.page.body.append(h1)
 
@@ -212,19 +212,19 @@ class PageWriter:
         return copy(origin.find('span', class_='kindle-cn-bold'))
 
     def _make_frequency_tag(self, content):
-        tag = self.page.new_tag("span", class_='gyj-frequency')
+        tag = self.page.new_tag("span", attrs={"class": "gyj-frequency"})
         tag.string = content
         return tag
 
     def _make_def_cn_tag(self, content):
-        tag = self.page.new_tag("span", class_='gyj-def_cn')
+        tag = self.page.new_tag("span", attrs={"class": "gyj-def_cn"})
         tag.string = content
         return tag
 
     def _get_def_cn_redirect_tag(self, idx):
         origin = copy(self.origin_entries[idx])
         # rubys = origin.find_all('ruby', recursive=False)
-        container = self.page.new_tag('span', class_='gyj-def_cn gyj-redirect')
+        container = self.page.new_tag('span', attrs={"class": "gyj-def_cn gyj-redirect"})
         anchor = origin.find('span', class_='kindle-cn-bold')
         p = list(anchor.next_siblings)
         container.extend(p)
@@ -238,7 +238,7 @@ class PageWriter:
     def _append_entry_head(self, idx, entry):
         origin_entry_word = self._get_orgin_entry_word(idx)
 
-        container = self.page.new_tag('p', class_='kindle-cn-para-no-indent', attrs={"xml:lang": "ja", "lang": "ja"})
+        container = self.page.new_tag('p', attrs={"xml:lang": "ja", "lang": "ja", "class": "kindle-cn-para-no-indent"})
 
         contents = [self._make_frequency_tag(entry['frequency']), self._translate_tag(origin_entry_word), " 　"]
         if not entry["is_redirect"]:
@@ -251,17 +251,17 @@ class PageWriter:
         self.page.body.append(container)
 
     def _append_definition(self, content):
-        tag = self.page.new_tag("p", class_='gyj-definition', attrs={"xml:lang": "ja", "lang": "ja"})
+        tag = self.page.new_tag("p", attrs={"xml:lang": "ja", "lang": "ja", "class": "gyj-definition"})
         tag.string = f'► {content}'.translate(self.defs_correct_table)
         self.page.body.append(tag)
 
     def _make_example_tag(self, ja, cn):
-        container = self.page.new_tag("p", class_='gyj-example', attrs={"xml:lang": "ja", "lang": "ja"})
-        ja_tag = self.page.new_tag("span", class_='gyj-example-ja')
+        container = self.page.new_tag("p",  attrs={"xml:lang": "ja", "lang": "ja", "class": "gyj-example"})
+        ja_tag = self.page.new_tag("span", attrs={"class": "gyj-example-ja"})
         ja_tag.string = ja.translate(self.defs_correct_table)
         contents = ["◇ ", ja_tag, " 　"]
         if cn:
-            cn_tag = self.page.new_tag("span", class_='gyj-example-cn')
+            cn_tag = self.page.new_tag("span", attrs={"class": "gyj-example-cn"})
             cn_tag.string = f'（{cn}）'
             contents.append(cn_tag)
         container.extend(contents)
