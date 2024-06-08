@@ -29,6 +29,10 @@ def is_cjk(letter):
 def is_string_katakana(text):
     return all(is_katakana(c) for c in text)
 
+def is_string_hiragana(text):
+    return all(is_hiragana(c) for c in text)
+
+
 
 def z2h(*args, **kwargs):
     return jaconv.z2h(*args, **kwargs)
@@ -36,6 +40,9 @@ def z2h(*args, **kwargs):
 
 def kata2hira(*args, **kwargs):
     return jaconv.kata2hira(*args, **kwargs)
+
+def hira2kata(*args, **kwargs):
+    return jaconv.hira2kata(*args, **kwargs)
 
 
 def remove_any_in_parenthesis(text):

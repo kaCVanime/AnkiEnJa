@@ -4,6 +4,11 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, CData, RubyTextString
 from copy import copy
+import difflib
+
+from ..dict_lookup import lookup
+from .manager import ParserManager
+from ..utils import is_hiragana, is_onaji
 
 
 class CommonIdiomsIterator:
@@ -160,6 +165,68 @@ class Parser:
         return self._get_examples(s, prefix)
 
 
+# 制作词头纠正表
+def find_entry_correct_mapping(idiom):
+    # 有多个汉字的情况，固定选一个
+    duplicate_kanji_map = {
+        # こめ　-> 込|籠
+        '迤': "込",
+        '揚': "上",
+        '葳': "倉",
+        '掊': "択",
+    }
+
+    word = idiom['word']
+    kanji = idiom['kanji']
+
+    mapping = {}
+    white_list = ['一', '人', '付', '搔']
+
+    result = lookup(word, None, mode='KJE')
+    if result:
+        parsed = ParserManager().parse(result)
+
+        c_kanji = parsed['kanji']
+        if not c_kanji:
+            return mapping
+        if '【' in c_kanji:
+            c_kanji = c_kanji[1:-1]
+
+        if len(c_kanji) != len(kanji):
+            return mapping
+
+        diff_list = [li for li in difflib.ndiff(kanji, c_kanji) if li[0] != ' ']
+        if not diff_list:
+            return mapping
+
+        diff_tuples = []
+
+        # ['- 步', '+ 歩', '- 步', '+ 歩']
+        if diff_list[0][0] != diff_list[1][0]:
+            for i in range(0, len(diff_list), 2):
+                diff_tuples.append((diff_list[i][2], diff_list[i + 1][2]))
+
+        else:
+            delta = int(len(diff_list) / 2)
+            for i, start in enumerate(diff_list):
+                if start[0] == '+':
+                    break
+                pair = diff_list[i + delta]
+                diff_tuples.append((start[2], pair[2]))
+
+        for cn, ja in diff_tuples:
+            if is_hiragana(ja) or is_hiragana(cn) or is_onaji(ja) or is_onaji(cn):
+                continue
+
+            if cn in white_list:
+                continue
+            if cn in duplicate_kanji_map:
+                ja = duplicate_kanji_map.get(cn)
+
+            mapping[cn] = ja
+
+    return mapping
+
 INITIAL_HTML = '''
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -178,13 +245,13 @@ class Writer:
     def __init__(self, html_dir):
         self.pages = PageIterator(html_dir)
 
-    def run(self, output_dir, mapping_html, mapping_entry, mapping_defs):
+    def run(self, output_dir, mapping_html, mapping_defs):
         for page, page_name in self.pages:
-            PageWriter(page.translate(str.maketrans(mapping_html)), page_name, output_dir, mapping_entry, mapping_defs).start()
+            PageWriter(page.translate(str.maketrans(mapping_html)), page_name, output_dir, mapping_defs).start()
 
 
 class PageWriter:
-    def __init__(self, html, filename, output_dir, mapping_entry, mapping_defs):
+    def __init__(self, html, filename, output_dir, mapping_defs):
         self.parser = Parser()
         self.name = self.parser.get_page_head(html)
         self.origin = BeautifulSoup(html, 'html.parser')
@@ -192,7 +259,6 @@ class PageWriter:
         self.filename = filename
         self.output_dir = output_dir
 
-        self.entry_correct_table = str.maketrans(mapping_entry)
         self.defs_correct_table = str.maketrans(mapping_defs)
 
         self._init_entries(html)
@@ -231,34 +297,35 @@ class PageWriter:
 
         return container
 
-    def _translate_tag(self, tag):
-        return BeautifulSoup(str(tag).translate(self.entry_correct_table), 'html.parser')
+    def _translate_tag(self, tag, table):
+        return BeautifulSoup(str(tag).translate(table), 'html.parser')
 
 
-    def _append_entry_head(self, idx, entry):
+    def _append_entry_head(self, idx, entry, correct_table):
         origin_entry_word = self._get_orgin_entry_word(idx)
 
         container = self.page.new_tag('p', attrs={"xml:lang": "ja", "lang": "ja", "class": "kindle-cn-para-no-indent"})
 
-        contents = [self._make_frequency_tag(entry['frequency']), self._translate_tag(origin_entry_word), " 　"]
+        contents = [self._make_frequency_tag(entry['frequency']), self._translate_tag(origin_entry_word, correct_table), " 　"]
         if not entry["is_redirect"]:
             contents.append(self._make_def_cn_tag(entry['def_cn']))
         else:
-            contents.append(self._get_def_cn_redirect_tag(idx))
+            # TODO 独立查询差异
+            contents.append(self._translate_tag(self._get_def_cn_redirect_tag(idx), correct_table))
 
         container.extend(contents)
 
         self.page.body.append(container)
 
-    def _append_definition(self, content):
+    def _append_definition(self, content, entry_correct_table):
         tag = self.page.new_tag("p", attrs={"xml:lang": "ja", "lang": "ja", "class": "gyj-definition"})
-        tag.string = f'► {content}'.translate(self.defs_correct_table)
+        tag.string = f'► {content}'.translate(self.defs_correct_table).translate(entry_correct_table)
         self.page.body.append(tag)
 
-    def _make_example_tag(self, ja, cn):
+    def _make_example_tag(self, ja, cn, entry_correct_table):
         container = self.page.new_tag("p",  attrs={"xml:lang": "ja", "lang": "ja", "class": "gyj-example"})
         ja_tag = self.page.new_tag("span", attrs={"class": "gyj-example-ja"})
-        ja_tag.string = ja.translate(self.defs_correct_table)
+        ja_tag.string = ja.translate(self.defs_correct_table).translate(entry_correct_table)
         contents = ["◇ ", ja_tag, " 　"]
         if cn:
             cn_tag = self.page.new_tag("span", attrs={"class": "gyj-example-cn"})
@@ -267,20 +334,21 @@ class PageWriter:
         container.extend(contents)
         return container
 
-    def _append_examples(self, examples):
-        self.page.body.extend([self._make_example_tag(eg["ja"], eg["cn"]) for eg in examples])
+    def _append_examples(self, examples, entry_correct_table):
+        self.page.body.extend([self._make_example_tag(eg["ja"], eg["cn"], entry_correct_table) for eg in examples])
 
-    def _append_entry_body(self, entry):
+    def _append_entry_body(self, entry, correct_table):
         if not entry["is_redirect"]:
-            self._append_definition(entry['definition'])
-            self._append_examples(entry['examples'])
+            self._append_definition(entry['definition'], correct_table)
+            self._append_examples(entry['examples'], correct_table)
 
     def start(self):
         self._append_page_header()
 
         for idx, entry in enumerate(self.entries):
-            self._append_entry_head(idx, entry)
-            self._append_entry_body(entry)
+            correct_table = str.maketrans(find_entry_correct_mapping(entry))
+            self._append_entry_head(idx, entry, correct_table)
+            self._append_entry_body(entry, correct_table)
 
         self._write_to_file()
 

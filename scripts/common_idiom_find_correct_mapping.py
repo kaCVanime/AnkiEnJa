@@ -29,41 +29,104 @@ idioms = CommonIdiomsIterator(html_dir)
 
 similar_cn_jp_mapping_blacklist = ['屦', '谂', '桩', '锫', '挥', '划', '缂', '拟']
 
-# 人工校对的mapping
-manual_mapping = {
+manual_mapping_html = {
     '囫': "囲",
     '扳': "扱",
     '逯': "遊",
     '络': "絡",
     '颏': "顔",
-    '见': '見',
-    '蓝': '藍',
     '浞': '況',
     '顷': '頃',
-    '书': '書',
     '骢': '験',
-    '张': '張',
     '姊': '姉',
-    '难': '難',
     '徵': '徴',
-    '规': '規',
-    '喻': '喩',
-    '拟': '似',
     '榨': '搾',
     '賬': '賑',
     '犏': '犠',
     '桩': '粧',
     '瘛': '癒',
-    '骂': '罵',
     '馱': '駄',
     '苤': "葷",
     '迕': "辻",
     '癎': '癪',
     '窬': '窓',
     '僦': '傑',
-    '俱': '倶'
+    '俱': '倶',
+    '囝': '図',
+    '宓': '実',
+    '庀': '広',
+    '捋': '採',
+    '拚': '抜',
+    '搿': '挙',
+    '俅': '働',
+    '耵': '恥',
+    '綦': '線',
+    '撙': '揃',
+    '迤': '込',
+    '庥': '応',
+    '陴': '隠',
+    '雒': '雑',
+    '擤': '擡',
+    '汊': '沢',
+    '跗': '跡',
+    '屦': '屍',
+    '呋': '咲',
+    '谂': '誌',
+    '佾': '伝',
+    '疰': '痒',
+    '廑': '廃',
+    '嘌': '喫',
+    '砹': '砲',
+    '阊': '闇',
+    '唿': '唸',
+    '焓': '煙',
+    '泫': '滝',
+    '锫': '鎮',
+    '烀': '焼',
+    '湄': '涙',
+    '溻': '漏',
+    '搌': '拵',
+    '侔': '併',
+    '妒': '妬',
+    '仨': '仮',
+    '挹': '払',
+    '洄': '沖',
+    '癍': '癪',
+    '橐': '棄',
+    '缂': '綯',
+    "笾": '篠',
+    "鳎": "鰯",
+    "缏": "総",
+    "蓠": "薬",
+    "脶": "脇",
+    "囵": "団",
+    "阃": "闘",
+    "讵": "証",
+    "阌": "関",
+    "哝": "呪",
+    "涞": "満",
+    "钱": "銭",
+}
+manual_mapping_defs = {
+    '见': '見',
+    '蓝': '藍',
+    '书': '書',
+    '张': '張',
+    '难': '難',
+    '规': '規',
+    '喻': '喩',
+    '拟': '似',
+    '骂': '罵',
+    "伪": "偽",
+    "别": "別",
+    "绳": "縄",
+    "剂": "剤",
+    "纵": "縦",
+    "觉": "覚",
+    '仿': '倣',
 }
 
+manual_mapping = {**manual_mapping_defs, **manual_mapping_html}
 
 # 有多个汉字的情况，固定选一个
 duplicate_kanji_map = {
@@ -71,17 +134,21 @@ duplicate_kanji_map = {
     '迤': "込",
     '揚': "上",
     '葳': "倉",
-    '掊': "択"
+    '掊': "択",
 }
 
 def get_mapping():
     duplicates = defaultdict(list)
     mapping = set()
     white_list = ['一', '人', '付', '搔']
+
     for idiom in idioms:
         word = idiom['word']
         kanji = idiom['kanji']
 
+        result = lookup(kanji, word, mode='KJE')
+        if result:
+            continue
         result = lookup(word, None, mode='KJE')
         if result:
             parsed = parser.parse(result)
@@ -118,7 +185,6 @@ def get_mapping():
                 if is_hiragana(ja) or is_hiragana(cn) or is_onaji(ja) or is_onaji(cn):
                     continue
 
-
                 if cn in white_list:
                     continue
                 if cn in duplicate_kanji_map:
@@ -137,12 +203,14 @@ def get_mapping():
 def split_mapping(mapping):
     with open(common_cns_file, mode='r', encoding='utf-8') as f:
         common_cns = [s.strip() for s in f.readlines()]
+    with open(common_jps_file, mode='r', encoding='utf-8') as f:
+        common_jps = [s.strip()[-1] for s in f.readlines()]
 
     html_mapping = set()
     entry_mapping = set()
 
     for item in mapping:
-        if item[0] in common_cns:
+        if item[0] in common_cns or item[0] in common_jps:
             entry_mapping.add(item)
         else:
             html_mapping.add(item)
@@ -152,7 +220,7 @@ def split_mapping(mapping):
 def get_raw_mapping_manually(knowns):
     raw_map = defaultdict(set)
     similar_dict = {}
-    white_list = []
+    white_list = ['瘦', '搔']
     similar_cn_jp_dict = {}
     with open(common_jps_file, mode='r', encoding='utf-8') as f:
         common_jps = [s.strip()[-1] for s in f.readlines()]
@@ -187,6 +255,10 @@ def get_raw_mapping_manually(knowns):
             raw_map.pop(c)
             similar_dict[c] = similar_cn_jp_dict[c]
 
+    for c, v in raw_map.copy().items():
+        if len(v) <= 3:
+            raw_map.pop(c)
+
     return raw_map, similar_dict
 
 
@@ -194,7 +266,7 @@ mapping, duplicates = get_mapping()
 
 html_mapping, entry_mapping = split_mapping(mapping)
 
-raw_mapping, similar_mapping = get_raw_mapping_manually([c for c,_ in mapping])
+raw_mapping, similar_mapping = get_raw_mapping_manually([c for c,_ in html_mapping])
 
 
 def mapping_to_dict(mapping):
@@ -204,10 +276,13 @@ def mapping_to_dict(mapping):
     return result
 
 
+
+# 全文通用
 with open(html_dir / 'correct_mapping_html.pkl', mode='wb') as f:
-    pickle.dump(mapping_to_dict(html_mapping), f)
-with open(html_dir / 'correct_mapping_entry.pkl', mode='wb') as f:
-    pickle.dump(mapping_to_dict(entry_mapping), f)
+    pickle.dump({**(mapping_to_dict(html_mapping)), **manual_mapping_html}, f)
+
+# 仅日文释义、日文例句通用
 with open(html_dir / 'correct_mapping_defs.pkl', mode='wb') as f:
-    pickle.dump(similar_mapping, f)
+    pickle.dump({**similar_mapping, **manual_mapping_defs}, f)
+
 pass

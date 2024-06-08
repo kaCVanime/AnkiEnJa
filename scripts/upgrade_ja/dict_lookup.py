@@ -2,7 +2,7 @@ import re
 from loguru import logger
 
 from .dict_helper import DictHelper
-from .utils import import_from, is_string_katakana, kata2hira, z2h, swap_bracket_content
+from .utils import import_from, is_string_katakana, kata2hira, z2h, swap_bracket_content, is_string_hiragana, hira2kata
 
 # logger.remove()
 # logger.add('upgrade_ja.log')
@@ -135,6 +135,9 @@ def lookup(word, yomi, mode="all"):
     # 全角英文转半角
     word = z2h(word, kana=False, ascii=True, digit=True)
     query = get_query_method(mode=mode)
+
+    if yomi and is_string_hiragana(yomi):
+        yomi = hira2kata(yomi)
 
     results = query(word)
     if "々" in word and not len(results):
