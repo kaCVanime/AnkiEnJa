@@ -14,22 +14,42 @@ limiter = strategies.FixedWindowRateLimiter(memory_storage)
 second, minute, day = parse_many('1/3seconds;15/minute;1500/day')
 
 
+free = True
+
 def check():
-    with lock:
-        return limiter.test(second) and limiter.test(minute) and limiter.test(day)
+    return limiter.test(second) and limiter.test(minute) and limiter.test(day)
 
 
 def rate_limit(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        while not check():
-            sleep(0.1)
+        global free
+
+        while True:
+            lock.acquire()
+            logger.debug('lock acquired')
+            free = check()
+            logger.debug('free? {}.', free)
+            if free:
+                break
+            logger.debug('lock released')
+            lock.release()
+            logger.debug('sleeping')
+            sleep(1)
+
+        logger.info('executing {}', func.__name__)
 
         for r in (second, minute, day):
             assert True is limiter.hit(r)
+            # limiter.hit(r)
 
-        logger.debug('executing {}', func.__name__)
+        result = func(*args, **kwargs)
 
-        return func(*args, **kwargs)
+        free = check()
+
+        lock.release()
+        logger.debug('lock released after executing')
+
+        return result
 
     return wrapper

@@ -1,11 +1,11 @@
 import re
 from loguru import logger
+from pathlib import Path
 
 from .dict_helper import DictHelper
 from .utils import import_from, is_string_katakana, kata2hira, z2h, swap_bracket_content, is_string_hiragana, hira2kata
 
-# logger.remove()
-# logger.add('upgrade_ja.log')
+cur_dir = Path(__file__).parent
 
 mdx_helper = DictHelper()
 

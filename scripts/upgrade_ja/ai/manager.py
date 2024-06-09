@@ -1,24 +1,25 @@
+from pathlib import Path
 from loguru import logger
 from queue import Queue
 from threading import Lock, Thread
 from tqdm.contrib.concurrent import thread_map
+from itertools import tee
+from time import sleep
+from tqdm import tqdm
 
 from .tasker import RateTasker, TranslateTasker, SenseTasker
 from ..recorder import Recorder
 
-result_recorder = Recorder()
+
+result_recorder = Recorder(Path(__file__).parent.parent / 'temp' / 'ai.pkl')
 
 lock = Lock()
 
 
-
-
 class ResultIterator:
     def __init__(self, todos):
-        # logger.remove()
-        # logger.add('ai.log')
         self.manager = Manager(todos)
-        Thread(target=self.manager.run, daemon=False).start()
+        Thread(target=self.manager.run, daemon=True).start()
 
     def __iter__(self):
         self.items = iter(result_recorder.get())
@@ -37,10 +38,7 @@ class ResultIterator:
 
 class Manager:
     def __init__(self, todos):
-        # already_done = [r["id"] for r in result_recorder.get()]
-        # split_entries = [self._split_entry(t) for t in todos]
-        # self.todos = iter([t for t in split_entries if t["id"] not in already_done])
-        self.todos = todos
+        self.todos = self._resume(todos)
 
         self.pool = Queue()
 
@@ -59,6 +57,30 @@ class Manager:
 
         self.temp = {}
 
+        self.query_tqdm = None
+
+
+    def _resume(self, entries):
+        already_done = [t["id"] for t in result_recorder.get()]
+        todos = []
+        for entry in entries:
+            if "id" in entry and entry["id"] not in already_done:
+                todos.append(entry)
+            elif isinstance(entry.get("defs", None), list):
+                fully_processed = True
+                for d in entry["defs"]:
+                    if d["id"] not in already_done:
+                        fully_processed = False
+                        break
+                if not fully_processed:
+                    todos.append(entry)
+            else:
+                todos.append(entry)
+
+        return todos
+
+
+
     def start_thread(self):
         self.rate_thread.start()
         self.translate_thread.start()
@@ -70,6 +92,7 @@ class Manager:
         self.translate_thread.join()
         self.sense_thread.join()
         self.pool.put(None)
+        self.query_tqdm.close()
         logger.info('all tasker terminated')
 
     def _entry_done(self, id):
@@ -87,17 +110,36 @@ class Manager:
                 self.pool.put(p)
 
     def handle_response(self, tasker_type, results):
+        # self._init_query_tqdm()
+        # 获取不到在初始化之前的进度。
+        if self.query_tqdm:
+            self.query_tqdm.update(1)
         for result in results:
             self._handle_result(tasker_type, result)
 
     def consume(self):
         return self.pool.get()
 
+    def _init_query_tqdm(self):
+        if self.query_tqdm:
+            return
+        todo_size = self.rate_tasker.get_queue_size() + self.translate_tasker.get_queue_size() + self.sense_tasker.get_queue_size()
+        self.query_tqdm = tqdm(total=todo_size)
+
     def run(self):
         logger.info('start running')
         self.start_thread()
 
-        thread_map(self.process, self.todos)
+        todos, todos_clone = tee(self.todos)
+
+        print('adding todos')
+        logger.info('adding todos')
+        thread_map(self.process, todos, total=len(list(todos_clone)))
+
+        print('fetching results from AI')
+        logger.info('adding todos')
+        sleep(5)
+        self._init_query_tqdm()
 
         self.finish()
 
@@ -141,16 +183,10 @@ class Manager:
         return handlers
 
     def process(self, entry):
-        # handlers = self._get_handlers(entry)
-        # for h in handlers:
-        #     logger.debug(entry)
-        #     self.temp[entry["id"]] = entry
-        #     h(entry)
-
         sub_entries = self._split_entry(entry)
         for sub_entry in sub_entries:
             handlers = self._get_handlers(sub_entry)
             for h in handlers:
-                logger.debug(sub_entry)
+                logger.debug('start processing {}', sub_entry)
                 self.temp[sub_entry["id"]] = sub_entry
                 h(sub_entry)

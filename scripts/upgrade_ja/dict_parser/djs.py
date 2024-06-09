@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from copy import copy
 
 from .base import Base
 from ..utils import normalize_redirect_word
@@ -25,8 +26,16 @@ class DJSParser(Base):
         return tag.get_text() if tag else None
 
     def get_accent(self):
-        tag = self.html.find("maccentaudiog")
-        return tag.get_text() if tag else None
+        tag = copy(self.html.find("maccentaudiog"))
+        if not tag:
+            return None
+        prefix = tag.find('span', class_='補足ロゴG')
+        link = tag.find('a')
+        for t in (prefix, link):
+            if t:
+                t.decompose()
+
+        return tag.get_text()
 
     def get_defs_and_egs(self):
         prefix = self.get_entry_prefix()

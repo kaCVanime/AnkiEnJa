@@ -2,10 +2,6 @@ from functools import wraps
 from time import sleep
 from loguru import logger
 
-# logger.remove()
-# logger.add('ai.log')
-
-
 def retry(max_retries, delay=1):
     def decorator_retry(func):
         @wraps(func)

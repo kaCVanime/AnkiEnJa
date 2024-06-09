@@ -1,16 +1,19 @@
 import pickle
 from pathlib import Path
-
 from loguru import logger
+from threading import Lock
 
 
+cur_dir = Path(__file__).parent
 
-record_file = Path(__file__).parent / 'results.pkl'
 
 class Recorder:
-    def __init__(self, file=record_file):
-        self.file = file
+    def __init__(self, file):
+        self.file = Path(file)
+        self.file.parent.mkdir(exist_ok=True)
+        self.name = self.file.stem
         self._results = []
+        self.lock = Lock()
         if Path(file).is_file():
             with open(self.file, mode='rb') as f:
                 self._results = pickle.load(f)
@@ -19,7 +22,8 @@ class Recorder:
         return self._results
 
     def save(self, entry):
-        logger.debug('saving {}', entry)
         self._results.append(entry)
-        with open(self.file, mode='wb') as f:
-            pickle.dump(self._results, f)
+        logger.debug('saving {} to {}', entry, self.name)
+        with self.lock:
+            with open(self.file, mode='wb') as f:
+                pickle.dump(self._results, f)

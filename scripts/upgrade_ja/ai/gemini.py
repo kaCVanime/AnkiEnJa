@@ -25,8 +25,7 @@ class Base(ABC):
     hint_path = None
 
     def __init__(self):
-        # logger.remove()
-        # logger.add('ai.log')
+
         with open(self.hint_path, mode="r", encoding="utf-8") as f:
             content = f.read()
         # self.model = genai.GenerativeModel("gemini-1.5-flash-latest", system_instruction=content)

@@ -10,10 +10,6 @@ from ..utils import (
     remove_last_word,
 )
 
-# logger.remove()
-# logger.add('upgrade_ja.log')
-
-
 class XSJParser(Base):
     # TODO special case 気に入る
     def get_word(self):
