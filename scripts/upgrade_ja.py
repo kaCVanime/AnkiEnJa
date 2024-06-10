@@ -22,13 +22,19 @@ for p in (log_path, temp_path):
 common_idioms_dir = Path('./upgrade_ja/assets/idioms_corrected_v2')
 
 
+def filter_parser_log_by_dict_type(dict_type):
+    def f(record):
+        return "upgrade_ja.dict_parser" in record["name"] and record["extra"].get("dict_type", None) == dict_type
+    return f
 
 logger.remove()
 logger.add(log_path / 'upgrade_ja.log', filter=lambda r: r['name'] == '__main__')
 logger.add(log_path / 'ai.log', filter='upgrade_ja.ai')
 logger.add(log_path / 'recorder.log', filter='upgrade_ja.recorder')
 logger.add(log_path / 'dict_lookup.log', filter='upgrade_ja.dict_lookup')
-logger.add(log_path / 'dict_parser.log', filter='upgrade_ja.dict_parser')
+logger.add(log_path / 'dict_parser_DJS.log', filter=filter_parser_log_by_dict_type('DJS'))
+logger.add(log_path / 'dict_parser_MOJI.log', filter=filter_parser_log_by_dict_type('Moji'))
+logger.add(log_path / 'dict_parser_XSJ.log', filter=filter_parser_log_by_dict_type('XSJ'))
 logger.add(log_path / 'rate_limiter.log', filter='upgrade_ja.ai.rate_limiter', level='INFO')
 
 
@@ -149,12 +155,12 @@ def run():
 
     jev_results = lookup_jev_entries()
 
-    # common_idioms_iter = iter(CommonIdiomsIterator(common_idioms_dir))
+    common_idioms_iter = iter(CommonIdiomsIterator(common_idioms_dir))
 
     print('fetching AI enhanced results')
     logger.info('fetching AI enhanced results')
     # thread_map(enhance, ResultIterator(chain(jev_results, common_idioms_iter)))
-    enhanced_jev_results = iter(ResultIterator(jev_results))
+    enhanced_jev_results = iter(ResultIterator(chain(jev_results, common_idioms_iter)))
 
     for i in enhanced_jev_results:
         pass

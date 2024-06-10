@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+from loguru import logger
+import json
 
 from .xsj import XSJParser
 from .djs import DJSParser
@@ -88,7 +90,7 @@ class ParserManager:
         idioms = parser.get_idioms()
         phrases = parser.get_phrases({"word": word, "kanji": kanji, "accent": accent})
 
-        return {
+        result = {
             "dict_type": dict_type,
             "word": word,
             "kanji": kanji,
@@ -97,3 +99,8 @@ class ParserManager:
             "idioms": idioms,
             "phrases": phrases,
         }
+
+        with logger.contextualize(dict_type=dict_type):
+            logger.debug(json.dumps(result, ensure_ascii=False))
+
+        return result
