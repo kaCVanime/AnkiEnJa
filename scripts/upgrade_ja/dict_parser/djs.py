@@ -35,17 +35,19 @@ class DJSParser(Base):
             if t:
                 t.decompose()
 
-        return tag.get_text()
+        return tag.get_text().strip()
 
     def get_defs_and_egs(self):
         prefix = self.get_entry_prefix()
-        contents = self.html.find("contents")
+        contents = copy(self.html.find("contents"))
         if not contents:
             return None
         kaisetsu = contents.find("span", class_="解説G")
         defs = kaisetsu.find_all("mg", id=bool)
         if not defs:
             defs = kaisetsu.find_all("mg", id=True)
+            # remove 類語
+            defs = [defs[0]]
         result = []
         for def_idx, definition_box in enumerate(defs):
             definition = definition_box.meaning
@@ -62,8 +64,22 @@ class DJSParser(Base):
             # remove ㋐
             if definition.l4:
                 definition.l4.decompose()
-            # if not definition.get_text():
-            #     continue
+
+            # 〘名〙
+            if definition.hinshi:
+                definition.hinshi.decompose()
+
+            # スル
+            if definition.hinshisahen:
+                definition.hinshisahen.decompose()
+
+            # 1一0〇代から2二0〇代の読者 -> 10代から20代の読者
+            kh = definition.find_all('k-h', recursive=False)
+            kv = definition.find_all('k-v', recursive=False)
+            if kh and kv:
+                for k in kv:
+                    k.decompose()
+
             eg_boxs = definition.find_all("exg")
             egs = []
             for eg_idx, eg in enumerate(eg_boxs):
@@ -71,14 +87,14 @@ class DJSParser(Base):
                 egs.append(
                     {
                         "name": f"{prefix}_{def_idx}_{eg_idx}",
-                        "ja": eg.get_text(),
+                        "ja": eg.get_text().strip(),
                         "cn": "",
                     }
                 )
             result.append(
                 {
                     "id": f"{prefix}_{def_idx}",
-                    "definition": definition.get_text(),
+                    "definition": definition.get_text().strip(),
                     "def_cn": "",
                     "examples": egs,
                 }
