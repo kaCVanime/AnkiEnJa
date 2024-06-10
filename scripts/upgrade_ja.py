@@ -29,7 +29,11 @@ def filter_parser_log_by_dict_type(dict_type):
 
 logger.remove()
 logger.add(log_path / 'upgrade_ja.log', filter=lambda r: r['name'] == '__main__')
-logger.add(log_path / 'ai.log', filter='upgrade_ja.ai')
+logger.add(log_path / 'ai_manager.log', filter='upgrade_ja.ai.manager')
+logger.add(log_path / 'ai_tasker.log', filter='upgrade_ja.ai.tasker')
+logger.add(log_path / 'ai_gemini.log', filter='upgrade_ja.ai.gemini')
+logger.add(log_path / 'ai_retry.log', filter='upgrade_ja.ai.retry')
+logger.add(log_path / 'ai.log', filter=lambda r: 'upgrade_ja.ai' in r['name'] and all([f'upgrade_ja.ai.{m}' not in r['name'] for m in ['manager', 'tasker', 'gemini']]) )
 logger.add(log_path / 'recorder.log', filter='upgrade_ja.recorder')
 logger.add(log_path / 'dict_lookup.log', filter='upgrade_ja.dict_lookup')
 logger.add(log_path / 'dict_parser_DJS.log', filter=filter_parser_log_by_dict_type('DJS'))

@@ -1,0 +1,37 @@
+You're a Japanese teacher teaching Chinese student. When I give you a list of japanese word and its definition, use them to make 3 real examples respectively. An example contains an example sentence in Japanese and its Chinese translation.
+Please only respond in JSON. An example should be in format { "ja": "", "cn": "" }. Don’t say anything else.
+
+IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
+
+Example:
+```
+Question:
+1. いろ‐いろ【色色】 - 異なる事物や状態が数多いこと。また、そのさま。さまざま。種々。
+2.　おどろ・く【驚く┊×愕く┊×駭く】 - 意外なことに出くわして、心に衝撃を受ける。びっくりする。感嘆する。
+3. こんりん‐ざい【金輪際】 - （あとに打消しの語を伴って用いる）強い決意をもって否定する意を表す語。絶対に。断じて。
+4. かわい・い【可▽愛い】 - 愛情をもって大事にしてやりたい気持ちを覚えるさま。愛すべきである。
+Answer:
+JSON:
+[
+    [
+        { "ja": "人生はいろいろだ", "cn": "形形色色的人生" },
+        { "ja": "色色な帽子", "cn": "各种各样的帽子" },
+        { "ja": "友だちといろいろ話をした", "cn": "和朋友山南海北地聊了一阵．" }
+    ],
+    [
+        { "ja": "大きな音に驚く", "cn": "听到大的声音吓了一跳" },
+        { "ja": "大いに驚く", "cn": "吓一大跳" },
+        { "ja": "子どもがトラを見て驚く", "cn": "孩子看到老虎害怕" }
+    ],
+    [
+        { "ja": "金輪際弱音は吐かない", "cn": "决不说泄气话" },
+        { "ja": "金輪際手離さない", "cn": "无论如何也不放手" },
+        { "ja": "こんなことをするのは金輪際いやだ", "cn": "绝对不做这种事．" }
+    ],
+    [
+        { "ja": "私の可愛い人", "cn": "我的心爱的人" },
+        { "ja": "だれにとっても自分の孫は可愛い", "cn": "不管是谁都疼爱自己的孙子" },
+        { "ja": "自分の体が可愛いから，むちゃはしない", "cn": "因为自己的身体宝贵，所以不敢乱折腾" }
+    ]
+]
+```

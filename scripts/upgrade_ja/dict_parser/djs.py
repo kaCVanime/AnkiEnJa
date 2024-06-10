@@ -80,23 +80,23 @@ class DJSParser(Base):
                 for k in kv:
                     k.decompose()
 
-            eg_boxs = definition.find_all("exg")
-            egs = []
-            for eg_idx, eg in enumerate(eg_boxs):
-                eg.extract()
-                egs.append(
-                    {
-                        "name": f"{prefix}_{def_idx}_{eg_idx}",
-                        "ja": eg.get_text().strip(),
-                        "cn": "",
-                    }
-                )
+            # eg_boxs = definition.find_all("exg")
+            # egs = []
+            # for eg_idx, eg in enumerate(eg_boxs):
+            #     eg.extract()
+            #     egs.append(
+            #         {
+            #             "name": f"{prefix}_{def_idx}_{eg_idx}",
+            #             "ja": eg.get_text().strip(),
+            #             "cn": "",
+            #         }
+            #     )
             result.append(
                 {
                     "id": f"{prefix}_{def_idx}",
                     "definition": definition.get_text().strip(),
                     "def_cn": "",
-                    "examples": egs,
+                    "examples": None,
                 }
             )
         return result

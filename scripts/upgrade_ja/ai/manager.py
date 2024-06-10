@@ -116,12 +116,13 @@ class Manager:
                 self.pool.put(p)
 
     def handle_response(self, tasker_type, results):
-        # self._init_query_tqdm()
-        # 获取不到在初始化之前的进度。
-        if self.query_tqdm:
-            self.query_tqdm.update(1)
-        for result in results:
-            self._handle_result(tasker_type, result)
+        if results:
+            # self._init_query_tqdm()
+            # 获取不到在初始化之前的进度。
+            if self.query_tqdm:
+                self.query_tqdm.update(1)
+            for result in results:
+                self._handle_result(tasker_type, result)
 
     def consume(self):
         return self.pool.get()

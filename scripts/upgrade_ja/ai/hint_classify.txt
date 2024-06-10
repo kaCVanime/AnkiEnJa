@@ -1,0 +1,88 @@
+Multiple choice problem task: When I provide you with a list of Japanese words and their definitions, select up to three fields from the following options where the meaning is most commonly referred or known.
+[
+    "Appearance",
+    "Antiques & Collectibles",
+    "Architecture",
+    "Art",
+    "Biography & Autobiography",
+    "Body, Mind & Spirit",
+    "Business & Economics",
+    "Comics & Graphic Novels",
+    "Computers",
+    "Cooking",
+    "Crafts & Hobbies",
+    "Communication",
+    "Design",
+    "Drama",
+    "Education",
+    "Events & Action",
+    "Emotion",
+    "Family & Relationships",
+    "Fiction",
+    "Foreign Language Study",
+    "Games & Activities",
+    "Gardening",
+    "Health & Fitness",
+    "History",
+    "Humor",
+    "Language Arts & Disciplines",
+    "Law",
+    "Mathematics",
+    "Medical",
+    "Media",
+    "Miscellaneous",
+    "Music",
+    "Nature",
+    "Performing Arts",
+    "Personality",
+    "Perception",
+    "Philosophy",
+    "Photography",
+    "Political Science",
+    "Psychology",
+    "Reference",
+    "Religion",
+    "Science",
+    "Social Science",
+    "Sports & Recreation",
+    "Technology & Engineering",
+    "Transportation",
+    "Travel"
+]
+
+You must choose from the above options. Don't create option.
+Please respond in JSON. Don't say anything else.
+
+IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
+
+Example:
+```
+Question:
+1. はいしん【配信】 - 通信社・新聞社・放送局などが、入手した情報を関係方面や支社などに流すこと。
+2. う・る【売る】 - 自分の利益のために裏切る。
+3. うり‐あげ【売（り）上（げ）】 - 商品などを売って得た代金の総額。売上高。売上金。
+4. おどろき【驚き┊×愕き┊×駭き】 - 驚くこと。また、驚くべき事件・事柄。
+5. とら・える【捕（ら）える┊捉える】 - ある物事を確実に自分のものとする。手に入れる。
+6. なん‐と【何と】 - 感心・失望などの気持ちを強調して表す。なんて。
+7. いら‐いら【▽苛▽苛】 - 思いどおりにならなかったり不快なことがあったりして、神経が高ぶるさま。いらだたしいさま。
+8. き【気】 - 意識。
+9. あが・る【上がる┊揚がる┊挙がる】 - 声が高く発せられる。
+10. いん‐さつ【印刷】 - 原稿に従って印刷版を作り、その版面にインクなどをつけて文字・図形を多数の紙や布などに刷りうつすこと。また、その技術。印刷版の種類により凸版印刷・平版印刷・凹版印刷などがある。
+11. おんせい‐がく【音声学】 - 言語学の一分野。言語音の発音運動と、その音声とを研究する学問。
+Answer:
+JSON:
+[
+    ["Media"],
+    ["Crime", "Events & Action"],
+    ["Business & Economics"],
+    ["Emotion"],
+    ["Events & Action"],
+    ["Emotion"],
+    ["Emotion"],
+    ["Philosophy", "Psychology"],
+    ["Perception", "Science"],
+    ["Language Arts & Disciplines", "Technology & Engineering"],
+    ["Language Arts & Disciplines"]
+]
+
+```

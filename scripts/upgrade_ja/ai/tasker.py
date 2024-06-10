@@ -1,10 +1,16 @@
 from abc import ABC, abstractmethod
-from .gemini import Rater, Translator, Senser
+from .gemini import Rater, Translator, Senser, Classifier
 from threading import Thread, Event
 from loguru import logger
 import queue
+from dataclasses import dataclass, field
+from typing import Any
+import random
 
-
+@dataclass(order=True)
+class PrioritizedItem:
+    priority: int
+    item: Any = field(compare=False)
 
 
 class Base(ABC):
@@ -14,7 +20,7 @@ class Base(ABC):
         self._parent = parent
         self._ai = ai
 
-        self._buffer = queue.Queue(self.capacity)
+        self._buffer = queue.PriorityQueue(self.capacity)
         self._queue = queue.Queue()
 
         self._start = Event()
@@ -38,7 +44,9 @@ class Base(ABC):
             try:
                 for i in range(self.capacity):
                     logger.debug('{}: fetching from buffer', type(self).__name__)
-                    todos.append(self._buffer.get(block=True, timeout=3))
+                    p_item = self._buffer.get(block=True, timeout=3)
+                    item = p_item.item
+                    todos.append(item)
                 logger.debug('{}: porting {}', type(self).__name__, todos)
                 self._queue.put(todos)
             except queue.Empty:
@@ -52,26 +60,23 @@ class Base(ABC):
     def queryer(self):
         logger.info('{}: thread queryer started', type(self).__name__)
         while True:
-            logger.info('{}: thread queryer fetching entries', type(self).__name__)
+            logger.debug('{}: thread queryer fetching entries', type(self).__name__)
             entries = self._queue.get()
             self._queue.task_done()
-            logger.info('{}: thread queryer got entries', type(self).__name__)
+            logger.debug('{}: thread queryer got entries', type(self).__name__)
             if not entries:
                 logger.info('{}: thread queryer terminated', type(self).__name__)
                 self._queue_done.set()
                 break
             err, result = self._ai.query(entries)
             if err:
-                logger.error('{}: {}', type(self).__name__, err)
+                self.response(None)
             else:
-                self.response(self.preprocess_result(result, entries))
+                self.response(result)
 
-    @abstractmethod
-    def preprocess_result(self, results, entries):
-        pass
 
     def append(self, entry):
-        self._buffer.put(entry)
+        self._buffer.put(PrioritizedItem(priority=random.randint(1, 100), item=entry))
         self._start.set()
 
     def response(self, result):
@@ -83,34 +88,21 @@ class Base(ABC):
 
 class ClassifyTasker(Base):
     def __init__(self, parent):
-        super().__init__(parent, Rater())
-
-    def preprocess_result(self, results, entries):
-        return results
+        super().__init__(parent, Classifier())
 
 
 class RateTasker(Base):
     def __init__(self, parent):
         super().__init__(parent, Rater())
 
-    def preprocess_result(self, results, entries):
-        return results
-
-
 class TranslateTasker(Base):
     def __init__(self, parent):
         super().__init__(parent, Translator())
-
-    def preprocess_result(self, results, entries):
-        return results
 
 
 class SenseTasker(Base):
     def __init__(self, parent):
         super().__init__(parent, Senser())
-
-    def preprocess_result(self, results, entries):
-        return results
 
 
 
