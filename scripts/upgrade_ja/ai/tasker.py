@@ -81,6 +81,14 @@ class Base(ABC):
         return self._queue.qsize()
 
 
+class ClassifyTasker(Base):
+    def __init__(self, parent):
+        super().__init__(parent, Rater())
+
+    def preprocess_result(self, results, entries):
+        return results
+
+
 class RateTasker(Base):
     def __init__(self, parent):
         super().__init__(parent, Rater())

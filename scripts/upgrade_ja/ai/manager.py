@@ -7,7 +7,7 @@ from itertools import tee
 from time import sleep
 from tqdm import tqdm
 
-from .tasker import RateTasker, TranslateTasker, SenseTasker
+from .tasker import RateTasker, TranslateTasker, SenseTasker, ClassifyTasker
 from ..recorder import Recorder
 
 
@@ -45,6 +45,9 @@ class Manager:
         self.rate_tasker = RateTasker(self)
         self.rate_thread = Thread(target=self.rate_tasker.run, daemon=True)
 
+        self.classify_tasker = ClassifyTasker(self)
+        self.classify_thread = Thread(target=self.classify_tasker.run, daemon=True)
+
         self.translate_tasker = TranslateTasker(self)
         self.translate_thread = Thread(target=self.translate_tasker.run, daemon=True)
 
@@ -54,6 +57,7 @@ class Manager:
         self.rate_status = {}
         self.translate_status = {}
         self.sense_status = {}
+        self.classify_status = {}
 
         self.temp = {}
 
@@ -82,12 +86,14 @@ class Manager:
 
 
     def start_thread(self):
+        self.classify_thread.start()
         self.rate_thread.start()
         self.translate_thread.start()
         self.sense_thread.start()
         logger.info('all tasker is prepared')
 
     def finish(self):
+        self.classify_thread.join()
         self.rate_thread.join()
         self.translate_thread.join()
         self.sense_thread.join()
@@ -96,7 +102,7 @@ class Manager:
         logger.info('all tasker terminated')
 
     def _entry_done(self, id):
-        job_status = [self.rate_status, self.translate_status, self.sense_status]
+        job_status = [self.rate_status, self.translate_status, self.sense_status, self.classify_status]
         return all([d.get(id, True) for d in job_status])
 
     def _handle_result(self, tasker_type, result):
@@ -123,7 +129,7 @@ class Manager:
     def _init_query_tqdm(self):
         if self.query_tqdm:
             return
-        todo_size = self.rate_tasker.get_queue_size() + self.translate_tasker.get_queue_size() + self.sense_tasker.get_queue_size()
+        todo_size = self.rate_tasker.get_queue_size() + self.translate_tasker.get_queue_size() + self.sense_tasker.get_queue_size() + self.classify_tasker.get_queue_size()
         self.query_tqdm = tqdm(total=todo_size)
 
     def run(self):
@@ -164,6 +170,8 @@ class Manager:
             status_dict = self.translate_status
         elif tasker_type == SenseTasker:
             status_dict = self.sense_status
+        elif tasker_type == ClassifyTasker:
+            status_dict = self.classify_status
         status_dict[id] = status
 
     def handle_job(self, tasker, entry):
@@ -172,13 +180,16 @@ class Manager:
 
     @logger.catch
     def _get_handlers(self, entry):
-        handlers = [lambda e: self.handle_job(self.rate_tasker, e)]
+        handlers = [lambda e: self.handle_job(self.classify_tasker, e)]
 
-        if not entry["def_cn"]:
-            handlers.append(lambda e: self.handle_job(self.translate_tasker, e))
+        if entry["dict_type"] != 'Common_Idioms':
+            handlers.append(lambda e: self.handle_job(self.rate_tasker, e))
 
-        if not entry['examples'] or len(entry['examples']) < 3:
-            handlers.append(lambda e: self.handle_job(self.sense_tasker, e))
+            if not entry["def_cn"]:
+                handlers.append(lambda e: self.handle_job(self.translate_tasker, e))
+
+            if not entry['examples'] or len(entry['examples']) < 3:
+                handlers.append(lambda e: self.handle_job(self.sense_tasker, e))
 
         return handlers
 
