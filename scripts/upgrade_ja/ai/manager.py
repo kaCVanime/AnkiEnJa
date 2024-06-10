@@ -77,6 +77,7 @@ class Manager:
                         fully_processed = False
                         break
                 if not fully_processed:
+                    result_recorder.remove(entry)
                     todos.append(entry)
             else:
                 todos.append(entry)

@@ -21,6 +21,10 @@ class Recorder:
     def get(self):
         return self._results
 
+    def remove(self, item):
+        if item in self._results:
+            return self.remove(item)
+
     def save(self, entry):
         self._results.append(entry)
         logger.debug('saving {} to {}', entry, self.name)
