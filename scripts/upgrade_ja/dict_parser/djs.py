@@ -51,8 +51,19 @@ class DJSParser(Base):
             definition = definition_box.meaning
             if not definition:
                 continue
+
+            # skip definition that has children. eg. 1. balabala(ア. balabala イ.balabala)
+            if definition.next_sibling and definition.next_sibling.name == 'mg':
+                continue
+
             if definition.rect:
                 definition.rect.decompose()
+
+            # remove ㋐
+            if definition.l4:
+                definition.l4.decompose()
+            # if not definition.get_text():
+            #     continue
             eg_boxs = definition.find_all("exg")
             egs = []
             for eg_idx, eg in enumerate(eg_boxs):
