@@ -76,7 +76,7 @@ class Base(ABC):
 
 
     def append(self, entry, priority):
-        self._buffer.put(PrioritizedItem(priority=priority or random.randint(1, 20000), item=entry))
+        self._buffer.put(PrioritizedItem(priority=priority or random.randint(1, 50000), item=entry))
         self._start.set()
 
     def response(self, result):

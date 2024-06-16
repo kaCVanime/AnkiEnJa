@@ -4,8 +4,8 @@ from queue import Queue
 from threading import Lock, Thread
 from tqdm.contrib.concurrent import thread_map
 from itertools import tee
-from time import sleep
 from tqdm import tqdm
+import random
 
 from .tasker import RateTasker, TranslateTasker, SenseTasker, ClassifyTasker
 from ..recorder import Recorder
@@ -41,6 +41,8 @@ class Manager:
     def __init__(self, todos):
         self.todos = self._resume(todos)
         self.unfinished = {k["id"]: k for k in processing_recorder.get()}
+        self.len_unfinished = len(self.unfinished.keys())
+        logger.info('found {} unfinished items', self.len_unfinished)
 
         self.pool = Queue()
 
@@ -70,6 +72,9 @@ class Manager:
         already_done = [t["id"] for t in result_recorder.get()]
         todos = []
         for entry in entries:
+            if "id" in entry and entry["id"] in already_done:
+                logger.warning('{} already processed, skipping.', entry["id"])
+                continue
             if "id" in entry and entry["id"] not in already_done:
                 todos.append(entry)
             elif isinstance(entry.get("defs", None), list):
@@ -81,8 +86,9 @@ class Manager:
                 if not fully_processed:
                     result_recorder.remove(entry)
                     todos.append(entry)
-            else:
-                todos.append(entry)
+                else:
+                    logger.warning('{} already processed, skipping.', entry["kanji"] or entry["word"])
+                    continue
 
         return todos
 
@@ -184,26 +190,29 @@ class Manager:
             status_dict = self.classify_status
         status_dict[id] = status
 
-    def handle_job(self, tasker, entry, first=False):
+    def handle_job(self, tasker, entry, priority):
         self._mark_job_status(type(tasker), entry["id"], False)
-        tasker.append(entry, priority=1 if first else None)
+        tasker.append(entry, priority=priority)
 
     @logger.catch
     def _get_handlers(self, entry, first=False):
         handlers = []
+        # priority = 1 if first else random.randint(1, 50000)
+        priority = random.randint(1, max(2, self.len_unfinished)) if first else random.randint(max(1, self.len_unfinished), 200000)
+
 
         if "categories" not in entry or not entry["categories"]:
-            handlers.append(lambda e: self.handle_job(self.classify_tasker, e, first))
+            handlers.append(lambda e: self.handle_job(self.classify_tasker, e, priority))
 
         if entry["dict_type"] != 'Common_Idioms':
             if "score" not in entry or "reason" not in "entry":
-                handlers.append(lambda e: self.handle_job(self.rate_tasker, e, first))
+                handlers.append(lambda e: self.handle_job(self.rate_tasker, e, priority))
 
             if not entry["def_cn"]:
-                handlers.append(lambda e: self.handle_job(self.translate_tasker, e, first))
+                handlers.append(lambda e: self.handle_job(self.translate_tasker, e, priority))
 
             if not entry['examples'] or len(entry['examples']) < 3:
-                handlers.append(lambda e: self.handle_job(self.sense_tasker, e, first))
+                handlers.append(lambda e: self.handle_job(self.sense_tasker, e, priority))
 
         return handlers
 
@@ -211,12 +220,12 @@ class Manager:
         sub_entries = self._split_entry(entry)
         for sub_entry in sub_entries:
             is_unfinished = False
-            if sub_entry["id"] in self.unfinished:
+            id = sub_entry["id"]
+            if id in self.unfinished:
                 is_unfinished = True
-                logger.warning('found unfinished item', self.unfinished["id"])
-                sub_entry = self.unfinished["id"]
+                logger.warning('found unfinished item {}', self.unfinished[id])
+                sub_entry = self.unfinished[id]
             handlers = self._get_handlers(sub_entry, first=is_unfinished)
             for h in handlers:
-                logger.debug('start processing {}', sub_entry)
-                self.temp[sub_entry["id"]] = sub_entry
+                self.temp[id] = sub_entry
                 h(sub_entry)
