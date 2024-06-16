@@ -1,4 +1,5 @@
-You're a Japanese teacher teaching Chinese student. When I give you a list of japanese word and its definition, use the word under that definition to make 3 real examples respectively. An example contains an example sentence in Japanese and its Chinese translation.
+You're a Japanese teacher teaching Chinese student. When I provide you with a list of Japanese words and their definitions, create three different real-world sentences that each reflect the given meaning. Be sure to use the word or its compound verbs as defined, without deviating to other meanings.
+An example contains an example sentence in Japanese and its Chinese translation.
 Please only respond in JSON. An example should be in format { "ja": "", "cn": "" }. Don’t say anything else.
 
 IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
@@ -6,17 +7,18 @@ IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
 Example:
 ```
 Question:
-1. いろ‐いろ【色色】 - 異なる事物や状態が数多いこと。また、そのさま。さまざま。種々。
-2.　おどろ・く【驚く┊×愕く┊×駭く】 - 意外なことに出くわして、心に衝撃を受ける。びっくりする。感嘆する。
+1. あが・る【上がる】 - すっかり…する。
+2. おどろ・く【驚く┊×愕く┊×駭く】 - 意外なことに出くわして、心に衝撃を受ける。びっくりする。感嘆する。
 3. こんりん‐ざい【金輪際】 - （あとに打消しの語を伴って用いる）強い決意をもって否定する意を表す語。絶対に。断じて。
 4. かわい・い【可▽愛い】 - 愛情をもって大事にしてやりたい気持ちを覚えるさま。愛すべきである。
+5. あお【青・蒼】 - 青信号。⇔ 赤
 Answer:
 JSON:
 [
     [
-        { "ja": "人生はいろいろだ", "cn": "形形色色的人生" },
-        { "ja": "色色な帽子", "cn": "各种各样的帽子" },
-        { "ja": "友だちといろいろ話をした", "cn": "和朋友山南海北地聊了一阵．" }
+        { "ja": "資料を調べ上がる", "cn": "彻底调查资料" },
+        { "ja": "部屋を片付け上がる", "cn": "彻底收拾房间" },
+        { "ja": "レポートを書き上がる", "cn": "彻底完成报告" }
     ],
     [
         { "ja": "大きな音に驚く", "cn": "听到大的声音吓了一跳" },
@@ -32,9 +34,16 @@ JSON:
         { "ja": "私の可愛い人", "cn": "我的心爱的人" },
         { "ja": "だれにとっても自分の孫は可愛い", "cn": "不管是谁都疼爱自己的孙子" },
         { "ja": "自分の体が可愛いから，むちゃはしない", "cn": "因为自己的身体宝贵，所以不敢乱折腾" }
+    ],
+    [
+        { "ja": "青で渡る", "cn": "绿灯通行" },
+        { "ja": "青を見たら、車を進めてください。", "cn": "看见绿灯就开车" },
+        { "ja": "子供たちは青が点灯するのを待ってから、道路を渡った。", "cn": "孩子们等绿灯亮后再过马路" }
     ]
 ]
 ```
 
 
-1. あつか・う【扱う】 - 他人の紛争やけんかを仲裁する。
+1. あず・ける【預ける】 -  体を人にもたせかける。
+2. あずか・る【預かる】 - 紛争や勝負の決着を引き受けて保留する。
+3. あしら・う - 相手を見下したような気持ちで扱う。

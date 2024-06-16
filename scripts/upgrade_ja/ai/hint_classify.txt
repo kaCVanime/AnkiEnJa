@@ -1,4 +1,4 @@
-Multiple choice problem task: When I provide you with a list of Japanese words and their definitions, select up to three fields from the following options where the meaning is most commonly referred or known.
+Multiple choice problem task: When I provide you with a list of Japanese words and their definitions, choose up to three fields from the options below where the meaning is most commonly used or understood.
 [
     "Appearance",
     "Antiques & Collectibles",
