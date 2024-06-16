@@ -2,19 +2,22 @@
 import re
 from pathlib import Path
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString, CData, RubyTextString
+from bs4.element import NavigableString, CData, RubyTextString, Tag
 from copy import copy
 import difflib
 
 from ..dict_lookup import lookup
 from .manager import ParserManager
-from ..utils import is_hiragana, is_onaji
+from ..utils import is_hiragana, is_onaji, get_soup_text
 
 
 class CommonIdiomsIterator:
-    def __init__(self, html_dir):
+    def __init__(self, html_dir, is_corrected=False):
         self.html_dir = html_dir
-        self.parser = Parser()
+        if is_corrected:
+            self.parser = ParserForCorrected()
+        else:
+            self.parser = Parser()
         self.idioms = None
         self.pages = []
     def __iter__(self):
@@ -65,6 +68,38 @@ class Parser:
         soup = BeautifulSoup(html, 'html.parser')
         return soup.find('h1', class_='kindle-cn-heading-1').get_text()
 
+    def _get_def_cn(self, header):
+        return str(header.next_sibling).strip()
+
+    def _get_frequency(self, header):
+        if header.previous_sibling:
+            return str(header.previous_sibling)
+        return None
+
+    def _get_definition_and_examples(self, entry, prefix):
+        body = entry.next_sibling
+        if not body or 'kindle-cn-para-no-indent' in body.get('class', ''):
+            return None, None
+
+        body_text = body.get_text().strip()
+        if "◇" in body_text:
+            definition = self._get_definition_from_mix(body_text)
+            examples = self._get_examples_from_mix(body_text, prefix)
+        else:
+            definition = self._get_definition(body_text)
+            eg = body.next_sibling
+            if eg and 'kindle-cn-para-no-indent' not in eg.get('class', ''):
+                examples = self._get_examples(eg.get_text().strip(), prefix)
+            else:
+                examples = []
+
+        # 同一条目下有两条释义时，第二条释义可能会把中文释义带上。
+        # TODO 适配两条以上释义
+        if definition.endswith("）"):
+            definition = re.sub('（.+）$', '', definition)
+
+        return definition, examples
+
     def parse(self, html):
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -73,11 +108,9 @@ class Parser:
         for entry in entries:
             header = entry.find('span', class_='kindle-cn-bold')
 
-            frequency = None
-            if header.previous_sibling:
-                frequency = str(header.previous_sibling)
+            frequency = self._get_frequency(header)
 
-            def_cn = str(header.next_sibling).strip()
+            def_cn = self._get_def_cn(header)
 
             word = self._get_word(copy(header))
             kanji = self._get_kanji(copy(header))
@@ -91,26 +124,11 @@ class Parser:
                     "is_redirect": True
                 })
                 continue
-            body = entry.next_sibling
-            if not body or 'kindle-cn-para-no-indent' in body.get('class', ''):
+
+            definition, examples = self._get_definition_and_examples(entry, prefix=kanji)
+            if not definition and not examples:
                 continue
 
-            body_text = body.get_text().strip()
-            if "◇" in body_text:
-                definition = self._get_definition_from_mix(body_text)
-                examples = self._get_examples_from_mix(body_text, kanji)
-            else:
-                definition = self._get_definition(body_text)
-                eg = body.next_sibling
-                if eg and 'kindle-cn-para-no-indent' not in eg.get('class', ''):
-                    examples = self._get_examples(eg.get_text().strip(), kanji)
-                else:
-                    examples = []
-
-            # 同一条目下有两条释义时，第二条释义可能会把中文释义带上。
-            # TODO 适配两条以上释义
-            if definition.endswith("）"):
-                definition = re.sub('（.+）$', '', definition)
 
             result.append({
                 "dict_type": "Common_Idioms",
@@ -163,6 +181,49 @@ class Parser:
     def _get_examples_from_mix(self, text, prefix):
         s = text.split('◇')[1]
         return self._get_examples(s, prefix)
+
+
+class ParserForCorrected(Parser):
+    def _get_def_cn(self, header):
+        for el in header.next_siblings:
+            if isinstance(el, Tag) and 'gyj-def_cn' in el.get('class', ''):
+                return el.get_text()
+        return ''
+
+    def _get_frequency(self, header):
+        pv = header.previous_sibling
+        if  isinstance(pv, Tag)  and 'gyj-frequency' in pv.get('class', ''):
+            return pv.get_text().strip()
+
+        return None
+
+    def _get_definition_and_examples(self, entry, prefix):
+        def_el = entry.next_sibling
+        if not def_el or 'kindle-cn-para-no-indent' in def_el.get('class', ''):
+            return None, None
+
+        def_text = def_el.get_text().strip()
+        definition = self._get_definition(def_text)
+        # 同一条目下有两条释义时，第二条释义可能会把中文释义带上。
+        # TODO 适配两条以上释义
+        if definition.endswith("）"):
+            definition = re.sub('（.+）$', '', definition)
+
+        examples = []
+        eg = def_el.next_sibling
+        idx = 0
+        while isinstance(eg, Tag) and 'gyj-example' in eg.get('class', ''):
+            ja_el = eg.find('span', class_='gyj-example-ja')
+            cn_el = eg.find('span', class_='gyj-example-cn')
+            examples.append({
+                "ja": get_soup_text(ja_el),
+                "cn": re.sub('[（）()]', '', get_soup_text(cn_el)).strip(),
+                "name": f'{prefix}_{idx}'
+            })
+            idx += 1
+            eg = eg.next_sibling
+
+        return definition, examples
 
 
 # 制作词头纠正表

@@ -33,13 +33,13 @@ logger.add(log_path / 'ai_manager.log', filter='upgrade_ja.ai.manager')
 logger.add(log_path / 'ai_tasker.log', filter='upgrade_ja.ai.tasker')
 logger.add(log_path / 'ai_gemini.log', filter='upgrade_ja.ai.gemini')
 logger.add(log_path / 'ai_retry.log', filter='upgrade_ja.ai.retry')
-logger.add(log_path / 'ai.log', filter=lambda r: 'upgrade_ja.ai' in r['name'] and all([f'upgrade_ja.ai.{m}' not in r['name'] for m in ['manager', 'tasker', 'gemini']]) )
+logger.add(log_path / 'ai_rate_limiter.log', filter='upgrade_ja.ai.rate_limiter')
+logger.add(log_path / 'ai.log', filter=lambda r: 'upgrade_ja.ai' in r['name'] and all([f'upgrade_ja.ai.{m}' not in r['name'] for m in ['manager', 'tasker', 'gemini', 'rate_limiter']]) )
 logger.add(log_path / 'recorder.log', filter='upgrade_ja.recorder')
 logger.add(log_path / 'dict_lookup.log', filter='upgrade_ja.dict_lookup')
 logger.add(log_path / 'dict_parser_DJS.log', filter=filter_parser_log_by_dict_type('DJS'))
 logger.add(log_path / 'dict_parser_MOJI.log', filter=filter_parser_log_by_dict_type('Moji'))
 logger.add(log_path / 'dict_parser_XSJ.log', filter=filter_parser_log_by_dict_type('XSJ'))
-logger.add(log_path / 'rate_limiter.log', filter='upgrade_ja.ai.rate_limiter', level='INFO')
 
 
 parser = ParserManager()
@@ -159,7 +159,7 @@ def run():
 
     jev_results = lookup_jev_entries()
 
-    common_idioms_iter = iter(CommonIdiomsIterator(common_idioms_dir))
+    common_idioms_iter = iter(CommonIdiomsIterator(common_idioms_dir, is_corrected=True))
 
     print('fetching AI enhanced results')
     logger.info('fetching AI enhanced results')
