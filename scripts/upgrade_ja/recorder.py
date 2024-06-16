@@ -23,7 +23,24 @@ class Recorder:
 
     def remove(self, item):
         if item in self._results:
-            return self.remove(item)
+            logger.debug('removing {}', item)
+            self._results.remove(item)
+
+    def remove_by_key(self, key, value):
+        todos = filter(lambda t: t[key] == value, self._results)
+        for todo in todos:
+            self.remove(todo)
+
+
+    def update(self, key, entry):
+        self._results = [entry if t[key] == entry[key] else t for t in self._results]
+        if entry not in self._results:
+            self.save(entry)
+            return
+        logger.debug('updating {} to {}', entry[key], entry)
+        with self.lock:
+            with open(self.file, mode='wb') as f:
+                pickle.dump(self._results, f)
 
     def save(self, entry):
         self._results.append(entry)
