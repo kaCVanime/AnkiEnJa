@@ -3,6 +3,9 @@ from functools import wraps
 from time import sleep
 from loguru import logger
 from threading import Lock
+from datetime import datetime
+
+
 lock = Lock()
 
 # logger.remove()
@@ -11,27 +14,33 @@ lock = Lock()
 memory_storage = storage.MemoryStorage()
 limiter = strategies.FixedWindowRateLimiter(memory_storage)
 
-second, minute, day = parse_many('1/3seconds;15/minute;1500/day')
-
-
-free = True
+second, minute, day = parse_many('1/second;15/minute;1500/day')
 
 def check():
     return limiter.test(second) and limiter.test(minute) and limiter.test(day)
+
+def log_stats():
+    if limiter.test(second, 'stats_log_limit'):
+        limiter.hit(second, 'stats_log_limit')
+        limiters = [day, minute, second]
+        for l in limiters:
+            if not limiter.test(l):
+                reset, _ = limiter.get_window_stats(l)
+                logger.warning("reset at {}", datetime.fromtimestamp(reset))
 
 
 def rate_limit(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        global free
-
         while True:
-            lock.acquire()
+            lock.acquire(timeout=60)
             logger.debug('lock acquired')
-            free = check()
-            logger.debug('free? {}.', free)
-            if free:
+
+            if check():
                 break
+
+            log_stats()
+
             logger.debug('lock released')
             lock.release()
             logger.debug('sleeping')
@@ -40,12 +49,9 @@ def rate_limit(func):
         logger.info('executing {}', func.__name__)
 
         for r in (second, minute, day):
-            assert True is limiter.hit(r)
-            # limiter.hit(r)
+            assert limiter.hit(r)
 
         result = func(*args, **kwargs)
-
-        free = check()
 
         lock.release()
         logger.debug('lock released after executing')
