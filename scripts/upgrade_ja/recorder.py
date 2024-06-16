@@ -26,6 +26,8 @@ class Recorder:
             logger.debug('removing {}', item)
             self._results.remove(item)
 
+            self.safe_save()
+
     def remove_by_key(self, key, value):
         todos = filter(lambda t: t[key] == value, self._results)
         for todo in todos:
@@ -38,13 +40,19 @@ class Recorder:
             self.save(entry)
             return
         logger.debug('updating {} to {}', entry[key], entry)
-        with self.lock:
-            with open(self.file, mode='wb') as f:
-                pickle.dump(self._results, f)
+
+        self.safe_save()
 
     def save(self, entry):
         self._results.append(entry)
-        logger.debug('saving {} to {}', entry, self.name)
+        with logger.contextualize(**entry):
+            logger.debug('saving {} to {}', entry, self.name)
+
+        self.safe_save()
+
+    def safe_save(self):
         with self.lock:
-            with open(self.file, mode='wb') as f:
+            tmp_file = self.file.with_suffix('.tmp')
+            with open(tmp_file, mode='wb') as f:
                 pickle.dump(self._results, f)
+            tmp_file.replace(self.file)
