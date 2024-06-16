@@ -20,18 +20,18 @@ class Base(ABC):
         self._parent = parent
         self._ai = ai
 
-        self._buffer = queue.PriorityQueue(self.capacity)
+        self._buffer = queue.PriorityQueue()
         self._queue = queue.Queue()
 
         self._start = Event()
         self._queue_done = Event()
 
-        self._porter_thread = Thread(target=self.porter, daemon=True)
+        self.porter_thread = Thread(target=self.porter, daemon=True)
         self._queryer_thread = Thread(target=self.queryer, daemon=True)
 
     def run(self):
         self._start.wait()
-        self._porter_thread.start()
+        self.porter_thread.start()
         self._queryer_thread.start()
         self._queue_done.wait()
         logger.info('tasker {} terminated', type(self).__name__)
@@ -47,7 +47,7 @@ class Base(ABC):
                     p_item = self._buffer.get(block=True, timeout=3)
                     item = p_item.item
                     todos.append(item)
-                logger.debug('{}: porting {}', type(self).__name__, todos)
+                logger.debug('{}: porting {}', type(self).__name__, [t["kanji"] or t["word"] for t in todos])
                 self._queue.put(todos)
             except queue.Empty:
                 if todos:
@@ -75,8 +75,8 @@ class Base(ABC):
                 self.response(result)
 
 
-    def append(self, entry):
-        self._buffer.put(PrioritizedItem(priority=random.randint(1, 100), item=entry))
+    def append(self, entry, priority):
+        self._buffer.put(PrioritizedItem(priority=priority or random.randint(1, 20000), item=entry))
         self._start.set()
 
     def response(self, result):

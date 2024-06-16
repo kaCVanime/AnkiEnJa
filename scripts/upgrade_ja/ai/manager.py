@@ -12,6 +12,7 @@ from ..recorder import Recorder
 
 
 result_recorder = Recorder(Path(__file__).parent.parent / 'temp' / 'ai.pkl')
+processing_recorder = Recorder(Path(__file__).parent.parent / 'temp' / 'ai_processing.pkl')
 
 lock = Lock()
 
@@ -39,6 +40,7 @@ class ResultIterator:
 class Manager:
     def __init__(self, todos):
         self.todos = self._resume(todos)
+        self.unfinished = {k["id"]: k for k in processing_recorder.get()}
 
         self.pool = Queue()
 
@@ -109,10 +111,13 @@ class Manager:
     def _handle_result(self, tasker_type, result):
         with lock:
             id = result["id"]
-            self.temp[id] = {**self.temp[id], **result}
+            processing = {**self.temp[id], **result}
+            self.temp[id] = processing
+            processing_recorder.update("id", processing)
             self._mark_job_status(tasker_type, id, True)
             if self._entry_done(id):
                 p = self.temp.pop(id)
+                processing_recorder.remove(p)
                 result_recorder.save(p)
                 self.pool.put(p)
 
@@ -131,6 +136,10 @@ class Manager:
     def _init_query_tqdm(self):
         if self.query_tqdm:
             return
+        self.rate_tasker.porter_thread.join()
+        self.sense_tasker.porter_thread.join()
+        self.classify_tasker.porter_thread.join()
+        self.translate_tasker.porter_thread.join()
         todo_size = self.rate_tasker.get_queue_size() + self.translate_tasker.get_queue_size() + self.sense_tasker.get_queue_size() + self.classify_tasker.get_queue_size()
         self.query_tqdm = tqdm(total=todo_size)
 
@@ -146,7 +155,6 @@ class Manager:
 
         print('fetching results from AI')
         logger.info('adding todos')
-        sleep(5)
         self._init_query_tqdm()
 
         self.finish()
@@ -176,29 +184,34 @@ class Manager:
             status_dict = self.classify_status
         status_dict[id] = status
 
-    def handle_job(self, tasker, entry):
+    def handle_job(self, tasker, entry, first=False):
         self._mark_job_status(type(tasker), entry["id"], False)
-        tasker.append(entry)
+        tasker.append(entry, priority=1 if first else None)
 
     @logger.catch
-    def _get_handlers(self, entry):
-        handlers = [lambda e: self.handle_job(self.classify_tasker, e)]
+    def _get_handlers(self, entry, first=False):
+        handlers = [lambda e: self.handle_job(self.classify_tasker, e, first)]
 
         if entry["dict_type"] != 'Common_Idioms':
-            handlers.append(lambda e: self.handle_job(self.rate_tasker, e))
+            handlers.append(lambda e: self.handle_job(self.rate_tasker, e, first))
 
             if not entry["def_cn"]:
-                handlers.append(lambda e: self.handle_job(self.translate_tasker, e))
+                handlers.append(lambda e: self.handle_job(self.translate_tasker, e, first))
 
             if not entry['examples'] or len(entry['examples']) < 3:
-                handlers.append(lambda e: self.handle_job(self.sense_tasker, e))
+                handlers.append(lambda e: self.handle_job(self.sense_tasker, e, first))
 
         return handlers
 
     def process(self, entry):
         sub_entries = self._split_entry(entry)
         for sub_entry in sub_entries:
-            handlers = self._get_handlers(sub_entry)
+            is_unfinished = False
+            if sub_entry["id"] in self.unfinished:
+                is_unfinished = True
+                logger.debug('found unfinished item', self.unfinished["id"])
+                sub_entry = self.unfinished["id"]
+            handlers = self._get_handlers(sub_entry, first=is_unfinished)
             for h in handlers:
                 logger.debug('start processing {}', sub_entry)
                 self.temp[sub_entry["id"]] = sub_entry
