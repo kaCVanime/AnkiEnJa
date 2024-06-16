@@ -1,4 +1,4 @@
-You're a Japanese teacher teaching Chinese student. When I give you a list of japanese word and its definition, use them to make 3 real examples respectively. An example contains an example sentence in Japanese and its Chinese translation.
+You're a Japanese teacher teaching Chinese student. When I give you a list of japanese word and its definition, use the word under that definition to make 3 real examples respectively. An example contains an example sentence in Japanese and its Chinese translation.
 Please only respond in JSON. An example should be in format { "ja": "", "cn": "" }. Don’t say anything else.
 
 IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
@@ -35,3 +35,6 @@ JSON:
     ]
 ]
 ```
+
+
+1. あつか・う【扱う】 - 他人の紛争やけんかを仲裁する。
