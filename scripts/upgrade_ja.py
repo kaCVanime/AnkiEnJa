@@ -1,7 +1,6 @@
 import pandas
 from pathlib import Path
 from itertools import chain
-
 from tqdm.contrib.concurrent import thread_map
 
 from loguru import logger
@@ -40,6 +39,39 @@ logger.add(log_path / 'dict_lookup.log', filter='upgrade_ja.dict_lookup')
 logger.add(log_path / 'dict_parser_DJS.log', filter=filter_parser_log_by_dict_type('DJS'))
 logger.add(log_path / 'dict_parser_MOJI.log', filter=filter_parser_log_by_dict_type('Moji'))
 logger.add(log_path / 'dict_parser_XSJ.log', filter=filter_parser_log_by_dict_type('XSJ'))
+
+log_result_ai_template = '''
+{time} | New result saved. ----------------------
+{word}{kanji}
+{categories}
+Definition: {definition}
+def_cn: {def_cn}
+Score: {score}
+Reason: {reason}
+Examples:
+{examples}
+'''
+
+
+def log_result_ai_formatter(record):
+    ex = record["extra"]
+    return log_result_ai_template.format(
+        time=record["time"],
+        word=ex["word"],
+        kanji=ex["kanji"],
+        definition=ex["definition"],
+        def_cn=ex["def_cn"],
+        score=ex["score"] if 'score' in ex else '',
+        reason=ex["reason"],
+        categories=ex["categories"],
+        examples='\n'.join([f'{idx+1}. ja: {t["ja"]}\n cn: {t["cn"]}' for idx, t in enumerate(ex["examples"])])
+    )
+
+
+logger.add(log_path / 'result_ai.log', format=log_result_ai_formatter, filter=lambda r: 'upgrade_ja.recorder' in r['name'] and 'to ai' in r['message'] and 'ai_processing' not in r['message'])
+
+
+
 
 
 parser = ParserManager()
