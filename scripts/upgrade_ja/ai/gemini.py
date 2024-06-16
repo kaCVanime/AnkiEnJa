@@ -55,7 +55,7 @@ class Base(ABC):
         return '\n'.join([f'{idx + 1}. {Base.construct_head(e)} - {e["definition"]}' for idx, e in enumerate(entries)])
 
 
-    @retry(max_retries=5, delay=3)
+    @retry(max_retries=4, delay=3)
     def _query_retry(self, entries):
         logger.info('{} querying gemini', type(self).__name__)
         resp = self._query(entries)
@@ -79,7 +79,7 @@ class Base(ABC):
         logger.debug('{}: construct question from {}', type(self).__name__, entries)
         question = self.construct_question(entries)
         logger.debug('{}: question: {}', type(self).__name__, question)
-        return self.model.generate_content(question)
+        return self.model.generate_content(question, request_options={"timeout": 30.0})
 
     @abstractmethod
     def _validate(self, result, entries):
