@@ -33,6 +33,7 @@ class ResultIterator:
             result = self.manager.consume()
             logger.debug('result retrieved. {}', result)
             if not result:
+                logger.info('iteration stopped.')
                 raise StopIteration
             return result
 
@@ -43,6 +44,7 @@ class Manager:
         self.unfinished = {k["id"]: k for k in processing_recorder.get()}
         self.len_unfinished = len(self.unfinished.keys())
         logger.info('found {} unfinished items', self.len_unfinished)
+        self.blacklist=["縊死い", "つ（吊）れる", "すっぽり"]
 
         self.pool = Queue()
 
@@ -106,15 +108,17 @@ class Manager:
         self.rate_thread.join()
         self.translate_thread.join()
         self.sense_thread.join()
+        logger.info('all tasker terminated')
         self.pool.put(None)
         self.query_tqdm.close()
-        logger.info('all tasker terminated')
 
     def _entry_done(self, id):
         job_status = [self.rate_status, self.translate_status, self.sense_status, self.classify_status]
         return all([d.get(id, True) for d in job_status])
 
+    @logger.catch
     def _handle_result(self, tasker_type, result):
+        logger.debug('start handle result {}', result['id'])
         with lock:
             id = result["id"]
             processing = {**self.temp[id], **result}
@@ -123,9 +127,13 @@ class Manager:
             self._mark_job_status(tasker_type, id, True)
             if self._entry_done(id):
                 p = self.temp.pop(id)
+                if not p:
+                    logger.error('? no temp entry')
                 processing_recorder.remove(p)
                 result_recorder.save(p)
-                self.pool.put(p)
+                logger.debug('adding result to pool {}', result['id'])
+                self.pool.put_nowait(p)
+                logger.debug('result added {}', result['id'])
 
     def handle_response(self, tasker_type, results):
         if results:
@@ -142,10 +150,13 @@ class Manager:
     def _init_query_tqdm(self):
         if self.query_tqdm:
             return
-        self.rate_tasker.porter_thread.join()
-        self.sense_tasker.porter_thread.join()
-        self.classify_tasker.porter_thread.join()
-        self.translate_tasker.porter_thread.join()
+        try:
+            self.rate_tasker.porter_thread.join()
+            self.sense_tasker.porter_thread.join()
+            self.classify_tasker.porter_thread.join()
+            self.translate_tasker.porter_thread.join()
+        except RuntimeError:
+            pass
         todo_size = self.rate_tasker.get_queue_size() + self.translate_tasker.get_queue_size() + self.sense_tasker.get_queue_size() + self.classify_tasker.get_queue_size()
         self.query_tqdm = tqdm(total=todo_size)
 
@@ -216,9 +227,20 @@ class Manager:
 
         return handlers
 
+    def _is_safe(self, item):
+        if not item:
+            return True
+        for keyword in self.blacklist:
+            if keyword in item:
+                return False
+        return True
+
     def process(self, entry):
         sub_entries = self._split_entry(entry)
         for sub_entry in sub_entries:
+            if not self._is_safe(sub_entry["definition"]) or not self._is_safe(sub_entry["word"]):
+                continue
+
             is_unfinished = False
             id = sub_entry["id"]
             if id in self.unfinished:

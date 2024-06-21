@@ -6,4 +6,6 @@
 *.pkl
 *test.py
 
+*/temp
+
 */__pycache__/*

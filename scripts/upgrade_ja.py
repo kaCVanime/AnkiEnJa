@@ -33,7 +33,8 @@ logger.add(log_path / 'ai_tasker.log', filter='upgrade_ja.ai.tasker')
 logger.add(log_path / 'ai_gemini.log', filter='upgrade_ja.ai.gemini')
 logger.add(log_path / 'ai_retry.log', filter='upgrade_ja.ai.retry')
 logger.add(log_path / 'ai_rate_limiter.log', filter='upgrade_ja.ai.rate_limiter')
-logger.add(log_path / 'ai.log', filter=lambda r: 'upgrade_ja.ai' in r['name'] and all([f'upgrade_ja.ai.{m}' not in r['name'] for m in ['manager', 'tasker', 'gemini', 'rate_limiter']]) )
+logger.add(log_path / 'ai.log', filter='upgrade_ja.ai')
+# logger.add(log_path / 'ai.log', filter=lambda r: 'upgrade_ja.ai' in r['name'] and all([f'upgrade_ja.ai.{m}' not in r['name'] for m in ['manager', 'tasker', 'gemini', 'rate_limiter']]) )
 logger.add(log_path / 'recorder.log', filter='upgrade_ja.recorder')
 logger.add(log_path / 'dict_lookup.log', filter='upgrade_ja.dict_lookup')
 logger.add(log_path / 'dict_parser_DJS.log', filter=filter_parser_log_by_dict_type('DJS'))
@@ -62,7 +63,7 @@ def log_result_ai_formatter(record):
         definition=ex["definition"],
         def_cn=ex["def_cn"],
         score=ex["score"] if 'score' in ex else '',
-        reason=ex["reason"],
+        reason=ex["reason"] if 'reason' in ex else '',
         categories=ex["categories"],
         examples='\n'.join([f'{idx+1}. ja: {t["ja"]}\n cn: {t["cn"]}' for idx, t in enumerate(ex["examples"])])
     )
@@ -198,8 +199,12 @@ def run():
     # thread_map(enhance, ResultIterator(chain(jev_results, common_idioms_iter)))
     enhanced_jev_results = iter(ResultIterator(chain(jev_results, common_idioms_iter)))
 
-    for i in enhanced_jev_results:
-        pass
+    t = list(enhanced_jev_results)
+    print(len(t))
+    pass
+
+    # for i in enhanced_jev_results:
+    #     pass
 
 
 if __name__ == "__main__":
