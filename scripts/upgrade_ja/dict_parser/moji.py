@@ -118,3 +118,6 @@ class MojiParser(Base):
 
     def get_phrases(self, parent=None):
         pass
+
+    def get_usage(self):
+        pass
