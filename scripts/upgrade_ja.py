@@ -2,6 +2,7 @@ import pandas
 from pathlib import Path
 from itertools import chain
 from tqdm.contrib.concurrent import thread_map
+import matplotlib.pyplot as plt
 
 from loguru import logger
 
@@ -10,6 +11,8 @@ from upgrade_ja.dict_lookup import lookup
 from upgrade_ja.dict_parser.manager import ParserManager
 from upgrade_ja.dict_parser.guanyongju import CommonIdiomsIterator
 from upgrade_ja.ai.manager import ResultIterator
+
+from upgrade_ja.anki.manager import AnkiManager
 
 from upgrade_ja.utils import is_string_katakana
 
@@ -40,6 +43,7 @@ logger.add(log_path / 'dict_lookup.log', filter='upgrade_ja.dict_lookup')
 logger.add(log_path / 'dict_parser_DJS.log', filter=filter_parser_log_by_dict_type('DJS'))
 logger.add(log_path / 'dict_parser_MOJI.log', filter=filter_parser_log_by_dict_type('Moji'))
 logger.add(log_path / 'dict_parser_XSJ.log', filter=filter_parser_log_by_dict_type('XSJ'))
+logger.add(log_path / 'anki.log', filter='upgrade_ja.anki')
 
 log_result_ai_template = '''
 {time} | New result saved. ----------------------
@@ -182,9 +186,30 @@ def lookup_jev_entries():
     # )
 
 
-def enhance(result):
-    pass
+def get_score(entry):
+    if entry["dict_type"] != 'Common_Idioms':
+        return entry["score"]
 
+    f = entry["frequency"]
+
+    assert isinstance(f, str)
+
+    if f == '◎':
+        return 100
+    elif f == '○':
+        return 75
+    elif f == '△':
+        return 50
+    else:
+        return 0
+
+
+def add_missing_frequency_field(results, ci_iterator):
+    f_map = {k["id"]: k["frequency"] for k in ci_iterator}
+    for r in results:
+        if r["dict_type"] == 'Common_Idioms':
+            r["frequency"] = f_map[r["id"]]
+    return results
 
 def run():
     print('start running')
@@ -192,16 +217,35 @@ def run():
 
     jev_results = lookup_jev_entries()
 
-    common_idioms_iter = iter(CommonIdiomsIterator(common_idioms_dir, is_corrected=True))
+    ci_iterator = CommonIdiomsIterator(common_idioms_dir, is_corrected=True)
+    common_idioms_iter = iter(ci_iterator)
 
     print('fetching AI enhanced results')
     logger.info('fetching AI enhanced results')
     # thread_map(enhance, ResultIterator(chain(jev_results, common_idioms_iter)))
-    enhanced_jev_results = iter(ResultIterator(chain(jev_results, common_idioms_iter)))
+    enhanced_jev_results = iter(ResultIterator(chain(jev_results, common_idioms_iter), force_stop=True))
 
     t = list(enhanced_jev_results)
     print(len(t))
-    pass
+
+    corrected_results = add_missing_frequency_field(t, iter(ci_iterator))
+
+    # scores = [get_score(e) for e in corrected_results]
+    #
+    # plt.figure(figsize=(10, 6))
+    # plt.hist(scores, bins=range(0, 101, 5), edgecolor='black', alpha=0.7)
+    # plt.title('Histogram of Scores')
+    # plt.xlabel('Score')
+    # plt.ylabel('Count')
+    # plt.xticks(range(0, 101, 5))
+    # plt.grid(True)
+    # plt.show()
+
+    anki_manager = AnkiManager('KJXP')
+
+    # thread_map(anki_manager.handle, corrected_results)
+    for e in corrected_results:
+        anki_manager.handle(e)
 
     # for i in enhanced_jev_results:
     #     pass

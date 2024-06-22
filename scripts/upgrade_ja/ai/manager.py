@@ -18,9 +18,11 @@ lock = Lock()
 
 
 class ResultIterator:
-    def __init__(self, todos):
+    def __init__(self, todos, force_stop=False):
         self.manager = Manager(todos)
-        Thread(target=self.manager.run, daemon=True).start()
+        self.force_stop = force_stop
+        if not force_stop:
+            Thread(target=self.manager.run, daemon=True).start()
 
     def __iter__(self):
         self.items = iter(result_recorder.get())
@@ -30,6 +32,8 @@ class ResultIterator:
         try:
             return next(self.items)
         except StopIteration:
+            if self.force_stop:
+                raise StopIteration
             result = self.manager.consume()
             logger.debug('result retrieved. {}', result)
             if not result:
@@ -44,7 +48,7 @@ class Manager:
         self.unfinished = {k["id"]: k for k in processing_recorder.get()}
         self.len_unfinished = len(self.unfinished.keys())
         logger.info('found {} unfinished items', self.len_unfinished)
-        self.blacklist=["縊死い", "つ（吊）れる", "すっぽり"]
+        self.blacklist=["縊死い", "つ（吊）れる", "すっぽり", "【×吊る┊釣る】"]
 
         self.pool = Queue()
 
@@ -238,7 +242,7 @@ class Manager:
     def process(self, entry):
         sub_entries = self._split_entry(entry)
         for sub_entry in sub_entries:
-            if not self._is_safe(sub_entry["definition"]) or not self._is_safe(sub_entry["word"]):
+            if not self._is_safe(sub_entry["definition"]) or not self._is_safe(sub_entry["word"]) or not self._is_safe(sub_entry["kanji"]):
                 continue
 
             is_unfinished = False
