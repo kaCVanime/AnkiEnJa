@@ -185,3 +185,6 @@ class XSJIdiomParser(XSJParser):
 
     def get_idioms(self):
         pass
+
+    def get_usage(self):
+        pass

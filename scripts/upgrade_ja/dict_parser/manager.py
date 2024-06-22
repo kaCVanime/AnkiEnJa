@@ -6,6 +6,7 @@ from .xsj import XSJParser
 from .djs import DJSParser
 from .moji import MojiParser
 from .kje import KJEParser
+from .jlpt import JLPTParser
 
 
 class ParserManager:
@@ -58,6 +59,8 @@ class ParserManager:
             return MojiParser(soup)
         elif dict_type == "KJE":
             return KJEParser(soup)
+        elif dict_type == "JLPT":
+            return JLPTParser(soup)
         else:
             return None
 
@@ -71,6 +74,8 @@ class ParserManager:
             return "Moji"
         elif "gcy.css" in input:
             return "KJE"
+        elif "nihongonet.css" in input:
+            return "JLPT"
         else:
             return None
 
@@ -88,6 +93,7 @@ class ParserManager:
         accent = parser.get_accent()
         defs = parser.get_defs_and_egs()
         idioms = parser.get_idioms()
+        usage = parser.get_usage()
         phrases = parser.get_phrases({"word": word, "kanji": kanji, "accent": accent})
 
         result = {
@@ -98,9 +104,10 @@ class ParserManager:
             "defs": defs,
             "idioms": idioms,
             "phrases": phrases,
+            "usage": usage
         }
 
-        with logger.contextualize(dict_type=dict_type):
+        with logger.contextualize(**result):
             logger.debug(json.dumps(result, ensure_ascii=False))
 
         return result

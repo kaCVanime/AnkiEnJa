@@ -62,6 +62,28 @@ def get_jev_list():
     return d1.to_numpy().tolist()
 
 
+def get_jlpt():
+    from upgrade_ja.dict_helper import DictHelper
+    mdx_helper = DictHelper()
+    keys = mdx_helper.get_mdx_keys('JLPT')
+
+    id_set = set()
+    results = []
+
+    for k in keys:
+        rs = list(filter(lambda r: not r.strip().startswith('@@@LINK'), mdx_helper.query_jlpt(k)))
+        if rs:
+            d = parser.parse(rs[0])
+            if "連用中止" in d["word"]:
+                continue
+            nid = d["word"] + d["defs"][0]["definition"]
+            if nid not in id_set:
+                id_set.add(nid)
+                results.append(d)
+
+    return results
+
+
 def get_fallback_accent(word, yomi, mode):
     html = lookup(word, yomi, mode)
     if html:

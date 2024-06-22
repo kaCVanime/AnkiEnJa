@@ -37,3 +37,7 @@ class Base(ABC):
     @abstractmethod
     def get_phrases(self, parent=None):
         pass
+
+    @abstractmethod
+    def get_usage(self):
+        pass
