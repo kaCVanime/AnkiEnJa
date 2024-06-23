@@ -7,7 +7,7 @@ from itertools import tee
 from tqdm import tqdm
 import random
 
-from .tasker import RateTasker, TranslateTasker, SenseTasker, ClassifyTasker
+from .tasker import RateTasker, TranslateTasker, SenseTasker, ClassifyTasker, GrammarTranslateTasker, GrammarSenseTasker
 from ..recorder import Recorder
 
 
@@ -48,7 +48,7 @@ class Manager:
         self.unfinished = {k["id"]: k for k in processing_recorder.get()}
         self.len_unfinished = len(self.unfinished.keys())
         logger.info('found {} unfinished items', self.len_unfinished)
-        self.blacklist=["縊死い", "つ（吊）れる", "すっぽり", "【×吊る┊釣る】"]
+        self.blacklist=["縊死い", "つ（吊）れる", "すっぽり", "【×吊る┊釣る】", "〜とき", "〜とあれば"]
 
         self.pool = Queue()
 
@@ -64,10 +64,18 @@ class Manager:
         self.sense_tasker = SenseTasker(self)
         self.sense_thread = Thread(target=self.sense_tasker.run, daemon=True)
 
+        self.grammar_translate_tasker = GrammarTranslateTasker(self)
+        self.grammar_translate_thread = Thread(target=self.grammar_translate_tasker.run, daemon=True)
+
+        self.grammar_sense_tasker = GrammarSenseTasker(self)
+        self.grammar_sense_thread = Thread(target=self.grammar_sense_tasker.run, daemon=True)
+
         self.rate_status = {}
         self.translate_status = {}
         self.sense_status = {}
         self.classify_status = {}
+        self.grammar_translate_status = {}
+        self.grammar_sense_status = {}
 
         self.temp = {}
 
@@ -101,6 +109,8 @@ class Manager:
 
 
     def start_thread(self):
+        self.grammar_sense_thread.start()
+        self.grammar_translate_thread.start()
         self.classify_thread.start()
         self.rate_thread.start()
         self.translate_thread.start()
@@ -108,6 +118,8 @@ class Manager:
         logger.info('all tasker is prepared')
 
     def finish(self):
+        self.grammar_sense_thread.join()
+        self.grammar_translate_thread.join()
         self.classify_thread.join()
         self.rate_thread.join()
         self.translate_thread.join()
@@ -117,7 +129,7 @@ class Manager:
         self.query_tqdm.close()
 
     def _entry_done(self, id):
-        job_status = [self.rate_status, self.translate_status, self.sense_status, self.classify_status]
+        job_status = [self.rate_status, self.translate_status, self.sense_status, self.classify_status, self.grammar_sense_status, self.grammar_translate_status]
         return all([d.get(id, True) for d in job_status])
 
     @logger.catch
@@ -155,13 +167,15 @@ class Manager:
         if self.query_tqdm:
             return
         try:
+            self.grammar_sense_tasker.porter_thread.join()
+            self.grammar_translate_tasker.porter_thread.join()
             self.rate_tasker.porter_thread.join()
             self.sense_tasker.porter_thread.join()
             self.classify_tasker.porter_thread.join()
             self.translate_tasker.porter_thread.join()
         except RuntimeError:
             pass
-        todo_size = self.rate_tasker.get_queue_size() + self.translate_tasker.get_queue_size() + self.sense_tasker.get_queue_size() + self.classify_tasker.get_queue_size()
+        todo_size = self.rate_tasker.get_queue_size() + self.translate_tasker.get_queue_size() + self.sense_tasker.get_queue_size() + self.classify_tasker.get_queue_size() + self.grammar_translate_tasker.get_queue_size() + self.grammar_sense_tasker.get_queue_size()
         self.query_tqdm = tqdm(total=todo_size)
 
     def run(self):
@@ -181,12 +195,12 @@ class Manager:
         self.finish()
 
     def _get_sub_dict(self, entry, fields):
-        return {k: entry[k] for k in fields}
+        return {k: entry.get(k, '') for k in fields}
 
     @logger.catch
     def _split_entry(self, entry):
         defs = entry.get('defs', None)
-        entry_common_fields = ['word', 'kanji', 'accent', 'dict_type']
+        entry_common_fields = ['word', 'kanji', 'accent', 'dict_type', 'usage']
         def_fields = ["id", "definition", "def_cn", "examples"]
         if defs:
             return map(lambda d: {**self._get_sub_dict(entry, entry_common_fields), **self._get_sub_dict(d, def_fields)}, defs)
@@ -203,6 +217,11 @@ class Manager:
             status_dict = self.sense_status
         elif tasker_type == ClassifyTasker:
             status_dict = self.classify_status
+        elif tasker_type == GrammarSenseTasker:
+            status_dict = self.grammar_sense_status
+        elif tasker_type == GrammarTranslateTasker:
+            status_dict = self.grammar_translate_status
+
         status_dict[id] = status
 
     def handle_job(self, tasker, entry, priority):
@@ -214,6 +233,13 @@ class Manager:
         handlers = []
         # priority = 1 if first else random.randint(1, 50000)
         priority = random.randint(1, max(2, self.len_unfinished)) if first else random.randint(max(1, self.len_unfinished), 200000)
+
+        if entry["dict_type"] == 'JLPT':
+            handlers = [lambda e: self.handle_job(self.grammar_translate_tasker, e, priority)]
+            if len(entry["examples"]) < 2:
+                handlers.append(lambda e: self.handle_job(self.grammar_sense_tasker, e, priority))
+
+            return handlers
 
 
         if "categories" not in entry or not entry["categories"]:

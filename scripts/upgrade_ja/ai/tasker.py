@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .gemini import Rater, Translator, Senser, Classifier
+from .gemini import Rater, Translator, Senser, Classifier, GrammarTranslator, GrammarSenser
 from threading import Thread, Event
 from loguru import logger
 import queue
@@ -104,6 +104,16 @@ class SenseTasker(Base):
     def __init__(self, parent):
         super().__init__(parent, Senser())
 
+
+class GrammarSenseTasker(Base):
+    capacity = 3
+    def __init__(self, parent):
+        super().__init__(parent, GrammarSenser())
+
+class GrammarTranslateTasker(Base):
+    capacity = 1
+    def __init__(self, parent):
+        super().__init__(parent, GrammarTranslator())
 
 
 

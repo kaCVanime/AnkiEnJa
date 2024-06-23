@@ -35,6 +35,7 @@ class ModelRead(ModelBase):
         "reason",
         "examples",
         "audio",
+        "usage"
     ]
     is_cloze = False
     card_templates = [
@@ -58,6 +59,7 @@ class ModelWrite(ModelBase):
         "reason",
         "examples",
         "audio",
+        "usage"
     ]
     is_cloze = False
     card_templates = [

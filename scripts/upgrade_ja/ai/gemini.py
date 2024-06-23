@@ -249,3 +249,75 @@ class Classifier(Base):
                 "categories": t
             })
         return x
+
+
+class GrammarSenser(Base):
+    hint_path = file_path / 'hint_get_more_examples_grammar.txt'
+
+    def _validate(self, result, entries):
+        super()._validate(result, entries)
+        for examples in result:
+            assert isinstance(examples, list)
+            for eg in examples:
+                assert isinstance(eg, dict), "example item is not a valid dict"
+                assert "ja" in eg, "missing field: ja"
+                assert "cn" in eg, "missing field: cn"
+
+    def construct_question(self, entries):
+        return '\n'.join([f'{idx + 1}. 「{Base.construct_head(e)}」 - {e["definition"]}' for idx, e in enumerate(entries)])
+
+    def preprocess_result(self, results, entries):
+        x = []
+        for idx, items in enumerate(results):
+            entry = entries[idx]
+
+            examples = []
+            start = 0
+
+            for eg_idx, eg in enumerate(items):
+                examples.append({
+                    "ja": eg["ja"],
+                    "cn": eg["cn"],
+                    "name": f'{entry["id"]}_{start + eg_idx}'
+                })
+
+            x.append({
+                "id": entry["id"],
+                "examples": examples
+            })
+        return x
+
+
+class GrammarTranslator(Base):
+    hint_path = file_path / 'hint_translate_grammar.txt'
+
+    def _validate(self, result, entries):
+        assert len(result) == len(entries[0]["examples"]) + 1, "entry examples length not match"
+
+        for t in result:
+            assert isinstance(t, str), "translation is not a valid str"
+
+    def construct_question(self, entries):
+        assert len(entries) == 1
+        entry = entries[0]
+        p = [f'1. {entry["definition"]}']
+        p.extend(
+            [f'{idx + 2}. {eg["ja"]}' for idx, eg in enumerate(entry["examples"])]
+        )
+        return '\n'.join(p)
+
+    def preprocess_result(self, results, entries):
+        entry = entries[0]
+        r = {
+            "id": entry["id"],
+            "def_cn": results[0],
+        }
+        results = results[1:]
+
+        egs = copy(entry["examples"])
+        for idx, t in enumerate(results):
+            egs[idx]["cn"] = t
+
+        r["examples"] = egs
+
+        return [r]

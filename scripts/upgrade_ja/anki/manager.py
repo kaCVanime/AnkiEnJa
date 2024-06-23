@@ -63,7 +63,8 @@ class AnkiManager:
             "definition": entry["definition"] or "",
             "def_cn": entry["def_cn"] or "",
             "examples": json.dumps(entry["examples"], ensure_ascii=False),
-            "reason": entry.get("reason", "") or ""
+            "reason": entry.get("reason", "") or "",
+            "usage": entry.get("usage", ""),
         }
 
     def _get_categories(self, entry):
@@ -86,6 +87,14 @@ class AnkiManager:
         note_fields = self._get_note_fields(entry)
 
         tags = [*self._get_categories(entry), *self._get_frequency(entry)]
+
+        self.read_model.add_note(note_fields, tags)
+        self.write_model.add_note(note_fields, tags)
+
+    @logger.catch
+    def handle_jlpt(self, entry):
+        note_fields = self._get_note_fields(entry)
+        tags = ['K_1_required', 'Grammar']
 
         self.read_model.add_note(note_fields, tags)
         self.write_model.add_note(note_fields, tags)
