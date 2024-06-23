@@ -19,7 +19,8 @@
 ![JAWrite](screenshots/v2_Write_ja.png)
 
 # 下载地址
-https://ankiweb.net/shared/info/1018349790
+英语: https://ankiweb.net/shared/info/1018349790  
+日语: https://ankiweb.net/shared/info/283976325
 
 # 未来计划
 1. 加入AI例句配音，单独训练"听"，培养"语感"
