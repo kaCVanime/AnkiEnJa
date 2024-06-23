@@ -1,5 +1,6 @@
 # AnkiEnJa
-Anki英语日语卡组，功能超级加倍版
+英语语境智能卡组  
+日语语境智能卡组
 
 # 亮点
 1. 针对"一个词可能有多种释义、词组、习语"，将其全部拆成独立卡片。**一卡一释义**，最大化记忆效率。
@@ -10,14 +11,18 @@ Anki英语日语卡组，功能超级加倍版
 # 展示
 ### "阅读理解"卡片
 ![Read](screenshots/v2_read.png)
+---
+![JARead](screenshots/v2_Read_ja.png)
 ### "写作"卡片
 ![Write](screenshots/v2_write.png)
+---
+![JAWrite](screenshots/v2_Write_ja.png)
 
 # 下载地址
 https://ankiweb.net/shared/info/1018349790
 
 # 未来计划
-1. 加入英美演员的AI例句配音，单独训练"听"，培养"语感"
+1. 加入AI例句配音，单独训练"听"，培养"语感"
 
 # 进阶用法
 ### 将其他牌组的学习记录迁移过来
@@ -27,11 +32,24 @@ https://ankiweb.net/shared/info/1249258442
 https://ankiweb.net/shared/info/342205704
 
 # 鸣谢
-日本語教育語彙表
-中日・日中辞典（第3版）  
-小学馆-日中辞典第三版.mdx @okayer  
-COCA(Corpus of Contemporary American English)  
-牛津高阶英汉双解词典  
+**日本語教育語彙表**  
+**新世纪日汉双解大辞典** - 外语教学与研究出版社  
+**大辞泉** - 小学館  
+**JLPT文法解説まとめ** - 日本語NET  
+**日语常用惯用句分类学习辞典** - 上海外语教育出版社  
+**広辞苑-第七版** - 岩波書店  
+**日中辞典**〔第3版〕 - 小学館  
+
+**COCA**(Corpus of Contemporary American English)  
+**牛津高阶英汉双解词典** - 商务印书馆 
+
 牛津高阶英汉双解词典(第9版)_V3.1.2版.mdx @Origin by Robot athenawang29@gmail.com @v3.1.2 by A*ure  
+新世纪日汉双解大辞典.mdx @freecomic101 @蜻蜓点水等
+小学馆-日中辞典第三版.mdx @okayer
+大辞泉.mdx @MeigenChou
+日语常用惯用句分类学习辞典.epub @  
+広辞苑 第七版.mdx @epistularum  
+JLPT文法解説まとめ.mdx @epistularum  
+
 [fastwordquery](https://github.com/sth2018/FastWordQuery)  
 Google Gemini
