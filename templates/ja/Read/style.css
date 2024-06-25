@@ -1,0 +1,176 @@
+/*通用*/
+.root {
+    transform: scale(1);
+    transform-origin: 0 0;
+}
+
+.transparent {
+    opacity: 0;
+}
+
+
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: left;
+    color: black;
+    background-color: white;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.flex-col {
+    flex-direction: column;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+.ml-10 {
+	margin-left: 10px;
+}
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.label {
+    color: #8a7967;
+}
+
+.usage {
+    color: #00205b;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.italic {
+    font-style: italic;
+}
+.bold {
+    font-weight: bold;
+}
+
+.hide {
+	display: none;
+}
+
+/* 业务通用 */
+
+@font-face {
+    font-family: ShipporiMincho;
+    src: url('ShipporiMincho-Regular.ttf');
+}
+@font-face {
+    font-family: NotoSerifSC;
+    src: url('NotoSerifSC-Regular.ttf');
+}
+
+.lang-ja {
+    font-family: ShipporiMincho;
+}
+.lang-cn {
+    font-family: NotoSerifSC;
+}
+
+/*tag*/
+header {
+    position: relative;
+}
+#tag-box {
+    position: absolute;
+    top: -10px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+#frequency-tag {
+    display: flex;
+    height: 15px;
+    margin-bottom: 8px;
+}
+#frequency-tag span {
+    display: inline-block;
+    height: 100%;
+    width: 6px;
+    background: #b6e9b6;
+    margin-right: 4px;
+}
+#frequency-tag.star-1 span:nth-child(-n+1),
+#frequency-tag.star-2 span:nth-child(-n+2),
+#frequency-tag.star-3 span:nth-child(-n+3),
+#frequency-tag.star-4 span:nth-child(-n+4),
+#frequency-tag.star-5 span:nth-child(-n+5)
+{
+    background: #146c14;
+}
+#tag-box .tag {
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #5c5c5c;
+    max-width: 100px;
+}
+@media (min-width: 600px) {
+    #tag-box .tag {
+        max-width: 400px;
+    }
+}
+#tag-box .original-tag {
+    background-color: #f7e7d0;
+}
+#tag-box .ai-tag {
+    background-color: #cedef2;
+}
+
+/*释义的使用频度介绍*/
+#brief {
+    font-size: 16px;
+    color: #9b9b9b;
+}
+
+
+/*头部*/
+
+#term {
+    color: #b72222;
+}
+
+
+/*主体*/
+main {
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 40px;
+}
+
+@media (max-width: 900px) {
+    main {
+        width: 95%;
+    }
+}
+
+#eg-box {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    padding: 30px 20px;
+    background-color: #f6f6f6;
+    border-radius: 8px;
+    font-size: 22px;
+}
+
+#eg-box .content {
+    color: grey;
+    font-style: italic;
+    line-height: 1.35em;
+}
+
+#def-box {
+    color: #df9797;
+}
+
+

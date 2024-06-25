@@ -1,0 +1,152 @@
+<div class="root">
+  <header>
+    <h2 id="term" class="center lang-ja">{{kanji}}</h2>
+    <div class="center flex-col">
+      <span id="accent" class="phonetic italic lang-ja">{{accent}}</span>
+    </div>
+    <div id="tag-box">
+      <div id="frequency-tag">
+        <span class="bar-1"></span>
+        <span class="bar-2"></span>
+        <span class="bar-3"></span>
+        <span class="bar-4"></span>
+        <span class="bar-5"></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="usage" class="center italic label mt-10 lang-ja">{{usage}}</div>
+    <div id="eg-box"></div>
+    <div id="def-box">
+      <span class="definition lang-ja">{{definition}}</span>
+      <span class="def_cn lang-cn">{{def_cn}}</span>
+    </div>
+    <div id="brief" class="mt-10 lang-ja">{{reason}}</div>
+    <div id="error" class="hide"></div>
+  </main>
+
+
+</div>
+<script>
+  var examplesJson = `{{examples}}`
+  var kanji = `{{kanji}}`
+  var word = `{{word}}`
+  var accent = `{{accent}}`
+  var usage = `{{usage}}`
+
+  var usageEl = document.getElementById('usage')
+  if (!usage) usageEl.classList.add('hide');
+
+  var termEl = document.getElementById('term')
+  var accentEl = document.getElementById('accent')
+  var useWord = preferWord(kanji)
+
+  if (useWord) {
+    termEl.textContent = word
+    accentEl.classList.add('hide')
+  } else if (!accent) {
+    accentEl.textContent = word
+  }
+
+  var egBoxEl = document.getElementById("eg-box")
+  var errEl = document.getElementById("error")
+
+  var tags = `{{Tags}}`
+  tags = tags.split(" ")
+
+  var tagBoxEl = document.getElementById("tag-box")
+
+  var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+  var aiTags = tags.filter(tag => !tag.startsWith("K_"))
+  setFrequency(frequencyTag)
+  aiTags.forEach(tag => addSpanElements(tagBoxEl, tag, ["tag", "ai-tag"]))
+
+
+  function preferWord(kanji) {
+    if (!kanji) return true
+    if (kanji.startsWith('【')) {
+      kanji = kanji.slice(1, -1)
+    }
+    let ks = kanji.split("／")
+    if (ks.length <= 1) {
+      ks = kanji.split("┊")
+    }
+    return ks.every(k => k.includes('▽') || k.includes('×'))
+  }
+  function setFrequency(tag) {
+    const el = document.getElementById("frequency-tag")
+    switch (tag) {
+      case 'K_1_required':
+        el.classList.add('star-5')
+        break
+      case 'K_2_daily':
+        el.classList.add('star-4')
+        break
+      case 'K_3_usual':
+        el.classList.add('star-3')
+        break
+      case 'K_4_rare':
+        el.classList.add('star-1')
+        break
+      default:
+        el.classList.add('star-1')
+    }
+  }
+
+  function parseJson(json) {
+    try {
+      const data = JSON.parse(json)
+      return data
+    } catch (e) {
+      return undefined
+    }
+  }
+
+   function addSpanElements(parent, content, classlist = []) {
+    if (!content) return parent;
+    const el = document.createElement("span");
+    el.textContent = content
+    el.classList.add(...classlist);
+    parent.appendChild(el)
+    return el
+  }
+
+
+  function addUsage(parent, content) {
+    return addSpanElements(parent, content, ["usage", "lang-ja"])
+  }
+
+  function addContent(parent, content) {
+    return addSpanElements(parent, content, ["content", "lang-cn"])
+  }
+
+  function makeElement(item) {
+    if (!item) return;
+    const div = document.createElement("div")
+    if (item.usage) addUsage(div, item.usage)
+    addContent(div, item.cn)
+    return div
+  }
+
+  function addExample() {
+    const egName = localStorage.getItem("KJXP_READ")
+    if (!egName) return;
+    const exampleData = parseJson(examplesJson) || []
+    const picked = exampleData.find(item => item.name === egName)
+    const exampleEl = makeElement(picked)
+    if (exampleEl) {
+      egBoxEl.appendChild(exampleEl)
+    }
+  }
+
+  try {
+    addExample()
+  } catch (err) {
+    console.log(err);
+    errEl.classList.remove('hide')
+    errEl.textContent = err;
+  }
+
+
+</script>
