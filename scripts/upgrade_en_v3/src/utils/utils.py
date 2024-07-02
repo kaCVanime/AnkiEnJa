@@ -6,9 +6,11 @@ import re
 
 kks = None
 
+def remove_non_ascii(s):
+    return s.encode("ascii", errors="ignore").decode().strip()
 
-def import_from(package, method):
-    module = importlib.import_module(package)
+def import_from(m, method, package=None):
+    module = importlib.import_module(m, package=package)
     return getattr(module, method)
 
 

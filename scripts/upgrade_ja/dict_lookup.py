@@ -25,7 +25,7 @@ def redirect_if_link(result, word, yomi, mode="all"):
         results = query(redirect_word)
         return pick(redirect_word, yomi, results, mode=mode)
     elif is_redirect_entry(result):
-        redirect_entries = ParserManager.get_best_redirect_entry(result, yomi)
+        redirect_entries = ParserManager.get_best_redirect_entry(result)
         if redirect_entries:
             if len(redirect_entries) > 1:
                 logger.warning(
