@@ -45,6 +45,10 @@ class Recorder:
 
     def save(self, entry):
         self._results.append(entry)
+        if isinstance(entry, str):
+            entry = {"name":entry}
+        if isinstance(entry, list):
+            entry = {"results":entry}
         with logger.contextualize(**entry):
             logger.debug('saving {} to {}', entry, self.name)
 

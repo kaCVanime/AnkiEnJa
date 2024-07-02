@@ -4,6 +4,8 @@ import json
 
 from .oaldpe import OaldpeParser
 
+from ..utils import remove_non_ascii
+
 
 
 class ParserManager:
@@ -22,18 +24,33 @@ class ParserManager:
         return False
 
     @staticmethod
-    def get_best_redirect_entry(html, yomi):
-        parser = ParserManager.get_parser(html)
-        return parser.get_best_redirect_entry(yomi)
+    def get_best_redirect_word(html):
+        dict_type = ParserManager.get_dict_type(html)
+        if dict_type == "OALDPE":
+            return OaldpeParser.get_best_redirect_word(html)
+        raise NotImplementedError
 
 
     @staticmethod
-    def get_parser(s):
+    def get_parser(s, word, match=False):
         dict_type = ParserManager.get_dict_type(s)
         soup = BeautifulSoup(s, "html.parser")
-
         if dict_type == "OALDPE":
-            return OaldpeParser(soup)
+            entries = OaldpeParser.get_entries(soup)
+            parsers = [OaldpeParser(soup, e) for e in entries]
+            if match:
+                results = [p for p in parsers if remove_non_ascii(p.get_word()) == word]
+                if not results:
+                    for p in parsers:
+                        defs = p.get_defs_and_egs()
+                        for d in defs:
+                            if d["variants"] == word:
+                                p.specify_def(d["id"])
+                                return [p]
+            else:
+                return [p for p in parsers]
+
+            return results
 
     @staticmethod
     def get_dict_type(input):
@@ -41,17 +58,23 @@ class ParserManager:
             return "OALDPE"
         raise NotImplementedError
 
-    def parse(self, s):
-        dict_type = self.get_dict_type(s)
+    def _parse(self, parser, dict_type, mode=None):
+        defs = parser.get_defs_and_egs()
+        if not defs:
+            return None
 
-        parser = self.get_parser(s)
 
         word = parser.get_word()
-        phonetics = parser.get_phonetics()
-        defs = parser.get_defs_and_egs()
-        idioms = parser.get_idioms()
         usage = parser.get_usage()
-        # phrases = parser.get_phrases({"word": word, "kanji": kanji, "accent": accent})
+        idioms = parser.get_idioms()
+        phonetics = parser.get_phonetics()
+        phrases = parser.get_phrases()
+
+        if hasattr(parser, 'x_def_id'):
+            defs = [d for d in defs if d["id"] == parser.x_def_id]
+            usage = None
+            word = defs[0]["variants"]
+            phrases = None
 
         result = {
             "dict_type": dict_type,
@@ -59,7 +82,7 @@ class ParserManager:
             "phonetics": phonetics,
             "defs": defs,
             "idioms": idioms,
-            # "phrases": phrases,
+            "phrases": phrases,
             "usage": usage
         }
 
@@ -67,3 +90,10 @@ class ParserManager:
             logger.debug(json.dumps(result, ensure_ascii=False))
 
         return result
+
+    def parse(self, s, word, mode=None):
+        dict_type = self.get_dict_type(s)
+
+        parsers = self.get_parser(s, word, match=mode!='phrv')
+
+        return list(filter(None, [self._parse(p, dict_type, mode) for p in parsers]))

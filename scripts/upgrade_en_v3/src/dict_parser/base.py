@@ -5,8 +5,9 @@ class Base(ABC):
     def __init__(self, soup):
         self.soup = soup
 
+    @staticmethod
     @abstractmethod
-    def _parse_entry(self):
+    def get_entries(self):
         pass
 
     @abstractmethod
