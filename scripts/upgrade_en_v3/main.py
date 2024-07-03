@@ -1,9 +1,11 @@
 import tqdm
+import time
 from loguru import logger
 from pathlib import Path
 from tqdm.contrib.concurrent import thread_map
 
-from src.utils import Recorder, DictHelper, import_from
+from src.utils import DictHelper, import_from
+from src.utils import Recorder
 from src.dict_parser import ParserManager
 
 log_path = Path('./src/logs')
@@ -12,13 +14,13 @@ for p in (log_path, temp_path):
     p.mkdir(exist_ok=True)
 
 logger.remove()
-logger.add(log_path / 'main.log', level="WARNING")
+logger.add(log_path / 'main.log', level="INFO")
 
 dict_helper = DictHelper()
 parser = ParserManager()
 
-coca_progress_recorder = Recorder(temp_path / 'coca_progress.pkl')
-coca_results_recorder = Recorder(temp_path / 'coca_results.pkl')
+results_recorder = Recorder()
+results_recorder.start()
 
 
 
@@ -61,7 +63,7 @@ def main():
     with open('src/assets/COCA_20000.txt', mode='r', encoding='utf-8') as f:
         word_list = [r.strip() for r in f.readlines()]
 
-    completed = coca_progress_recorder.get()
+    completed = results_recorder.get_keys()
     todo = [w for w in word_list if w not in completed]
 
     thread_map(lookup, todo)
@@ -85,8 +87,10 @@ def lookup(word):
     if not results:
         logger.error('no results for {}', word)
 
-    coca_progress_recorder.save(word)
-    coca_results_recorder.save(results)
+    t0 = time.perf_counter()
+    results_recorder.save(results)
+    t1 = time.perf_counter()
+    logger.info('{} saved in {}s', word, t1-t0)
 
     return results
 
@@ -94,6 +98,14 @@ def test(word):
     return lookup(word)
 
 if __name__ == '__main__':
-    # main()
-    results = test("take")
+    main()
+
+    results_recorder.close()
+    # results = test("to")
+    # def_ids = []
+    # for r in results:
+    #     for p in r["defs"]:
+    #         assert p["id"] not in def_ids
+    #         def_ids.append(p["id"])
+
     pass

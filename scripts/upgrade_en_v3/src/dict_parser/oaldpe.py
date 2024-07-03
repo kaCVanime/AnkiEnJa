@@ -100,8 +100,8 @@ class OaldpeParser(Base):
             labelx = label.find('labelx')
             if labelx:
                 labelx.extract()
-
-        return "".join([a.get_text() for a in labels]) if labels else ""
+        s = "".join([a.get_text() for a in labels]) if labels else ""
+        return s
 
     def _parse_def(self, li):
         definition = get_soup_text(li.find('span', class_='def'))
@@ -143,9 +143,9 @@ class OaldpeParser(Base):
     def get_defs_and_egs(self, root=None):
         if not root:
             root = self.entry
-        defs = root.find('ol', class_='senses_multiple')
+        defs = root.find('ol', class_='senses_multiple', recursive=False)
         if not defs:
-            defs = root.find('ol', class_='sense_single')
+            defs = root.find('ol', class_='sense_single', recursive=False)
         if not defs:
             return None
 
@@ -188,3 +188,7 @@ class OaldpeParser(Base):
 
     def get_entry_prefix(self, word=None, kanji=None):
         pass
+
+    def get_pos(self):
+        pos = self.entry.find('span', class_='pos')
+        return get_soup_text(pos)
