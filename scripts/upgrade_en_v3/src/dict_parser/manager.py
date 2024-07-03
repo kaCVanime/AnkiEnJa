@@ -43,10 +43,11 @@ class ParserManager:
                 if not results:
                     for p in parsers:
                         defs = p.get_defs_and_egs()
-                        for d in defs:
-                            if d["variants"] == word:
-                                p.specify_def(d["id"])
-                                return [p]
+                        if defs:
+                            for d in defs:
+                                if d["variants"] == word:
+                                    p.specify_def(d["id"])
+                                    return [p]
             else:
                 return [p for p in parsers]
 
@@ -60,15 +61,15 @@ class ParserManager:
 
     def _parse(self, parser, dict_type, mode=None):
         defs = parser.get_defs_and_egs()
-        if not defs:
-            return None
-
-
         word = parser.get_word()
         usage = parser.get_usage()
         idioms = parser.get_idioms()
         phonetics = parser.get_phonetics()
         phrases = parser.get_phrases()
+        pos = parser.get_pos()
+
+        if not defs and not idioms and not phrases:
+            return None
 
         if hasattr(parser, 'x_def_id'):
             defs = [d for d in defs if d["id"] == parser.x_def_id]
@@ -83,7 +84,8 @@ class ParserManager:
             "defs": defs,
             "idioms": idioms,
             "phrases": phrases,
-            "usage": usage
+            "usage": usage,
+            "pos": pos
         }
 
         with logger.contextualize(**result):
