@@ -100,12 +100,12 @@ def test(word):
 if __name__ == '__main__':
     main()
 
-    results_recorder.close()
-    # results = test("to")
+
+    # results = test("tear")
     # def_ids = []
     # for r in results:
     #     for p in r["defs"]:
     #         assert p["id"] not in def_ids
     #         def_ids.append(p["id"])
-
+    results_recorder.close()
     pass

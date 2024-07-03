@@ -172,6 +172,8 @@ class OaldpeParser(Base):
 
         if '_' in redirect:
             redirect = redirect.split('_')[0]
+        # tear-up1
+        redirect = re.sub('\d+$', '', redirect)
 
         DictHelper = import_from('..utils', 'DictHelper', package='src.dict_parser')
         ParserManager = import_from('..dict_parser', 'ParserManager', package='src.dict_parser')
@@ -180,7 +182,12 @@ class OaldpeParser(Base):
         parser = ParserManager()
 
         html = dict_helper.query_oaldpe(redirect)
-        return parser.parse(html[0], redirect, mode='phrv')
+        h = html[0]
+        redirect_keyword = '@@@LINK='
+        if h.startswith(redirect_keyword):
+            h.strip()
+            h=h[len(redirect_keyword):]
+        return parser.parse(h, redirect, mode='phrv')
     def get_phrases(self, parent=None):
         box = self.entry.find('aside', class_='phrasal_verb_links')
 
