@@ -75,7 +75,7 @@ class Recorder:
                 '''
                 CREATE TABLE defs
                 (
-                    id TEXT not null,
+                    id TEXT not null unique,
                     entry_id INTEGER,
                     cefr TEXT,
                     usage TEXT,
@@ -207,6 +207,7 @@ class Recorder:
             for entry in entries:
                 self._save_phrv(cursor, word, entry)
 
+
     def save(self, results):
         with lock:
             conn = self.connection
@@ -216,6 +217,15 @@ class Recorder:
                     self._save_word(conn.cursor(), item)
                     self._save_idioms(conn.cursor(), item["word"], item["idioms"])
                     self._save_phrvs(conn.cursor(), item["word"], item['phrases'])
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+
+    def save_word_entry_only(self, word):
+        with lock:
+            conn = self.connection
+            try:
+                self._add_entry(conn.cursor(), word)
                 conn.commit()
             except Exception as e:
                 conn.rollback()

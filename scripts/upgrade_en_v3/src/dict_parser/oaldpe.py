@@ -186,7 +186,12 @@ class OaldpeParser(Base):
         redirect_keyword = '@@@LINK='
         if h.startswith(redirect_keyword):
             h.strip()
-            h=h[len(redirect_keyword):]
+            h=h[len(redirect_keyword):].strip()
+            # loop
+            if h == 'bale-out' or h == 'bale out':
+                return None
+            html = dict_helper.query_oaldpe(h)
+            h = html[0]
         return parser.parse(h, redirect, mode='phrv')
     def get_phrases(self, parent=None):
         box = self.entry.find('aside', class_='phrasal_verb_links')
