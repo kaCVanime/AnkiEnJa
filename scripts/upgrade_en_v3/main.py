@@ -57,17 +57,18 @@ def pick(html_results, word):
         # html_results = dict_helper.query_oaldpe(redirect)
         # html = html_results[0]
 
+def normalize(s):
+    return s.replace('·', '')
 
 @logger.catch
 def main():
     with open('src/assets/COCA_20000.txt', mode='r', encoding='utf-8') as f:
         word_list = [r.strip() for r in f.readlines()]
-
-    completed = results_recorder.get_keys()
-    todo = [w for w in word_list if w not in completed]
+    blacklist = ['republican', 'follow-up', 'em', 'start-up', 'trade-off', 'cut-off', 'close-up', 'warm-up', 'cover-up', 'stand-up', 'run-down', 'drop-off', 'run-up', 'Labour', 'break-in', 'sit-up', 'carry-on', 'stand-in', 'run-in', 'shake-up', 'blow-up']
+    completed = [normalize(k) for k in results_recorder.get_keys()]
+    todo = [w for w in word_list if w not in completed and w not in blacklist]
 
     thread_map(lookup, todo)
-
 
 
 def lookup(word):
@@ -76,16 +77,20 @@ def lookup(word):
         html_results = dict_helper.query_oaldpe(word.lower())
     if not html_results:
         logger.error('no entry for {}', word)
+        results_recorder.save_word_entry_only(word)
         return []
 
     html = pick(html_results, word)
     if not html:
+        results_recorder.save_word_entry_only(word)
         return []
 
     results = parser.parse(html, word)
 
     if not results:
         logger.error('no results for {}', word)
+        results_recorder.save_word_entry_only(word)
+        return []
 
     t0 = time.perf_counter()
     results_recorder.save(results)
