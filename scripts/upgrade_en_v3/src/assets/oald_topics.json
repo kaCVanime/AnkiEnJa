@@ -1,0 +1,116 @@
+{
+  "Animals": [
+    "Animals",
+    "Birds",
+    "Fish and shellfish",
+    "Insects, worms, etc."
+  ],
+  "Appearance": [
+    "Appearance",
+    "Body",
+    "Clothes and Fashion",
+    "Colours and Shapes"
+  ],
+  "Communication": [
+    "Language",
+    "Phones, email and the internet"
+  ],
+  "Culture": [
+    "Art",
+    "Film and theatre",
+    "Literature and writing",
+    "Music",
+    "TV, radio and news"
+  ],
+  "Food and drink": [
+    "Cooking and eating",
+    "Drinks",
+    "Food"
+  ],
+  "Functions": [
+    "Discussion and agreement",
+    "Doubt, guessing and certainty",
+    "Opinion and argument",
+    "Permission and obligation",
+    "Preferences and decisions",
+    "Suggestions and advice"
+  ],
+  "Health": [
+    "Disability",
+    "Health and Fitness",
+    "Health problems",
+    "Healthcare",
+    "Mental health"
+  ],
+  "Homes and buildings": [
+    "Buildings",
+    "Gardens",
+    "Houses and homes"
+  ],
+  "Leisure": [
+    "Games & Activities",
+    "Hobbies",
+    "Shopping"
+  ],
+  "Notions": [
+    "Change, cause and effect",
+    "Danger",
+    "Difficulty and failure",
+    "Success"
+  ],
+  "People": [
+    "Education",
+    "Family and relationships",
+    "Feelings",
+    "Life stages",
+    "Personal qualities",
+    "Events & Actions"
+  ],
+  "Politics and society": [
+    "Crime and punishment",
+    "Law and justice",
+    "People in society",
+    "Politics",
+    "Religion and festivals",
+    "Social issues",
+    "War and conflict"
+  ],
+  "Science and technology": [
+    "Biology",
+    "Computers",
+    "Engineering",
+    "Maths and measurement",
+    "Physics and chemistry",
+    "Scientific research"
+  ],
+  "Sport": [
+    "Sports: ball and racket sports",
+    "Sports: other sports",
+    "Sports: water sports"
+  ],
+  "The natural world": [
+    "Farming",
+    "Geography",
+    "Plants and trees",
+    "The environment",
+    "Weather"
+  ],
+  "Time and space": [
+    "History",
+    "Space",
+    "Time"
+  ],
+  "Travel": [
+    "Holidays",
+    "Transport by air",
+    "Transport by bus and train",
+    "Transport by car or lorry",
+    "Transport by water"
+  ],
+  "Work and business": [
+    "Business",
+    "Jobs",
+    "Money",
+    "Working life"
+  ]
+}

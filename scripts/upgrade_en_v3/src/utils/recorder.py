@@ -3,6 +3,7 @@ import json
 import sqlite3
 from loguru import logger
 from threading import Lock
+from itertools import chain
 
 lock = Lock()
 
@@ -11,6 +12,11 @@ db_file = Path.cwd() / 'src' / 'assets' / db_name
 
 
 class Recorder:
+    common_def_fields = ['id', 'cefr', 'labels', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score',
+                         'reason']
+
+    common_todo_def_fields = ['id', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score', 'reason']
+
     def __init__(self):
         if not db_file.is_file():
             self.init_db()
@@ -18,8 +24,8 @@ class Recorder:
 
     def start(self):
         self.connection = sqlite3.connect(db_file, check_same_thread=False)
-        cur = self.connection.cursor()
-        cur.execute('PRAGMA foreign_keys = ON;')
+        self.connection.execute('PRAGMA foreign_keys = ON;')
+
     def close(self):
         self.connection.close()
 
@@ -138,7 +144,7 @@ class Recorder:
                 d["labels"],
                 d["definition"],
                 d["def_cn"],
-                json.dumps(d["examples"]),
+                json.dumps(d["examples"], ensure_ascii=False),
                 d["variants"],
                 d["topic"]
             )
@@ -229,3 +235,169 @@ class Recorder:
                 conn.commit()
             except Exception as e:
                 conn.rollback()
+
+    def get_all(self):
+        return chain(
+            self.get_words(),
+            self.get_idioms(),
+            self.get_phrvs()
+        )
+
+    def get_words(self):
+        sql = '''
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, words.phonetics, words.pos, d.usage 
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN words
+                ON words.entry_id = entries.id
+            ORDER BY RANDOM();
+        '''
+        cursor = self.connection.execute(sql)
+
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'word', 'phonetics', 'pos', 'usage']))
+
+    def get_idioms(self):
+        sql = '''
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason,
+            CASE
+                WHEN d.usage='' THEN idioms.usage
+                WHEN d.usage!='' THEN d.usage
+            END AS usage
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN idioms
+                ON idioms.entry_id = entries.id
+            ORDER BY RANDOM();
+        '''
+        cursor = self.connection.execute(sql)
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'usage']))
+
+    def get_phrvs(self):
+        sql = '''
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos,
+            CASE
+                WHEN d.usage='' THEN phrvs.usage
+                WHEN d.usage!='' THEN d.usage
+            END AS usage 
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN phrvs
+                ON phrvs.entry_id = entries.id
+            ORDER BY RANDOM();
+        '''
+        cursor = self.connection.execute(sql)
+
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'pos', 'usage']))
+
+    def _transact(self, sql, vals):
+        with lock:
+            conn = self.connection
+
+            try:
+                cursor = conn.execute(sql, vals)
+                conn.commit()
+                return cursor
+            except Exception as e:
+                conn.rollback()
+                return None
+
+    def _update_def(self, def_id, col, val):
+        sql = f'''
+            UPDATE defs
+            SET {col}=?
+            WHERE id=?
+        '''
+        self._transact(sql, (val, def_id))
+
+
+    def update_def_topic(self, def_id, topics):
+        self._update_def(def_id, 'topic', topics)
+
+    def update_def_examples(self, def_id, examples_json):
+        self._update_def(def_id, 'examples', examples_json)
+
+    def update_def_cn(self, def_id, def_cn):
+        self._update_def(def_id, 'def_cn', def_cn)
+
+    def update_def_rate(self, def_id, score, reason):
+        sql = f'''
+            UPDATE defs
+            SET score=?, reason=?
+            WHERE id=?
+        '''
+        self._transact(sql, (score, reason, def_id))
+
+    def get_todos(self):
+        sql = '''
+        '''
+
+    def get_todo_words(self):
+        sql = '''
+            SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, d.usage 
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN words
+                ON words.entry_id = entries.id
+            ORDER BY RANDOM();
+        '''
+        cursor = self.connection.execute(sql)
+
+        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'word', 'usage']))
+
+    def get_todo_idioms(self):
+        sql = '''
+            SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, 
+            CASE
+                WHEN d.usage='' THEN idioms.usage
+                WHEN d.usage!='' THEN d.usage
+            END AS usage
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN idioms
+                ON idioms.entry_id = entries.id
+            ORDER BY RANDOM();
+        '''
+        cursor = self.connection.execute(sql)
+        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'usage']))
+
+    def get_phrvs(self):
+        sql = '''
+            SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason,
+            CASE
+                WHEN d.usage='' THEN phrvs.usage
+                WHEN d.usage!='' THEN d.usage
+            END AS usage 
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN phrvs
+                ON phrvs.entry_id = entries.id
+            ORDER BY RANDOM();
+        '''
+        cursor = self.connection.execute(sql)
+
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'pos', 'usage']))
+
+
+class SQLResultIterator:
+    def __init__(self, cursor, fields):
+        self.cursor = cursor
+        self.fields = fields
+        pass
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        row = self.cursor.fetchone()
+        if not row:
+            raise StopIteration
+        return self._parse(row)
+
+    def _parse(self, row):
+        return {k: row[idx] for idx, k in enumerate(self.fields)}
