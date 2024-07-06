@@ -20,7 +20,6 @@ dict_helper = DictHelper()
 parser = ParserManager()
 
 results_recorder = Recorder()
-results_recorder.start()
 
 
 
@@ -103,6 +102,7 @@ def test(word):
     return lookup(word)
 
 if __name__ == '__main__':
+    results_recorder.start()
     main()
 
 
