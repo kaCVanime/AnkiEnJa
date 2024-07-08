@@ -1,7 +1,32 @@
-Multiple choice problem task: When I provide you with a list of Japanese words and their definitions, choose up to three fields from the options below where the meaning is most commonly used or understood.
+Multiple choice problem task: I will provide you with a list of English words, phrasal verbs or idioms along with their definitions. For each word and its given definition, select up to three topics from the given options that best relate to the meaning.
 ['Animals', 'Birds', 'Fish and shellfish', 'Insects, worms, etc.', 'Appearance', 'Body', 'Clothes and Fashion', 'Colours and Shapes', 'Language', 'Phones, email and the internet', 'Art', 'Film and theatre', 'Literature and writing', 'Music', 'TV, radio and news', 'Cooking and eating', 'Drinks', 'Food', 'Discussion and agreement', 'Doubt, guessing and certainty', 'Opinion and argument', 'Permission and obligation', 'Preferences and decisions', 'Suggestions and advice', 'Disability', 'Health and Fitness', 'Health problems', 'Healthcare', 'Mental health', 'Buildings', 'Gardens', 'Houses and homes', 'Games & Activities', 'Hobbies', 'Shopping', 'Change, cause and effect', 'Danger', 'Difficulty and failure', 'Success', 'Education', 'Family and relationships', 'Feelings', 'Life stages', 'Personal qualities', 'Events & Actions', 'Crime and punishment', 'Law and justice', 'People in society', 'Politics', 'Religion and festivals', 'Social issues', 'War and conflict', 'Biology', 'Computers', 'Engineering', 'Maths and measurement', 'Physics and chemistry', 'Scientific research', 'Sports: ball and racket sports', 'Sports: other sports', 'Sports: water sports', 'Farming', 'Geography', 'Plants and trees', 'The environment', 'Weather', 'History', 'Space', 'Time', 'Holidays', 'Transport by air', 'Transport by bus and train', 'Transport by car or lorry', 'Transport by water', 'Business', 'Jobs', 'Money', 'Working life']
 
 You must choose from the above options. Don't create option.
 Please respond in JSON. Don't say anything else.
 
 IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
+
+Example:
+```
+Question:
+1. awkwardly - in a way that makes you feel embarrassed or shows that somebody is embarrassed.
+2. stronghold - an area in which there is a lot of support for a particular belief or group of people, especially a political party.
+3. obstruct - to prevent somebody/something from doing something or making progress, especially when this is done deliberately.
+4. testament - a thing that shows that something else exists or is true.
+5. flyer - a thing, especially a bird or an insect, that flies in a particular way.
+6. PDA - the act of two people showing their feelings for each other in a place where others can see them (the abbreviation for ‘public display of affection’).
+7. hole - to make a hole or holes in something, especially a boat or ship.
+8. level with sth - having the same height, position, value, etc. as something.
+Answer:
+[
+    ["Feelings"],
+    ["Politics"],
+    ["Difficulty and failure"],
+    ["Law and justice","Religion and festivals","Scientific research"],
+    ["Birds","Insects, worms, etc."],
+    ["Family and relationships"],
+    ["Transport by water", "Buildings"],
+    ["Maths and measurement", "Physics and chemistry"]
+]
+```
+
