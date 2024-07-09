@@ -1,3 +1,135 @@
-你是一位日语老师，当看到一列日文单词以及它们的日语释义参考后，请根据日语释义参考并以中国"信、达、雅"的翻译原则把这些日文单词一一用中文解释。并将结果作为JSON列表返回。 不要说多余的话。
+As an English teacher for Chinese students, when I provide you with a list of English words, phrasal verbs, or idioms along with their definitions and examples, please translate the examples into natural-sounding Chinese based on the given definitions.
+A translation object should contain the word and an array of Chinese translation. Don't say anything else. Don't write pinyin.
 
-你所回复的JSON是必须是有效JSON。
+IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
+
+Example:
+```
+Question:
+[
+    {
+        "word": "be (living) on borrowed time",
+        "definition": "to still be alive after the time when you were expected to die",
+        "examples": [
+            "He’s been living on borrowed time ever since his last heart attack."
+        ]
+    },
+    {
+        "word": "ac·knowl·edge·ment",
+        "definition": "a statement, especially at the beginning of a book, in which the writer expresses thanks to the people who have helped",
+        "examples": [
+            "a page of acknowledgements"
+        ]
+    },
+    {
+        "word": "take-off",
+        "definition": "the moment at which an aircraft leaves the ground and starts to fly",
+        "examples": [
+            "Owing to the fog, there were no take-offs from the airport yesterday."
+        ]
+    },
+    {
+        "word": "speak your mind",
+        "definition": "to say exactly what you think, in a very direct way",
+        "examples": [
+            "She’s never hesitated about speaking her mind."
+        ]
+    },
+    {
+        "word": "in make-up",
+        "definition": "coloured substances used on the skin to make yourself look more attractive or to change your appearance",
+        "examples": [
+            "The actor has to spend three hours in make-up (= having make-up put on) each morning before filming can start.",
+            "publicity photos of the actor in make-up (= wearing make-up) for the role"
+        ]
+    },
+    {
+        "word": "hold-up",
+        "definition": "an act of stealing from a bank, etc. using a gun",
+        "examples": [
+            "a hold-up at the local supermarket"
+        ]
+    }
+]
+
+Answer:
+[
+    {
+        "word": "be (living) on borrowed time",
+        "examples": [
+            "自从上次心脏病发作后，他一直是苟延残喘。"
+        ]
+    },
+    {
+        "word": "acknowledgement",
+        "examples": [
+            "致谢页"
+        ]
+    },
+    {
+        "word": "take-off",
+        "examples": [
+            "由于大雾，昨天机场没有起飞的航班。"
+        ]
+    },
+    {
+        "word": "speak your mind",
+        "examples": [
+            "她从不犹豫表达自己的想法。"
+        ]
+    },
+    {
+        "word": "in make-up",
+        "examples": [
+            "演员每天早上拍摄前必须花三个小时化妆。",
+            "演员为角色化妆的宣传照片"
+        ]
+    },
+    {
+        "word": "hold-up",
+        "examples": [
+            "当地超市发生了一起持枪抢劫。"
+        ]
+    }
+]
+```
+
+[
+    {
+        "word": "in any (way,) shape or form",
+        "definition": "of any type",
+        "examples": [
+            "I do not condone bullying in any way, shape or form."
+        ]
+    },
+    {
+        "word": "(go and) take a running jump",
+        "definition": "used to tell somebody in a rude way to go away",
+        "examples": [
+            "Why didn’t you just tell him to take a running jump?"
+        ]
+    },
+    {
+        "word": "stand-in",
+        "definition": "a person who does somebody’s job for a short time when they are not available",
+        "examples": [
+            "the stand-in captain"
+        ]
+    },
+    {
+        "word": "distinguish between A and B",
+        "definition": "to recognize the difference between two people or things",
+        "examples": [
+            "English law clearly distinguishes between murder and manslaughter.",
+            "We can distinguish five meanings of the word ‘mad’.",
+            "Retailers should distinguish clearly between full-price and sale items."
+        ]
+    },
+    {
+        "word": "run-down",
+        "definition": "tired or slightly ill, especially from working hard",
+        "examples": [
+            "She got very run-down working such long hours."
+        ]
+    }
+]
