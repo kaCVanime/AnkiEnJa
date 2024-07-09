@@ -2,20 +2,20 @@ import os
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-from copy import copy
+from copy import copy, deepcopy
 
 from loguru import logger
 
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 from .rate_limiter import rate_limit
 from .retry import retry
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-
-
 file_path = Path(__file__).parent
+
 
 def preprocess_response(text):
     text = text.strip()
@@ -30,9 +30,11 @@ def preprocess_response(text):
         text = text.strip()
     return text
 
+
 class TestResponse:
     def __init__(self, content):
         self.text = content
+
 
 class Base(ABC):
     hint_path = None
@@ -43,17 +45,11 @@ class Base(ABC):
             content = f.read()
         self.model = genai.GenerativeModel("gemini-1.5-flash-latest", system_instruction=content)
 
-    @staticmethod
-    def construct_head(entry):
-        word = entry['word']
-        kanji = entry['kanji']
-        if entry["dict_type"] != 'Common_Idioms':
-            return ''.join(filter(None, [word, kanji]))
-        return kanji
-
     def construct_question(self, entries):
-        return '\n'.join([f'{idx + 1}. {Base.construct_head(e)} - {e["definition"]}' for idx, e in enumerate(entries)])
-
+        return '\n'.join(
+            [f'{idx + 1}. {e.get("usage", "") or e.get("word", "")} - {e["definition"]}.' for idx, e in
+             enumerate(entries)]
+        )
 
     @retry(max_retries=4, delay=3)
     def _query_retry(self, entries):
@@ -79,7 +75,16 @@ class Base(ABC):
         logger.debug('{}: construct question from {}', type(self).__name__, entries)
         question = self.construct_question(entries)
         logger.debug('{}: question: {}', type(self).__name__, question)
-        return self.model.generate_content(question, request_options={"timeout": 30.0})
+        return self.model.generate_content(
+            question,
+            request_options={"timeout": 30.0},
+            safety_settings={
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_ONLY_HIGH
+            }
+        )
 
     @abstractmethod
     def _validate(self, result, entries):
@@ -88,7 +93,7 @@ class Base(ABC):
         assert len(result) == len(entries), "ai response length doesn't match"
 
         return True
-    
+
     @abstractmethod
     def preprocess_result(self, results, entries):
         pass
@@ -97,19 +102,40 @@ class Base(ABC):
 class Translator(Base):
     hint_path = file_path / 'hint_translate_definition.txt'
 
-    def _validate(self, result, entries):
-        super()._validate(result, entries)
-        for t in result:
-            assert isinstance(t, str), "translation is not a valid str"
-            
+    def _validate(self, results, entries):
+        super()._validate(results, entries)
+        for idx, t in enumerate(results):
+            assert "word" in t, "missing key: word"
+            assert "examples" in t, "missing key: examples"
+
+            entry = entries[idx]
+            assert len(t["examples"]) == len([x["en"] for x in entry["examples"] if x.get("ai", False)]), "examples length not matching"
+
+
+    def construct_question(self, entries):
+        p = [
+            {
+                "word": r.get("usage") or r.get("word"),
+                "definition": r["definition"],
+                "examples": [x["en"] for x in r["examples"] if x.get("ai", False)]
+            }
+            for r in entries
+        ]
+        return json.dumps(p, indent=4, ensure_ascii=False)
+
     def preprocess_result(self, results, entries):
         x = []
         for idx, t in enumerate(results):
-            entry = entries[idx]
-            x.append({
-                "id": entry["id"],
-                "def_cn": t
-            })
+            entry = deepcopy(entries[idx])
+            ai_egs = list(filter(lambda eg: eg.get("ai", False), entry["examples"]))
+            for idx, eg in enumerate(t["examples"]):
+                ai_egs[idx]["cn"] = eg
+            x.append(
+                {
+                    "id": entry["id"],
+                    "examples": entry["examples"]
+                }
+            )
         return x
 
 
@@ -122,16 +148,18 @@ class Rater(Base):
             assert isinstance(item, dict), "rate item is not a valid dict"
             assert "score" in item, "missing field: score"
             assert "reason" in item, "missing field: reason"
-            
+
     def preprocess_result(self, results, entries):
         x = []
         for idx, item in enumerate(results):
             entry = entries[idx]
-            x.append({
-                "id": entry["id"],
-                "score": item["score"],
-                "reason": item["reason"]
-            })
+            x.append(
+                {
+                    "id": entry["id"],
+                    "score": item["score"],
+                    "reason": item["reason"]
+                }
+            )
         return x
 
 
@@ -144,9 +172,9 @@ class Senser(Base):
             assert isinstance(examples, list)
             for eg in examples:
                 assert isinstance(eg, dict), "example item is not a valid dict"
-                assert "ja" in eg, "missing field: ja"
+                assert "en" in eg, "missing field: en"
                 assert "cn" in eg, "missing field: cn"
-                
+
     def preprocess_result(self, results, entries):
         x = []
         for idx, items in enumerate(results):
@@ -157,74 +185,44 @@ class Senser(Base):
             else:
                 examples = []
                 start = 0
-            
+
             for eg_idx, eg in enumerate(items):
-                examples.append({
-                    "ja": eg["ja"],
-                    "cn": eg["cn"],
-                    "name": f'{entry["id"]}_{start + eg_idx}'
-                })
-                
-            x.append({
-                "id": entry["id"],
-                "examples": examples
-            })
+                examples.append(
+                    {
+                        "en": eg["en"],
+                        "cn": eg["cn"],
+                        "name": f'{entry["id"]}_{start + eg_idx}',
+                        "ai": True
+                    }
+                )
+
+            x.append(
+                {
+                    "id": entry["id"],
+                    "examples": examples
+                }
+            )
         return x
-        
+
 
 class Classifier(Base):
     hint_path = file_path / 'hint_classify.txt'
 
-    classes = [
-        "Appearance",
-        "Antiques & Collectibles",
-        "Architecture",
-        "Art",
-        "Biography & Autobiography",
-        "Body, Mind & Spirit",
-        "Business & Economics",
-        "Comics & Graphic Novels",
-        "Computers",
-        "Cooking",
-        "Crafts & Hobbies",
-        "Communication",
-        "Design",
-        "Drama",
-        "Education",
-        "Events & Action",
-        "Emotion",
-        "Family & Relationships",
-        "Fiction",
-        "Foreign Language Study",
-        "Games & Activities",
-        "Gardening",
-        "Health & Fitness",
-        "History",
-        "Humor",
-        "Language Arts & Disciplines",
-        "Law",
-        "Mathematics",
-        "Medical",
-        "Media",
-        "Miscellaneous",
-        "Music",
-        "Nature",
-        "Performing Arts",
-        "Personality",
-        "Perception",
-        "Philosophy",
-        "Photography",
-        "Political Science",
-        "Psychology",
-        "Reference",
-        "Religion",
-        "Science",
-        "Social Science",
-        "Sports & Recreation",
-        "Technology & Engineering",
-        "Transportation",
-        "Travel"
-    ]
+    classes = ['Animals', 'Birds', 'Fish and shellfish', 'Insects, worms, etc.', 'Appearance', 'Body',
+               'Clothes and Fashion', 'Colours and Shapes', 'Language', 'Phones, email and the internet', 'Art',
+               'Film and theatre', 'Literature and writing', 'Music', 'TV, radio and news', 'Cooking and eating',
+               'Drinks', 'Food', 'Discussion and agreement', 'Doubt, guessing and certainty', 'Opinion and argument',
+               'Permission and obligation', 'Preferences and decisions', 'Suggestions and advice', 'Disability',
+               'Health and Fitness', 'Health problems', 'Healthcare', 'Mental health', 'Buildings', 'Gardens',
+               'Houses and homes', 'Games & Activities', 'Hobbies', 'Shopping', 'Change, cause and effect', 'Danger',
+               'Difficulty and failure', 'Success', 'Education', 'Family and relationships', 'Feelings', 'Life stages',
+               'Personal qualities', 'Events & Actions', 'Crime and punishment', 'Law and justice', 'People in society',
+               'Politics', 'Religion and festivals', 'Social issues', 'War and conflict', 'Biology', 'Computers',
+               'Engineering', 'Maths and measurement', 'Physics and chemistry', 'Scientific research',
+               'Sports: ball and racket sports', 'Sports: other sports', 'Sports: water sports', 'Farming', 'Geography',
+               'Plants and trees', 'The environment', 'Weather', 'History', 'Space', 'Time', 'Holidays',
+               'Transport by air', 'Transport by bus and train', 'Transport by car or lorry', 'Transport by water',
+               'Business', 'Jobs', 'Money', 'Working life']
 
     def _validate(self, result, entries):
         super()._validate(result, entries)
@@ -237,87 +235,17 @@ class Classifier(Base):
                     new_cls.append(cls)
 
         if new_cls:
-            headers = [f'{e["kanji"] or e["word"]}: {e["definition"]};  ' for e in entries]
+            headers = [f'{e["id"]};  ' for e in entries]
             logger.warning('AI is inventing classes {} for {}', new_cls, ''.join(headers))
-            
+
     def preprocess_result(self, results, entries):
         x = []
         for idx, t in enumerate(results):
             entry = entries[idx]
-            x.append({
-                "id": entry["id"],
-                "categories": t
-            })
+            x.append(
+                {
+                    "id": entry["id"],
+                    "topic": "=_=".join(t)
+                }
+            )
         return x
-
-
-class GrammarSenser(Base):
-    hint_path = file_path / 'hint_get_more_examples_grammar.txt'
-
-    def _validate(self, result, entries):
-        super()._validate(result, entries)
-        for examples in result:
-            assert isinstance(examples, list)
-            for eg in examples:
-                assert isinstance(eg, dict), "example item is not a valid dict"
-                assert "ja" in eg, "missing field: ja"
-                assert "cn" in eg, "missing field: cn"
-
-    def construct_question(self, entries):
-        return '\n'.join([f'{idx + 1}. 「{Base.construct_head(e)}」 - {e["definition"]}' for idx, e in enumerate(entries)])
-
-    def preprocess_result(self, results, entries):
-        x = []
-        for idx, items in enumerate(results):
-            entry = entries[idx]
-
-            examples = []
-            start = 0
-
-            for eg_idx, eg in enumerate(items):
-                examples.append({
-                    "ja": eg["ja"],
-                    "cn": eg["cn"],
-                    "name": f'{entry["id"]}_{start + eg_idx}'
-                })
-
-            x.append({
-                "id": entry["id"],
-                "examples": examples
-            })
-        return x
-
-
-class GrammarTranslator(Base):
-    hint_path = file_path / 'hint_translate_grammar.txt'
-
-    def _validate(self, result, entries):
-        assert len(result) == len(entries[0]["examples"]) + 1, "entry examples length not match"
-
-        for t in result:
-            assert isinstance(t, str), "translation is not a valid str"
-
-    def construct_question(self, entries):
-        assert len(entries) == 1
-        entry = entries[0]
-        p = [f'1. {entry["definition"]}']
-        p.extend(
-            [f'{idx + 2}. {eg["ja"]}' for idx, eg in enumerate(entry["examples"])]
-        )
-        return '\n'.join(p)
-
-    def preprocess_result(self, results, entries):
-        entry = entries[0]
-        r = {
-            "id": entry["id"],
-            "def_cn": results[0],
-        }
-        results = results[1:]
-
-        egs = copy(entry["examples"])
-        for idx, t in enumerate(results):
-            egs[idx]["cn"] = t
-
-        r["examples"] = egs
-
-        return [r]

@@ -4,6 +4,7 @@ import sqlite3
 from loguru import logger
 from threading import Lock
 from itertools import chain
+from random import shuffle
 
 lock = Lock()
 
@@ -365,7 +366,7 @@ class Recorder:
         cursor = self.connection.execute(sql)
         return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'usage']))
 
-    def get_phrvs(self):
+    def get_todo_phrvs(self):
         sql = '''
             SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason,
             CASE
@@ -383,6 +384,57 @@ class Recorder:
 
         return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'pos', 'usage']))
 
+    def test(self):
+        word_sql = '''
+            SELECT d.id, d.definition, d.examples, words.word, d.usage 
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN words
+                ON words.entry_id = entries.id
+            WHERE instr(d.examples, '"ai": true') > 0
+            ORDER BY RANDOM()
+            LIMIT 5;
+        '''
+
+        idioms_sql = '''
+            SELECT d.id, d.definition, d.examples,
+            CASE
+                WHEN d.usage='' THEN idioms.usage
+                WHEN d.usage!='' THEN d.usage
+            END AS usage
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN idioms
+                ON idioms.entry_id = entries.id
+            WHERE instr(d.examples, '"ai": true') > 0
+            ORDER BY RANDOM()
+            LIMIT 5;
+        '''
+
+        phrv_sql = '''
+            SELECT d.id, d.definition, d.examples,
+            CASE
+                WHEN d.usage='' THEN phrvs.usage
+                WHEN d.usage!='' THEN d.usage
+            END AS usage 
+            FROM defs AS d
+                INNER JOIN entries
+                ON d.entry_id = entries.id
+                INNER JOIN phrvs
+                ON phrvs.entry_id = entries.id
+            WHERE instr(d.examples, '"ai": true') > 0
+            ORDER BY RANDOM()
+            LIMIT 5;
+        '''
+
+        words = list(iter(SQLResultIterator(self.connection.execute(word_sql), ['id', 'definition', 'examples', 'word', 'usage'])))
+        idioms = list(iter(SQLResultIterator(self.connection.execute(idioms_sql), ['id', 'definition', 'examples', 'usage'])))
+        phrvs = list(iter(SQLResultIterator(self.connection.execute(phrv_sql), ['id', 'definition', 'examples', 'usage'])))
+        a = [*words, *idioms, *phrvs]
+        shuffle(a)
+        return a[:5]
 
 class SQLResultIterator:
     def __init__(self, cursor, fields):
