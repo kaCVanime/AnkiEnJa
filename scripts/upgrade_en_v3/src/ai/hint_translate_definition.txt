@@ -1,135 +1,34 @@
-As an English teacher for Chinese students, when I provide you with a list of English words, phrasal verbs, or idioms along with their definitions and examples, please translate the examples into natural-sounding Chinese based on the given definitions.
-A translation object should contain the word and an array of Chinese translation. Don't say anything else. Don't write pinyin.
+As an English teacher for Chinese students, when I provide you with a list of English words, phrasal verbs, or idioms along with their definitions, please translate the word and meaning into natural-sounding Chinese based on the given definitions.
+Don't say anything else. Don't write pinyin.
 
 IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
 
 Example:
 ```
 Question:
-[
-    {
-        "word": "be (living) on borrowed time",
-        "definition": "to still be alive after the time when you were expected to die",
-        "examples": [
-            "He’s been living on borrowed time ever since his last heart attack."
-        ]
-    },
-    {
-        "word": "ac·knowl·edge·ment",
-        "definition": "a statement, especially at the beginning of a book, in which the writer expresses thanks to the people who have helped",
-        "examples": [
-            "a page of acknowledgements"
-        ]
-    },
-    {
-        "word": "take-off",
-        "definition": "the moment at which an aircraft leaves the ground and starts to fly",
-        "examples": [
-            "Owing to the fog, there were no take-offs from the airport yesterday."
-        ]
-    },
-    {
-        "word": "speak your mind",
-        "definition": "to say exactly what you think, in a very direct way",
-        "examples": [
-            "She’s never hesitated about speaking her mind."
-        ]
-    },
-    {
-        "word": "in make-up",
-        "definition": "coloured substances used on the skin to make yourself look more attractive or to change your appearance",
-        "examples": [
-            "The actor has to spend three hours in make-up (= having make-up put on) each morning before filming can start.",
-            "publicity photos of the actor in make-up (= wearing make-up) for the role"
-        ]
-    },
-    {
-        "word": "hold-up",
-        "definition": "an act of stealing from a bank, etc. using a gun",
-        "examples": [
-            "a hold-up at the local supermarket"
-        ]
-    }
-]
+1. impediment - a problem, for example a stammer, that makes it more difficult for somebody to speak, hear, etc.
+2. affirm - to publicly defend something or state that you support it strongly
+3. peak - relating to the moment when something is at its most popular or fashionable
+4. person of interest - a person who is believed to be involved in a crime, but who has not been arrested
+5. mess with sb's head - to make somebody feel annoyed, anxious or upset
+6. mutton dressed as lamb - an offensive way to describe a woman who you think is trying to look younger than she really is, especially by wearing clothes that are designed for young people.
+7. sticker - a small digital image that you can use to express an idea or emotion on social media or on a messaging app. Stickers are often animated (= made to look as if they are moving).
 
 Answer:
 [
-    {
-        "word": "be (living) on borrowed time",
-        "examples": [
-            "自从上次心脏病发作后，他一直是苟延残喘。"
-        ]
-    },
-    {
-        "word": "acknowledgement",
-        "examples": [
-            "致谢页"
-        ]
-    },
-    {
-        "word": "take-off",
-        "examples": [
-            "由于大雾，昨天机场没有起飞的航班。"
-        ]
-    },
-    {
-        "word": "speak your mind",
-        "examples": [
-            "她从不犹豫表达自己的想法。"
-        ]
-    },
-    {
-        "word": "in make-up",
-        "examples": [
-            "演员每天早上拍摄前必须花三个小时化妆。",
-            "演员为角色化妆的宣传照片"
-        ]
-    },
-    {
-        "word": "hold-up",
-        "examples": [
-            "当地超市发生了一起持枪抢劫。"
-        ]
-    }
+    "障碍. 心理或者健康问题, 例如口吃",
+    "公开捍卫某事或强烈表明你支持某事",
+    "巅峰时期. 某事物最受欢迎或最时髦的时刻",
+    "嫌疑人. 被认为与犯罪有关, 但尚未被逮捕的人",
+    "使某人感到恼火、焦虑或不安",
+    "装嫩. 贬义词, 形容年长的女性试图打扮成年轻人的样子 (尤其是穿着年轻人的衣服)",
+    "表情. 社交媒体或信息应用中用来表达想法或情绪的小型数字图像 (通常是动态的)"
 ]
 ```
 
-[
-    {
-        "word": "in any (way,) shape or form",
-        "definition": "of any type",
-        "examples": [
-            "I do not condone bullying in any way, shape or form."
-        ]
-    },
-    {
-        "word": "(go and) take a running jump",
-        "definition": "used to tell somebody in a rude way to go away",
-        "examples": [
-            "Why didn’t you just tell him to take a running jump?"
-        ]
-    },
-    {
-        "word": "stand-in",
-        "definition": "a person who does somebody’s job for a short time when they are not available",
-        "examples": [
-            "the stand-in captain"
-        ]
-    },
-    {
-        "word": "distinguish between A and B",
-        "definition": "to recognize the difference between two people or things",
-        "examples": [
-            "English law clearly distinguishes between murder and manslaughter.",
-            "We can distinguish five meanings of the word ‘mad’.",
-            "Retailers should distinguish clearly between full-price and sale items."
-        ]
-    },
-    {
-        "word": "run-down",
-        "definition": "tired or slightly ill, especially from working hard",
-        "examples": [
-            "She got very run-down working such long hours."
-        ]
-    }
-]
+
+1. be drowning in sth - to have so much of something that you cannot deal with it.
+2. moron - a word for a person with a very low level of intelligence that is now considered offensive.
+3. affirmation - emotional support or approval.
+4. woman - a rude way of addressing a female person, especially when telling her what to do.
+5. feel - feelings of extreme emotion.

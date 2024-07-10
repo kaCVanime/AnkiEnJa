@@ -11,6 +11,25 @@ lock = Lock()
 db_name = 'upgrade.db'
 db_file = Path.cwd() / 'src' / 'assets' / db_name
 
+label_filter = '''
+    WHERE labels=''
+        OR (
+            instr(labels, 'British English') > 0
+            OR instr(labels, 'American English') > 0
+            OR instr(labels, 'US English') > 0
+        )
+        OR (
+            not instr(labels, 'Australian English') > 0
+            and not instr(labels, 'New Zealand English') > 0
+            and not instr(labels, 'Indian English') > 0
+            and not instr(labels, 'African English') > 0
+            and not instr(labels, 'Canadian English') > 0
+            and not instr(labels, 'South-East Asian English') > 0
+            and not instr(labels, 'Irish English') > 0
+            and not instr(labels, 'Scottish English') > 0
+            and not instr(labels, 'Welsh English') > 0
+        )
+'''
 
 class Recorder:
     common_def_fields = ['id', 'cefr', 'labels', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score',
@@ -18,17 +37,28 @@ class Recorder:
 
     common_todo_def_fields = ['id', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score', 'reason']
 
+    _instance = None
+
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(Recorder, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self):
         if not db_file.is_file():
             self.init_db()
         self.connection = None
 
     def start(self):
-        self.connection = sqlite3.connect(db_file, check_same_thread=False)
-        self.connection.execute('PRAGMA foreign_keys = ON;')
+        if not self.connection:
+            self.connection = sqlite3.connect(db_file, check_same_thread=False)
+            self.connection.execute('PRAGMA foreign_keys = ON;')
 
     def close(self):
-        self.connection.close()
+        if self.connection:
+            self.connection.close()
+            self.connection = None
 
     def init_db(self):
         with sqlite3.connect(db_file) as conn:
@@ -53,6 +83,7 @@ class Recorder:
                     phonetics TEXT,
                     usage TEXT,
                     pos TEXT,
+                    labels TEXT,
                     FOREIGN KEY(entry_id) REFERENCES entries(id) ON DELETE CASCADE 
                 )
             '''
@@ -74,6 +105,7 @@ class Recorder:
                         entry_id INTEGER,
                         usage TEXT not null,
                         pos TEXT,
+                        labels TEXT,
                         FOREIGN KEY(entry_id) REFERENCES entries(id) ON DELETE CASCADE 
                     )
                 '''
@@ -157,7 +189,7 @@ class Recorder:
         entry_id = self._add_entry(cursor, item['word'])
         sql ='''
             INSERT INTO words
-            VALUES(?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?)
         '''
         value = (
             entry_id,
@@ -166,6 +198,7 @@ class Recorder:
             f'{item["phonetics"][0]}=_={item["phonetics"][1]}',
             item["usage"],
             item["pos"],
+            item["labels"]
         )
         cursor.execute(sql, value)
 
@@ -196,12 +229,13 @@ class Recorder:
         entry_id = self._add_entry(cursor, word)
         sql ='''
             INSERT INTO phrvs
-            VALUES(?,?,?)
+            VALUES(?,?,?,?)
         '''
         value = (
             entry_id,
             item["word"],
-            item["pos"]
+            item["pos"],
+            item["labels"]
         )
         cursor.execute(sql, value)
 
@@ -246,7 +280,7 @@ class Recorder:
 
     def get_words(self):
         sql = '''
-            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, words.phonetics, words.pos, d.usage 
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, words.phonetics, words.pos, words.labels AS e_labels, d.usage
             FROM defs AS d
                 INNER JOIN entries
                 ON d.entry_id = entries.id
@@ -256,7 +290,7 @@ class Recorder:
         '''
         cursor = self.connection.execute(sql)
 
-        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'word', 'phonetics', 'pos', 'usage']))
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'word', 'phonetics', 'pos', 'e_labels', 'usage']))
 
     def get_idioms(self):
         sql = '''
@@ -277,7 +311,7 @@ class Recorder:
 
     def get_phrvs(self):
         sql = '''
-            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos,
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos, phrvs.labels as e_labels
             CASE
                 WHEN d.usage='' THEN phrvs.usage
                 WHEN d.usage!='' THEN d.usage
@@ -291,7 +325,7 @@ class Recorder:
         '''
         cursor = self.connection.execute(sql)
 
-        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'pos', 'usage']))
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'pos', 'e_labels', 'usage']))
 
     def _transact(self, sql, vals):
         with lock:
@@ -339,13 +373,19 @@ class Recorder:
         )
 
     def get_todo_words(self):
-        sql = '''
+        sql = f'''
             SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, d.usage 
-            FROM defs AS d
-                INNER JOIN entries
-                ON d.entry_id = entries.id
-                INNER JOIN words
-                ON words.entry_id = entries.id
+            FROM (
+                SELECT * from defs
+                {label_filter}
+            ) AS d
+            INNER JOIN entries
+            ON d.entry_id = entries.id
+            INNER JOIN (
+                SELECT * from words
+                {label_filter}
+            ) as words
+            ON words.entry_id = entries.id
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
                 CASE WHEN d.examples='[]' THEN 1 ELSE 0 END +
@@ -359,13 +399,16 @@ class Recorder:
         return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'word', 'usage']))
 
     def get_todo_idioms(self):
-        sql = '''
+        sql = f'''
             SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, 
             CASE
                 WHEN d.usage='' THEN idioms.usage
                 WHEN d.usage!='' THEN d.usage
             END AS usage
-            FROM defs AS d
+            FROM (
+                SELECT * from defs
+                {label_filter}
+            ) AS d
                 INNER JOIN entries
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
@@ -383,17 +426,23 @@ class Recorder:
         return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'usage']))
 
     def get_todo_phrvs(self):
-        sql = '''
+        sql = f'''
             SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason,
             CASE
                 WHEN d.usage='' THEN phrvs.usage
                 WHEN d.usage!='' THEN d.usage
             END AS usage 
-            FROM defs AS d
-                INNER JOIN entries
-                ON d.entry_id = entries.id
-                INNER JOIN phrvs
-                ON phrvs.entry_id = entries.id
+            FROM (
+                SELECT * from defs
+                {label_filter}
+            ) AS d
+            INNER JOIN entries
+            ON d.entry_id = entries.id
+            INNER JOIN (
+                SELECT * from phrvs
+                {label_filter}
+            ) as phrvs
+            ON phrvs.entry_id = entries.id
             WHERE d.def_cn='' OR d.examples='[]' OR d.topic='' OR d.score is NULL OR d.reason is NULL
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +

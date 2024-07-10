@@ -100,7 +100,7 @@ class Base(ABC):
 
 
 class Translator(Base):
-    hint_path = file_path / 'hint_translate_definition.txt'
+    hint_path = file_path / 'hint_translate.txt'
 
     def _validate(self, results, entries):
         super()._validate(results, entries)
@@ -138,6 +138,12 @@ class Translator(Base):
             )
         return x
 
+
+class DefTranslator(Base):
+    hint_path = file_path / 'hint_translate_definition.txt'
+
+    def preprocess_result(self, results, entries):
+        return [{"id": entries[idx]["id"], "def_cn": r} for idx, r in enumerate(results)]
 
 class Rater(Base):
     hint_path = file_path / 'hint_rate.txt'
