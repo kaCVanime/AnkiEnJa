@@ -102,3 +102,5 @@ def convert_to_hiragana(word):
     kks = check_kakasi()
     results = kks.convert(word)
     return "".join([block.get("hira", "") for block in results])
+
+

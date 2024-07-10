@@ -39,7 +39,7 @@ class ParserManager:
             entries = OaldpeParser.get_entries(soup)
             parsers = [OaldpeParser(soup, e) for e in entries]
             if match:
-                results = [p for p in parsers if remove_non_ascii(p.get_word()) == word]
+                results = [p for p in parsers if remove_non_ascii(p.get_word()) == word or remove_non_ascii(p.get_word()) == word.replace('-', ' ')]
                 if not results:
                     for p in parsers:
                         defs = p.get_defs_and_egs()
@@ -67,6 +67,7 @@ class ParserManager:
         phonetics = parser.get_phonetics()
         phrases = parser.get_phrases()
         pos = parser.get_pos()
+        labels = parser.get_labels()
 
         if not defs and not idioms and not phrases:
             return None
@@ -85,7 +86,8 @@ class ParserManager:
             "idioms": idioms,
             "phrases": phrases,
             "usage": usage,
-            "pos": pos
+            "pos": pos,
+            "labels": labels
         }
 
         with logger.contextualize(**result):

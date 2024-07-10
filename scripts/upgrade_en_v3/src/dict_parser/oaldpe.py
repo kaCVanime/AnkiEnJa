@@ -95,6 +95,8 @@ class OaldpeParser(Base):
         }
 
     def _parse_labels(self, box):
+        if not box:
+            return None
         labels = box.find_all('span', class_='labels', recursive=False)
         for label in labels:
             labelx = label.find('labelx')
@@ -132,10 +134,10 @@ class OaldpeParser(Base):
             "id": id,
             "cefr": cefr.upper(),
             "usage": abbrev(cf.get_text()) if cf else "",
-            "labels": self._parse_labels(li),
+            "labels": self._parse_labels(li.find('span', class_='sensetop', recursive=False)) or self._parse_labels(li),
             "definition": definition,
             "def_cn": normalize_chn(def_t.find('chn', class_='simple').get_text()) if def_t else '',
-            "examples": examples,
+            "examples": examples or None,
             "variants": get_soup_text(variants),
             "topic": topic.find('span', class_='topic_name').get_text() if topic else ''
         }
@@ -204,3 +206,6 @@ class OaldpeParser(Base):
     def get_pos(self):
         pos = self.entry.find('span', class_='pos')
         return get_soup_text(pos)
+
+    def get_labels(self):
+        return self._parse_labels(self.entry.find('div', class_='webtop'))
