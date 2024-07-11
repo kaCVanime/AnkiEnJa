@@ -130,6 +130,28 @@ class Recorder:
                 )
             '''
             )
+            c.execute(
+                '''
+                CREATE TABLE synonyms
+                (
+                    id TEXT not null,
+                    overview TEXT,
+                    overview_cn TEXT,
+                    defs TEXT
+                )
+            '''
+            )
+            c.execute(
+                '''
+                CREATE TABLE whichwords
+                (
+                    id TEXT not null,
+                    overview TEXT,
+                    overview_cn TEXT,
+                    defs TEXT
+                )
+            '''
+            )
 
     def get_keys(self):
         sql = '''
@@ -248,6 +270,26 @@ class Recorder:
             for entry in entries:
                 self._save_phrv(cursor, word, entry)
 
+    def _save_synonym_or_whichword(self, cursor, table, item):
+        sql = f'''
+            INSERT INTO {table}
+            VALUES(?,?,?,?)
+        '''
+        value = (
+            item["id"],
+            item["overview"],
+            item['overview_cn'],
+            json.dumps(item['defs'], ensure_ascii=False) if item['defs'] else None
+        )
+        cursor.execute(sql, value)
+
+    def _save_synonyms(self, cursor, synonyms):
+        for s in synonyms:
+            self._save_synonym_or_whichword(cursor, 'synonyms', s)
+
+    def _save_whichwords(self, cursor, whichwords):
+        for w in whichwords:
+            self._save_synonym_or_whichword(cursor, 'whichwords', w)
 
     def save(self, results):
         with lock:
@@ -258,6 +300,8 @@ class Recorder:
                     self._save_word(conn.cursor(), item)
                     self._save_idioms(conn.cursor(), item["word"], item["idioms"])
                     self._save_phrvs(conn.cursor(), item["word"], item['phrases'])
+                    self._save_synonyms(conn.cursor(), item["synonyms"])
+                    self._save_whichwords(conn.cursor(), item["whichwords"])
                 conn.commit()
             except Exception as e:
                 conn.rollback()

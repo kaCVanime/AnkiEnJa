@@ -68,6 +68,8 @@ class ParserManager:
         phrases = parser.get_phrases()
         pos = parser.get_pos()
         labels = parser.get_labels()
+        synonyms = parser.get_synonyms()
+        whichwords = parser.get_which_words()
 
         if not defs and not idioms and not phrases:
             return None
@@ -77,6 +79,8 @@ class ParserManager:
             usage = None
             word = defs[0]["variants"]
             phrases = None
+            synonyms = None
+            whichwords = None
 
         result = {
             "dict_type": dict_type,
@@ -87,7 +91,9 @@ class ParserManager:
             "phrases": phrases,
             "usage": usage,
             "pos": pos,
-            "labels": labels
+            "labels": labels,
+            "synonyms": synonyms,
+            "whichwords": whichwords
         }
 
         with logger.contextualize(**result):

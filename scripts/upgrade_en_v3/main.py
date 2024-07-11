@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # main()
 
 
-    results = test("offset")
+    results = test("take")
     # def_ids = []
     # for r in results:
     #     for p in r["defs"]:
