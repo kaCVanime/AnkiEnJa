@@ -1,5 +1,5 @@
 import re
-import copy
+from copy import copy
 from bs4 import BeautifulSoup
 from loguru import logger
 from tqdm import tqdm
@@ -209,3 +209,140 @@ class OaldpeParser(Base):
 
     def get_labels(self):
         return self._parse_labels(self.entry.find('div', class_='webtop'))
+
+    def _parse_syn_overview(self, body):
+        p = body.find('span', class_='p', recursive=False)
+        undt = p.undt
+        def_cn = ''
+        if undt:
+            undt.extract()
+            def_cn = undt.find('chn', class_='simple').get_text()
+        return p.get_text(), def_cn
+
+    def _parse_syn_id(self, box):
+        title = box.find('span', class_='box_title')
+        short_id = title.unboxx.next_sibling.get_text()
+
+        return f'Synonyms_{short_id}'
+
+    def _parse_syn_def(self, defpara, prefix):
+        box = copy(defpara)
+
+        word = box.find('span', class_='eb')
+        word.extract()
+        word = word.get_text()
+
+        id = f'{prefix}_{word}'
+
+        trans = box.undt
+        if trans:
+            trans.decompose()
+
+        eg_box = box.find(True, class_='examples')
+        if eg_box:
+            eg_box.extract()
+        examples = list(
+            filter(
+                None,
+                [self._parse_example(li, f'{id}_{idx}') for idx, li in
+                 enumerate(eg_box.find_all('li', recursive=False))] if eg_box else []
+            )
+        )
+
+        note = box.find('span', class_='un', un='note')
+        if note:
+            note.extract()
+            undts = note.find_all('undt')
+            for u in undts:
+                u.decompose()
+            note = note.get_text()
+
+
+        definition = re.sub(':$', '', box.get_text().strip())
+
+        return {
+            "id": id,
+            "word": word,
+            "definition": definition,
+            "examples": examples,
+            "note": note
+        }
+
+
+    def _parse_syn_defs(self, body, prefix):
+        defs = body.find_all('span', class_='defpara')
+        return [self._parse_syn_def(d, prefix) for d in defs]
+
+
+    def get_synonyms(self):
+        boxes = self.entry.find_all('span', class_='unbox', unbox='synonyms')
+
+        return [
+            {
+                "id": (syn_id := self._parse_syn_id(box)),
+                "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_syn_overview(body))[0],
+                "overview_cn": re.sub('以上各词均含(.+)之义。', r'\1', overviews[1]),
+                "defs": self._parse_syn_defs(body, syn_id)
+            }
+            for box in boxes
+        ] or None
+
+    def _parse_wiw_id(self, box):
+        title = box.find('span', class_='box_title')
+        short_id = title.unboxx.next_sibling.get_text().replace('/', '-')
+
+        return f'Which_word_{short_id}'
+
+    def _parse_wiw_overview(self, body):
+        return self._parse_syn_overview(body)
+
+    def _parse_wiw_item(self, item, id):
+        item = copy(item)
+
+        eg_box = item.find('ul', class_='examples')
+        if eg_box:
+            eg_box.extract()
+        examples = list(
+            filter(
+                None,
+                [self._parse_example(li, f'{id}_{idx}') for idx, li in
+                 enumerate(eg_box.find_all('li', recursive=False))] if eg_box else []
+            )
+        )
+
+        cn = ''
+        undt = item.undt
+        if undt:
+            undt.extract()
+            cn = undt.find('chn', class_='simple').get_text()
+
+        return {
+            "id": id,
+            "definition": item.get_text(),
+            "def_cn": cn,
+            "examples": examples
+        }
+
+    def _parse_wiw_items(self, li, prefix):
+        items = li.find_all('div', class_='item', recursive=False)
+
+        return [self._parse_wiw_item(item, f'{prefix}_{idx}') for idx, item in enumerate(items)]
+
+    def _parse_wiw_bullets(self, body, prefix):
+        lis = body.ul.find_all('li', recursive=False)
+        return [self._parse_wiw_items(li, f'{prefix}_{idx}') for idx, li in enumerate(lis)]
+
+
+    def get_which_words(self):
+        boxes = self.entry.find_all('span', class_='unbox', unbox='which_word')
+
+        return [
+            {
+                "id": (wiw_id := self._parse_wiw_id(box)),
+                "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_wiw_overview(body))[
+                    0],
+                "overview_cn": re.sub('.+?均(.+)', r'\1', overviews[1]),
+                "defs": self._parse_wiw_bullets(body, wiw_id)
+            }
+            for box in boxes
+        ] or None
