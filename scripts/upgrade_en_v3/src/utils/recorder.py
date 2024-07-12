@@ -199,7 +199,7 @@ class Recorder:
                 d["labels"],
                 d["definition"],
                 d["def_cn"],
-                json.dumps(d["examples"], ensure_ascii=False),
+                json.dumps(d["examples"], ensure_ascii=False) if d["examples"] else None,
                 d["variants"],
                 d["topic"]
             )
@@ -269,7 +269,7 @@ class Recorder:
         for entries in phrvs:
             for entry in entries:
                 self._save_phrv(cursor, word, entry)
-
+    @logger.catch
     def _save_synonym_or_whichword(self, cursor, table, item):
         sql = f'''
             INSERT INTO {table}
@@ -284,12 +284,14 @@ class Recorder:
         cursor.execute(sql, value)
 
     def _save_synonyms(self, cursor, synonyms):
-        for s in synonyms:
-            self._save_synonym_or_whichword(cursor, 'synonyms', s)
+        if synonyms:
+            for s in synonyms:
+                self._save_synonym_or_whichword(cursor, 'synonyms', s)
 
     def _save_whichwords(self, cursor, whichwords):
-        for w in whichwords:
-            self._save_synonym_or_whichword(cursor, 'whichwords', w)
+        if whichwords:
+            for w in whichwords:
+                self._save_synonym_or_whichword(cursor, 'whichwords', w)
 
     def save(self, results):
         with lock:
@@ -304,6 +306,7 @@ class Recorder:
                     self._save_whichwords(conn.cursor(), item["whichwords"])
                 conn.commit()
             except Exception as e:
+                logger.trace(e)
                 conn.rollback()
 
     def save_word_entry_only(self, word):
@@ -371,6 +374,29 @@ class Recorder:
 
         return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'pos', 'e_labels', 'usage']))
 
+    def get_synonyms(self):
+        sql = '''
+            SELECT *
+            FROM synonyms
+            GROUP BY id
+            ORDER BY RANDOM()
+        '''
+
+        cursor = self.connection.execute(sql)
+        return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs']))
+
+
+    def get_whichwords(self):
+        sql = '''
+            SELECT *
+            FROM whichwords
+            GROUP BY id
+            ORDER BY RANDOM()
+        '''
+
+        cursor = self.connection.execute(sql)
+        return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs']))
+
     def _transact(self, sql, vals):
         with lock:
             conn = self.connection
@@ -380,6 +406,7 @@ class Recorder:
                 conn.commit()
                 return cursor
             except Exception as e:
+                logger.error(e)
                 conn.rollback()
                 return None
 
@@ -501,56 +528,8 @@ class Recorder:
         return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'usage']))
 
     def test(self):
-        word_sql = '''
-            SELECT d.id, d.definition, d.examples, words.word, d.usage 
-            FROM defs AS d
-                INNER JOIN entries
-                ON d.entry_id = entries.id
-                INNER JOIN words
-                ON words.entry_id = entries.id
-            WHERE instr(d.examples, '"ai": true') > 0
-            ORDER BY RANDOM()
-            LIMIT 5;
-        '''
+        pass
 
-        idioms_sql = '''
-            SELECT d.id, d.definition, d.examples,
-            CASE
-                WHEN d.usage='' THEN idioms.usage
-                WHEN d.usage!='' THEN d.usage
-            END AS usage
-            FROM defs AS d
-                INNER JOIN entries
-                ON d.entry_id = entries.id
-                INNER JOIN idioms
-                ON idioms.entry_id = entries.id
-            WHERE instr(d.examples, '"ai": true') > 0
-            ORDER BY RANDOM()
-            LIMIT 5;
-        '''
-
-        phrv_sql = '''
-            SELECT d.id, d.definition, d.examples,
-            CASE
-                WHEN d.usage='' THEN phrvs.usage
-                WHEN d.usage!='' THEN d.usage
-            END AS usage 
-            FROM defs AS d
-                INNER JOIN entries
-                ON d.entry_id = entries.id
-                INNER JOIN phrvs
-                ON phrvs.entry_id = entries.id
-            WHERE instr(d.examples, '"ai": true') > 0
-            ORDER BY RANDOM()
-            LIMIT 5;
-        '''
-
-        words = list(iter(SQLResultIterator(self.connection.execute(word_sql), ['id', 'definition', 'examples', 'word', 'usage'])))
-        idioms = list(iter(SQLResultIterator(self.connection.execute(idioms_sql), ['id', 'definition', 'examples', 'usage'])))
-        phrvs = list(iter(SQLResultIterator(self.connection.execute(phrv_sql), ['id', 'definition', 'examples', 'usage'])))
-        a = [*words, *idioms, *phrvs]
-        shuffle(a)
-        return a[:5]
 
 class SQLResultIterator:
     def __init__(self, cursor, fields):

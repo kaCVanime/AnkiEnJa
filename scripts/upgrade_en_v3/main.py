@@ -21,10 +21,13 @@ results_recorder = Recorder()
 def normalize(s):
     return s.replace('·', '')
 
-
-def get_coca_todos():
+def get_coca():
     with open('src/assets/COCA_20000.txt', mode='r', encoding='utf-8') as f:
         word_list = [r.strip() for r in f.readlines()]
+    return word_list
+
+
+def get_todos(word_list):
     blacklist = ['republican', 'follow-up', 'em', 'start-up', 'trade-off', 'cut-off', 'close-up', 'warm-up', 'cover-up', 'stand-up', 'run-down', 'drop-off', 'run-up', 'Labour', 'break-in', 'sit-up', 'carry-on', 'stand-in', 'run-in', 'shake-up', 'blow-up']
     completed = [normalize(k) for k in results_recorder.get_keys()]
     todo = [w for w in word_list if w not in completed and w not in blacklist]
@@ -32,22 +35,24 @@ def get_coca_todos():
 
 @logger.catch
 def main():
+    word_list = get_coca()
+    def f(todo):
+        return lookup(todo, word_list)
 
-    todo = get_coca_todos()
-
-    thread_map(lookup, todo)
+    thread_map(f, get_todos(word_list))
 
 
 
 def test(word):
-    return lookup(word)
+    word_list = get_coca()
+    return lookup(word, word_list)
 
 if __name__ == '__main__':
     results_recorder.start()
     # main()
 
 
-    results = test("take")
+    results = test("Thermos")
     # def_ids = []
     # for r in results:
     #     for p in r["defs"]:

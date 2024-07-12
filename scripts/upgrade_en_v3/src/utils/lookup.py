@@ -1,5 +1,6 @@
 from loguru import logger
 import time
+import re
 
 
 from ..dict_parser import ParserManager
@@ -10,7 +11,7 @@ results_recorder = Recorder()
 parser = ParserManager()
 
 
-def lookup(word):
+def lookup(word, word_list):
     html_results = dict_helper.query_oaldpe(word)
     if not html_results:
         html_results = dict_helper.query_oaldpe(word.lower())
@@ -19,12 +20,12 @@ def lookup(word):
         results_recorder.save_word_entry_only(word)
         return []
 
-    html = pick(html_results, word)
+    html, redirect_word = pick(html_results, word, word_list, redirect_word=None)
     if not html:
         results_recorder.save_word_entry_only(word)
         return []
 
-    results = parser.parse(html, word)
+    results = parser.parse(html, word, redirect_word=redirect_word)
 
     if not results:
         logger.error('no results for {}', word)
@@ -38,18 +39,24 @@ def lookup(word):
 
     return results
 
-def pick(html_results, word):
+@logger.catch
+def pick(html_results, word, word_list, redirect_word=None):
     if len(html_results) > 1:
         logger.warning('{}: multiple html results found', word)
 
     if not is_redirect_entry(html_results[0]):
-        return html_results[0]
+        return html_results[0], redirect_word
     else:
+        redirect = re.sub('[_\d]', '', get_redirect_word(html_results[0]))
+        if redirect and '|' not in redirect and redirect not in word_list:
+            if word in word_list:
+                word_list.remove(word)
+            html_results = dict_helper.query_oaldpe(redirect)
+            logger.warning('redirect {} to {}', word, redirect)
+            return pick(html_results, word, word_list, redirect_word=redirect)
+
         logger.warning('{} is a redirect word. skipping', word)
-        return None
-        # redirect = get_redirect_word(html_results[0])
-        # html_results = dict_helper.query_oaldpe(redirect)
-        # html = html_results[0]
+        return None, None
 
 
 def is_redirect_entry(html):

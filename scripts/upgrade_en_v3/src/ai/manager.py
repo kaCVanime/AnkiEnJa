@@ -59,7 +59,14 @@ class Manager:
         self.query_tqdm.close()
 
     def _update_db(self, tasker_type, result):
-        pass
+        if tasker_type == ClassifyTasker:
+            result_recorder.update_def_topic(result["id"], result["topic"])
+        elif tasker_type == RateTasker:
+            result_recorder.update_def_rate(result["id"], result["score"], result["reason"])
+        elif tasker_type == TranslateTasker or tasker_type == SenseTasker:
+            result_recorder.update_def_examples(result["id"], json.dumps(result["examples"], ensure_ascii=False))
+        elif tasker_type == DefTranslateTasker:
+            result_recorder.update_def_cn(result["id"], result["def_cn"])
 
     @logger.catch
     def _handle_result(self, tasker_type, result):
@@ -93,6 +100,10 @@ class Manager:
         print('adding todos')
         thread_map(self.process, todos, total=len(list(todos_clone)))
 
+        for t in self.taskers:
+            if not t.is_start():
+                t.force_start()
+
         print('fetching results from AI')
         self._init_query_tqdm()
 
@@ -105,22 +116,21 @@ class Manager:
     @logger.catch
     def _get_handlers(self, entry):
         handlers = []
-        priority = 1
 
         if not entry["topic"]:
-            handlers.append(lambda e: self.handle_job(self.classify_tasker, e, priority))
+            handlers.append(lambda e: self.handle_job(self.classify_tasker, e, priority=1))
 
         if not entry["reason"] or not entry["score"]:
-            handlers.append(lambda e: self.handle_job(self.rate_tasker, e, priority))
+            handlers.append(lambda e: self.handle_job(self.rate_tasker, e, priority=5))
 
         if not entry["def_cn"]:
-            handlers.append(lambda e: self.handle_job(self.def_translate_tasker, e, priority))
+            handlers.append(lambda e: self.handle_job(self.def_translate_tasker, e, priority=1))
 
-        if any([eg["ai"] for eg in entry["examples"]]):
-            handlers.append(lambda e: self.handle_job(self.translate_tasker, e, priority))
+        if any([eg["ai"] for eg in entry["examples"] if not eg.get("en_ai", False)]):
+            handlers.append(lambda e: self.handle_job(self.translate_tasker, e, priority=10))
 
-        # if not entry['examples']:
-        #     handlers.append(lambda e: self.handle_job(self.sense_tasker, e, priority))
+        if len(entry['examples']) < 3:
+            handlers.append(lambda e: self.handle_job(self.sense_tasker, e, priority=100))
 
         return handlers
 

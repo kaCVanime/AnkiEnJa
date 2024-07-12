@@ -5042,7 +5042,7 @@ sunset
 facial
 predictable
 presume
-x-ray
+X-ray
 nearest
 stabilize
 excess
@@ -7689,7 +7689,7 @@ filthy
 defer
 exceptionally
 rampant
-chile
+Chile
 outweigh
 nanny
 stylish
@@ -7914,7 +7914,7 @@ contentious
 accomplished
 frail
 trumpet
-entree
+entrée
 high-end
 orchestrate
 rash
@@ -8901,7 +8901,7 @@ tack
 password
 sailing
 thriving
-fed
+Fed
 aboriginal
 unification
 wane
@@ -9139,7 +9139,7 @@ sealed
 disproportionate
 bailout
 audition
-All-American
+all-American
 Portuguese
 anti-war
 operative
@@ -9414,7 +9414,7 @@ electromagnetic
 foreclosure
 preferable
 backfire
-anti-semitism
+anti-Semitism
 individuality
 captivity
 defeated
@@ -9703,7 +9703,7 @@ backstage
 stairwell
 propensity
 horde
-jeep
+Jeep
 auditory
 synthesize
 alternately
@@ -9993,7 +9993,7 @@ adamant
 cashier
 afloat
 galley
-puree
+purée
 fella
 frigid
 itinerary
@@ -10457,7 +10457,7 @@ locomotive
 nitrate
 shameful
 utmost
-fiance
+fiancé
 fundamentalism
 grandeur
 peacekeeping
@@ -11047,7 +11047,7 @@ sham
 delayed
 craving
 pedagogy
-Appalachian
+Appalachia
 marginally
 concoct
 looting
@@ -11421,7 +11421,7 @@ spec
 keenly
 tabletop
 microprocessor
-coupe
+coupé
 full-fledged
 windmill
 perilous
@@ -11984,7 +11984,7 @@ dispatcher
 climatic
 dislocation
 popularize
-Philharmonic
+philharmonic
 juniper
 pathological
 juxtapose
@@ -12076,7 +12076,7 @@ dreaded
 decentralized
 clipboard
 carrying
-gypsy
+Gypsy
 RNA
 murdered
 Eucharist
@@ -12142,7 +12142,7 @@ cautionary
 immunization
 defined
 wafer
-fiancee
+fiancée
 mellow
 vowel
 saturation
@@ -12300,7 +12300,7 @@ noun
 latex
 austere
 dab
-vis-a-vis
+vis-à-vis
 pluralistic
 self-reported
 skillfully
@@ -12685,7 +12685,7 @@ broil
 lacrosse
 nexus
 incredulous
-protege
+protégé
 preserving
 behind-the-scenes
 sawdust
@@ -13027,7 +13027,7 @@ hospitable
 brawl
 smite
 chi-square
-Federalist
+federalist
 booking
 hateful
 reigning
@@ -13472,7 +13472,7 @@ stallion
 steely
 prudence
 unfriendly
-jalapeno
+jalapeño
 flattened
 respectability
 reflected
@@ -13574,7 +13574,7 @@ civil-military
 truffle
 weld
 gatekeeper
-mecca
+Mecca
 crippled
 scanning
 urinate
@@ -13975,7 +13975,7 @@ relent
 impropriety
 reconfigure
 regent
-dumpster
+Dumpster
 chloride
 retiring
 demonize
@@ -14186,7 +14186,7 @@ leeway
 hairline
 grille
 reasoned
-Enquirer
+enquirer
 fickle
 widower
 computer-generated
@@ -15272,7 +15272,7 @@ separating
 synonym
 godfather
 umm
-communique
+communiqué
 intergenerational
 squeaky
 halter
@@ -15448,7 +15448,7 @@ evaluative
 uninterested
 reschedule
 mister
-thermos
+Thermos
 commander-in-chief
 discerning
 skateboard
@@ -15566,7 +15566,7 @@ maestro
 ladle
 sturgeon
 constructivist
-futurist
+Futurist
 mutilation
 brownstone
 balmy
@@ -15688,7 +15688,7 @@ afield
 daffodil
 technicality
 memorialize
-PSI
+psi
 viciously
 dehydrate
 reverend
@@ -15737,7 +15737,7 @@ musing
 world-famous
 melodramatic
 sapphire
-Ponce
+ponce
 snappy
 undaunted
 hotbed
@@ -16076,7 +16076,7 @@ unkind
 superhero
 connote
 chronicler
-chopsticks
+chopstick
 speeding
 festoon
 willfully
@@ -16333,7 +16333,7 @@ blissful
 lumbering
 off-duty
 undervalue
-pre-columbian
+pre-Columbian
 worn-out
 outscore
 intoxicating

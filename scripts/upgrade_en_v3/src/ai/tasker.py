@@ -47,7 +47,7 @@ class Base(ABC):
                     p_item = self._buffer.get(block=True, timeout=10)
                     item = p_item.item
                     todos.append(item)
-                logger.debug('{}: porting {}', type(self).__name__, [t["kanji"] or t["word"] for t in todos])
+                logger.debug('{}: porting {}', type(self).__name__, [t["usage"] or t["word"] for t in todos])
                 self._queue.put(todos)
             except queue.Empty:
                 if todos:
@@ -63,7 +63,7 @@ class Base(ABC):
             logger.debug('{}: thread queryer fetching entries', type(self).__name__)
             entries = self._queue.get()
             self._queue.task_done()
-            logger.debug('{}: thread queryer got entries: {}', type(self).__name__, [t["kanji"] or t["word"] for t in entries] if entries else None)
+            logger.debug('{}: thread queryer got entries: {}', type(self).__name__, [t["usage"] or t["word"] for t in entries] if entries else None)
             if not entries:
                 logger.info('{}: thread queryer terminated', type(self).__name__)
                 self._queue_done.set()
@@ -78,6 +78,12 @@ class Base(ABC):
     def append(self, entry, priority):
         self._buffer.put(PrioritizedItem(priority=priority or random.randint(1, 50000), item=entry))
         self._start.set()
+
+    def force_start(self):
+        self._start.set()
+
+    def is_start(self):
+        return self._start.is_set()
 
     def response(self, result):
         self._parent.handle_response(type(self), result)
@@ -96,12 +102,13 @@ class RateTasker(Base):
         super().__init__(parent, Rater())
 
 class TranslateTasker(Base):
-    capacity = 3
+    capacity = 4
     def __init__(self, parent):
         super().__init__(parent, Translator())
 
 
 class SenseTasker(Base):
+    capacity = 7
     def __init__(self, parent):
         super().__init__(parent, Senser())
 

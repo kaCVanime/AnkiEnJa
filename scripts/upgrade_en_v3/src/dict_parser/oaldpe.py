@@ -23,9 +23,10 @@ def abbrev(s):
 
 class OaldpeParser(Base):
 
-    def __init__(self, soup, entry):
+    def __init__(self, soup, entry, word_overwrite):
         super().__init__(soup)
         self.entry = entry
+        self.word_overwrite = word_overwrite
 
     def specify_def(self, def_id):
         self.x_def_id = def_id
@@ -39,29 +40,44 @@ class OaldpeParser(Base):
             return False
         entry = entries[0]
         single = entry.find('ol', class_='sense_single', recursive=False)
+        phrv = entry.find('aside', class_='phrasal_verb_links')
+        idiom = entry.find('span', class_='idm-g')
         if single:
             definition = single.find('span', class_='def')
-        return single and not definition
+            use = single.find('span', class_='use')
+        return not phrv and not idiom and single and not definition and not use
 
     @staticmethod
     def get_best_redirect_word(html):
         entry = BeautifulSoup(html, 'html.parser')
-        single = entry.find('ol', class_='sense_single')
-        href = single.find('a', class_='Ref').get('href', None)
-        keyword = 'entry://'
-        return href[len(keyword):]
+        def get_href_keyword(h):
+            keyword = 'entry://'
+            return h[len(keyword):] if h else None
+
+        href = None
+        if single := entry.find('ol', class_='sense_single'):
+            href = single.find('a', class_='Ref').get('href', None)
+        elif seealso := entry.body.find('body-content').find('div', class_='seealso'):
+            href = seealso.find('a').get('href', None)
+        return get_href_keyword(href)
 
     @staticmethod
     def get_entries(soup):
         entries = soup.find_all('div', class_='entry')
-        return entries
+
+        return entries or soup.find_all('span', class_='idm-g')
 
     def get_word(self):
-        headword = self.entry.find('h1', class_='headword')
-        hms = headword.find_all('span', class_='hm')
-        for hm in hms:
-            hm.extract()
-        return headword.get_text()
+        if headword := self.entry.find('h1', class_='headword'):
+            hms = headword.find_all('span', class_='hm')
+            for hm in hms:
+                hm.extract()
+            return headword.get_text().replace('™', '')
+        elif "idm-g" in self.entry.get("class", ""):
+            return self.entry.find('span', class_='idm').get_text()
+
+    def get_word_variants(self):
+        return [v.get_text() for v in self.entry.find('div', class_='webtop').find_all('div', class_='variants', recursive=False)]
 
     def get_phonetics(self):
         return (
@@ -110,7 +126,7 @@ class OaldpeParser(Base):
         if not definition:
             return None
 
-        variants = li.find('div', { "class": "variants", "type": "alt" })
+        variants = li.find('div', { "class": "variants" })
 
         cefr = li.get('cefr', '')
         cf = li.find('span', class_='cf')
@@ -139,19 +155,38 @@ class OaldpeParser(Base):
             "def_cn": normalize_chn(def_t.find('chn', class_='simple').get_text()) if def_t else '',
             "examples": examples or None,
             "variants": get_soup_text(variants),
-            "topic": topic.find('span', class_='topic_name').get_text() if topic else ''
+            "topic": "=_=".join([t.get_text() for t in topic.find_all('span', class_='topic_name')]) if topic else ''
         }
 
-    def get_defs_and_egs(self, root=None):
-        if not root:
-            root = self.entry
+    def _parse_def_box(self, root):
         defs = root.find('ol', class_='senses_multiple', recursive=False)
         if not defs:
             defs = root.find('ol', class_='sense_single', recursive=False)
-        if not defs:
-            return None
 
-        return list(filter(None, [self._parse_def(box.find('li')) for box in defs.find_all('div', class_='li_sense')]))
+        return defs
+
+    def get_defs_and_egs(self, root=None):
+        root = root or self.entry
+
+        def parse_sense_boxes(boxes):
+            return [self._parse_def(box.find('li')) for box in boxes.find_all('div', class_='li_sense')]
+
+        if def_box := self._parse_def_box(root):
+            return list(
+                filter(None, parse_sense_boxes(def_box))
+            )
+
+        elif pvgs := root.find_all('span', class_='pv-g', recursive=False):
+            results = []
+            for pv in pvgs:
+                if def_box := self._parse_def_box(pv):
+                    results.extend(list(
+                        filter(None, parse_sense_boxes(def_box))
+                    ))
+            return results
+
+        return None
+
 
     def get_idioms(self):
         return [
@@ -198,9 +233,9 @@ class OaldpeParser(Base):
     def get_phrases(self, parent=None):
         box = self.entry.find('aside', class_='phrasal_verb_links')
 
-        return list(filter(None, [self._parse_phrase(p) for p in box.ul.find_all('li', recursive=False)]))  if box else None
+        return list(filter(None, [self._parse_phrase(p) for p in box.ul.find_all('li', recursive=False)])) if box else None
 
-    def get_entry_prefix(self, word=None, kanji=None):
+    def get_entry_prefix(self, word=None):
         pass
 
     def get_pos(self):
@@ -212,6 +247,8 @@ class OaldpeParser(Base):
 
     def _parse_syn_overview(self, body):
         p = body.find('span', class_='p', recursive=False)
+        if not p:
+            return '', ''
         undt = p.undt
         def_cn = ''
         if undt:
@@ -244,7 +281,7 @@ class OaldpeParser(Base):
         examples = list(
             filter(
                 None,
-                [self._parse_example(li, f'{id}_{idx}') for idx, li in
+                [self._parse_x_example(li, f'{id}_{idx}') for idx, li in
                  enumerate(eg_box.find_all('li', recursive=False))] if eg_box else []
             )
         )
@@ -281,7 +318,7 @@ class OaldpeParser(Base):
             {
                 "id": (syn_id := self._parse_syn_id(box)),
                 "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_syn_overview(body))[0],
-                "overview_cn": re.sub('以上各词均含(.+)之义。', r'\1', overviews[1]),
+                "overview_cn": re.sub('以上(?:各|两)词均?(?:含|指|为|用以|可指)?(.+?)(?:之义)?。', r'\1', overviews[1]),
                 "defs": self._parse_syn_defs(body, syn_id)
             }
             for box in boxes
@@ -296,6 +333,31 @@ class OaldpeParser(Base):
     def _parse_wiw_overview(self, body):
         return self._parse_syn_overview(body)
 
+    def _parse_x_example(self, li, prefix):
+        x = li.find('div', class_='exText')
+        if not x:
+            return None
+        p = x
+        xt = x.find(['xt', 'unxt', 'undt'])
+        if xt:
+            xt.extract()
+            p = xt
+        s_chn = p.find('chn', class_='simple')
+        t_chn = p.find('chn', class_='traditional')
+        if s_chn:
+            s_chn.extract()
+        if t_chn:
+            t_chn.extract()
+        return {
+            "usage": "",
+            "labels": "",
+            "en": x.get_text(),
+            "cn": s_chn.get_text() if s_chn else "",
+            "ai": bool(s_chn.find('ai')) if s_chn else False,
+            "name": prefix
+        }
+
+
     def _parse_wiw_item(self, item, id):
         item = copy(item)
 
@@ -305,7 +367,7 @@ class OaldpeParser(Base):
         examples = list(
             filter(
                 None,
-                [self._parse_example(li, f'{id}_{idx}') for idx, li in
+                [self._parse_x_example(li, f'{id}_{idx}') for idx, li in
                  enumerate(eg_box.find_all('li', recursive=False))] if eg_box else []
             )
         )
@@ -341,7 +403,8 @@ class OaldpeParser(Base):
                 "id": (wiw_id := self._parse_wiw_id(box)),
                 "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_wiw_overview(body))[
                     0],
-                "overview_cn": re.sub('.+?均(.+)', r'\1', overviews[1]),
+                # "overview_cn": re.sub('.+?均(.+)|.+?(常.+)', r'\1', overviews[1]),
+                "overview_cn": overviews[1],
                 "defs": self._parse_wiw_bullets(body, wiw_id)
             }
             for box in boxes
