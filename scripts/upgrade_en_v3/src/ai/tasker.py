@@ -47,7 +47,7 @@ class Base(ABC):
                     p_item = self._buffer.get(block=True, timeout=10)
                     item = p_item.item
                     todos.append(item)
-                logger.debug('{}: porting {}', type(self).__name__, [t["usage"] or t["word"] for t in todos])
+                logger.debug('{}: porting {}', type(self).__name__, [t.get("usage", "") or t.get("word", "") for t in todos])
                 self._queue.put(todos)
             except queue.Empty:
                 if todos:
@@ -63,7 +63,7 @@ class Base(ABC):
             logger.debug('{}: thread queryer fetching entries', type(self).__name__)
             entries = self._queue.get()
             self._queue.task_done()
-            logger.debug('{}: thread queryer got entries: {}', type(self).__name__, [t["usage"] or t["word"] for t in entries] if entries else None)
+            logger.debug('{}: thread queryer got entries: {}', type(self).__name__, [t.get("usage", "") or t.get("word", "")  for t in entries] if entries else None)
             if not entries:
                 logger.info('{}: thread queryer terminated', type(self).__name__)
                 self._queue_done.set()

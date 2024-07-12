@@ -38,6 +38,7 @@ class Recorder:
     common_todo_def_fields = ['id', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score', 'reason']
 
     _instance = None
+    connection = None
 
 
     def __new__(cls, *args, **kwargs):
@@ -48,7 +49,7 @@ class Recorder:
     def __init__(self):
         if not db_file.is_file():
             self.init_db()
-        self.connection = None
+
 
     def start(self):
         if not self.connection:
@@ -293,6 +294,7 @@ class Recorder:
             for w in whichwords:
                 self._save_synonym_or_whichword(cursor, 'whichwords', w)
 
+    @logger.catch
     def save(self, results):
         with lock:
             conn = self.connection
@@ -306,7 +308,7 @@ class Recorder:
                     self._save_whichwords(conn.cursor(), item["whichwords"])
                 conn.commit()
             except Exception as e:
-                logger.trace(e)
+                logger.error(e)
                 conn.rollback()
 
     def save_word_entry_only(self, word):

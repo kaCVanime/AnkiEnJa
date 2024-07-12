@@ -38,7 +38,7 @@ class ParserManager:
             word = redirect_word
         dict_type = ParserManager.get_dict_type(s)
         soup = BeautifulSoup(s, "html.parser")
-        whitelist = ["o'clock", "Olympics", "and/or", "sauté", "Jeep", "IPod", "micro", "Band-Aid", "Dumpster", "oriented", "Thermos"]
+        whitelist = ["o'clock", "Olympics", "and/or", "sauté", "Jeep", "IPod", "micro", "Band-Aid", "Dumpster", "oriented", "Thermos", "entrée", "purée", "fiancé", "y'all", "fiancée", "vis-à-vis", "protégé", "jalapeño", "communiqué", "Alamo", "cost-benefit", "émigré", "soufflé", "Cellophane", "Unplugged", "realtor"]
         if dict_type == "OALDPE":
             entries = OaldpeParser.get_entries(soup)
             parsers = [OaldpeParser(soup, e, o_word) for e in entries]
