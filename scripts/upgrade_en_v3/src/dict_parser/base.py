@@ -19,9 +19,8 @@ class Base(ABC):
     def get_phonetics(self):
         pass
 
-    def get_entry_prefix(self, word=None, kanji=None):
-        word = word or self.get_word()
-        return "_".join(filter(None, [word, kanji]))
+    def get_entry_prefix(self, word=None):
+        return word or self.get_word()
 
     @abstractmethod
     def get_defs_and_egs(self):

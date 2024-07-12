@@ -198,7 +198,8 @@ class Senser(Base):
                         "en": eg["en"],
                         "cn": eg["cn"],
                         "name": f'{entry["id"]}_{start + eg_idx}',
-                        "ai": True
+                        "ai": True,
+                        "en_ai": True
                     }
                 )
 

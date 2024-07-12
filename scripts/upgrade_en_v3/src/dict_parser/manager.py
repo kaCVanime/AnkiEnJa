@@ -32,20 +32,24 @@ class ParserManager:
 
 
     @staticmethod
-    def get_parser(s, word, match=False):
+    def get_parser(s, word, match=False, redirect_word=None):
+        o_word = word
+        if redirect_word:
+            word = redirect_word
         dict_type = ParserManager.get_dict_type(s)
         soup = BeautifulSoup(s, "html.parser")
+        whitelist = ["o'clock", "Olympics", "and/or", "sauté", "Jeep", "IPod", "micro", "Band-Aid", "Dumpster", "oriented", "Thermos"]
         if dict_type == "OALDPE":
             entries = OaldpeParser.get_entries(soup)
-            parsers = [OaldpeParser(soup, e) for e in entries]
-            if match:
-                results = [p for p in parsers if remove_non_ascii(p.get_word()) == word or remove_non_ascii(p.get_word()) == word.replace('-', ' ')]
+            parsers = [OaldpeParser(soup, e, o_word) for e in entries]
+            if o_word not in whitelist and match:
+                results = [p for p in parsers if (pword := remove_non_ascii(p.get_word())) == word or pword == word.replace('-', ' ') or any([word in v for v in p.get_word_variants()])]
                 if not results:
                     for p in parsers:
                         defs = p.get_defs_and_egs()
                         if defs:
                             for d in defs:
-                                if d["variants"] == word:
+                                if word in d["variants"]:
                                     p.specify_def(d["id"])
                                     return [p]
             else:
@@ -61,7 +65,7 @@ class ParserManager:
 
     def _parse(self, parser, dict_type, mode=None):
         defs = parser.get_defs_and_egs()
-        word = parser.get_word()
+        word = parser.word_overwrite or parser.get_word()
         usage = parser.get_usage()
         idioms = parser.get_idioms()
         phonetics = parser.get_phonetics()
@@ -77,7 +81,7 @@ class ParserManager:
         if hasattr(parser, 'x_def_id'):
             defs = [d for d in defs if d["id"] == parser.x_def_id]
             usage = None
-            word = defs[0]["variants"]
+            word = v if '(' not in (v := defs[0]["variants"]) else word
             phrases = None
             synonyms = None
             whichwords = None
@@ -101,9 +105,9 @@ class ParserManager:
 
         return result
 
-    def parse(self, s, word, mode=None):
+    def parse(self, s, word, mode=None, redirect_word=None):
         dict_type = self.get_dict_type(s)
 
-        parsers = self.get_parser(s, word, match=mode!='phrv')
+        parsers = self.get_parser(s, word, match=mode!='phrv', redirect_word=redirect_word)
 
         return list(filter(None, [self._parse(p, dict_type, mode) for p in parsers]))
