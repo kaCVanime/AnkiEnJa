@@ -450,7 +450,7 @@ town
 road
 drive
 arm
-TRUE
+true
 federal
 break
 difference
@@ -1313,7 +1313,7 @@ hell
 dangerous
 remind
 moral
-United
+united
 category
 relatively
 victory
@@ -1457,7 +1457,7 @@ weather
 presidential
 emotional
 commitment
-Supreme
+supreme
 bear
 pocket
 thin
@@ -2238,7 +2238,7 @@ wooden
 elementary
 concert
 aggressive
-FALSE
+false
 intention
 channel
 extreme
@@ -2725,7 +2725,7 @@ proposed
 myth
 sophisticated
 cow
-etc
+etc.
 standing
 asleep
 tennis
@@ -6903,8 +6903,8 @@ fiery
 fireworks
 specification
 pardon
-Hawaiian
-Texan
+Hawaii
+Texas
 walnut
 computing
 enhancement
@@ -8001,7 +8001,7 @@ checklist
 pointed
 affected
 outgoing
-midwestern
+Midwestern
 clone
 ballroom
 logging
@@ -10225,7 +10225,7 @@ fearless
 manufactured
 barbed
 dormant
-Californian
+California
 birch
 manpower
 disarmament
@@ -10568,7 +10568,7 @@ cub
 allure
 unruly
 distraught
-Alaskan
+Alaska
 grassland
 approximate
 bagel
@@ -11428,7 +11428,7 @@ perilous
 pitiful
 bonfire
 geographer
-anti-semitic
+anti-Semitic
 helplessness
 cavernous
 mail-order
@@ -16508,7 +16508,7 @@ invertebrate
 vertebrate
 orator
 three-bedroom
-emigre
+émigré
 humbling
 pleated
 litigate
@@ -16583,7 +16583,7 @@ clang
 top-ranked
 iteration
 scuff
-un-american
+un-American
 tiled
 dame
 foursome
@@ -16597,7 +16597,7 @@ rancid
 ADHD
 plantain
 no-brainer
-negro
+Negro
 euphoric
 unresponsive
 erstwhile
@@ -16610,7 +16610,7 @@ correspondingly
 case-by-case
 medial
 win-win
-souffle
+soufflé
 coffeehouse
 heavy-handed
 firefight
@@ -16701,7 +16701,7 @@ fishy
 lard
 abut
 you-all
-eucharistic
+Eucharist
 behead
 untouchable
 plagiarism
@@ -17175,7 +17175,7 @@ unconditionally
 self-doubt
 out-of-town
 hinterland
-cellophane
+Cellophane
 crisply
 lifelike
 gooey
@@ -17254,7 +17254,7 @@ wok
 psychopathology
 corkscrew
 songwriting
-unplugged
+Unplugged
 godmother
 apnea
 wham
@@ -17428,7 +17428,7 @@ wanton
 blow-up
 accost
 chewy
-Florentine
+florentine
 bodice
 idiosyncrasy
 peroxide

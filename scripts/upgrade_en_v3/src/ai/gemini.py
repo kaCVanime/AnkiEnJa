@@ -142,6 +142,9 @@ class Translator(Base):
 class DefTranslator(Base):
     hint_path = file_path / 'hint_translate_definition.txt'
 
+    def _validate(self, result, entries):
+        super()._validate(result, entries)
+
     def preprocess_result(self, results, entries):
         return [{"id": entries[idx]["id"], "def_cn": r} for idx, r in enumerate(results)]
 

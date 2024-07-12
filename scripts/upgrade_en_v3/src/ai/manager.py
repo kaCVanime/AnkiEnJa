@@ -20,7 +20,8 @@ lock = Lock()
 
 
 class Manager:
-    def __init__(self):
+    def __init__(self, r):
+        self.result_recorder = result_recorder
         self.todos = result_recorder.get_todos()
 
         self.blacklist = []
@@ -88,7 +89,7 @@ class Manager:
                 t.porter_thread.join()
         except RuntimeError:
             pass
-        todo_size = reduce(lambda ta, tb: ta.get_queue_size() + tb.get_queue_size(), self.taskers, 0)
+        todo_size = reduce(lambda total, tb: total + tb.get_queue_size(), self.taskers, 0)
         self.query_tqdm = tqdm(total=todo_size)
 
     def run(self):
@@ -144,7 +145,7 @@ class Manager:
 
     def process(self, entry):
         entry["examples"] = json.loads(entry["examples"]) if entry["examples"] else []
-        if not self._is_safe(entry["definition"]) or not self._is_safe(entry["word"]):
+        if not self._is_safe(entry["definition"]) or not self._is_safe(entry.get("word", "")) or not self._is_safe(entry.get("usage", "")):
             return
         handlers = self._get_handlers(entry)
         for h in handlers:
