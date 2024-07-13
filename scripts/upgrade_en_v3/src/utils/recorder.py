@@ -138,7 +138,8 @@ class Recorder:
                     id TEXT not null,
                     overview TEXT,
                     overview_cn TEXT,
-                    defs TEXT
+                    defs TEXT,
+                    words TEXT
                 )
             '''
             )
@@ -149,7 +150,8 @@ class Recorder:
                     id TEXT not null,
                     overview TEXT,
                     overview_cn TEXT,
-                    defs TEXT
+                    defs TEXT,
+                    words TEXT
                 )
             '''
             )
@@ -274,13 +276,14 @@ class Recorder:
     def _save_synonym_or_whichword(self, cursor, table, item):
         sql = f'''
             INSERT INTO {table}
-            VALUES(?,?,?,?)
+            VALUES(?,?,?,?,?)
         '''
         value = (
             item["id"],
             item["overview"],
             item['overview_cn'],
-            json.dumps(item['defs'], ensure_ascii=False) if item['defs'] else None
+            json.dumps(item['defs'], ensure_ascii=False) if item['defs'] else None,
+            item['group']
         )
         cursor.execute(sql, value)
 

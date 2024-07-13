@@ -1,0 +1,198 @@
+As an English teacher for Chinese students, to help them distinguish synonyms and choose right word, when given a synonym topic and explanations of its different nuances, for each nuance, please provide 3 example sentences based on it to illustrate it. Don't deviate to other meaning or nuisance.
+An example should contain an example sentence in English and its natural-sounding Chinese translation.
+Please only respond in JSON. An example should be in format { "en": "", "cn": "" }. Don’t say anything else.
+
+IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
+
+Example 1:
+```
+Question:
+topic: step ▪ act
+1. step - one of a series of things that you do in order to achieve something.
+
+Answer:
+[
+  [
+    {
+      "en": "We must stay one step ahead of our competitors.",
+      "cn": "我们必须领先我们的竞争对手一步。"
+    },
+    {
+      "en": "Most people believe that the decision to cut interest rates was a step in the right direction.",
+      "cn": "大多数人相信降低利率是朝正确方向迈出的一步。"
+    },
+    {
+      "en": "The first step in solving the problem is to understand its root cause.",
+      "cn": "解决问题的第一步是了解其根本原因。"
+    }
+  ]
+]
+```
+
+
+Example 2:
+```
+Question:
+topic: close ▪ shut
+1. Shut can suggest more noise and is often found in phrases such as slammed shut, banged shut, snapped shut.
+2. Shut is also usually used for containers such as boxes, suitcases, etc.
+
+
+Answer:
+[
+  [
+    {
+      "en": "The door slammed shut behind him.",
+      "cn": "门在他身后砰地一声关上了。"
+    },
+    {
+      "en": "She banged the window shut.",
+      "cn": "她砰地关上了窗户。"
+    },
+    {
+      "en": "The book snapped shut as he finished reading.",
+      "cn": "他读完后，书啪地合上了。"
+    }
+  ],
+  [
+    {
+      "en": "He shut the suitcase and locked it.",
+      "cn": "他关上了行李箱并锁好了。"
+    },
+    {
+      "en": "Make sure you shut the box tightly.",
+      "cn": "确保你把箱子紧紧地关上。"
+    },
+    {
+      "en": "She shut the lid of the jar.",
+      "cn": "她关上了罐子的盖子。"
+    }
+  ]
+]
+```
+
+Example 3
+```
+Question:
+topic: (for) long ▪ (for) a long time
+1. (For) long is not used in positive sentences unless it is used with too, enough, as, so, seldom, etc.
+
+Answer:
+[
+  [
+    {
+      "en": "He didn’t stay too long at the party.",
+      "cn": "他在聚会上待的时间不长。"
+    },
+    {
+      "en": "We practiced for so long that the entire routine became second nature, making the performance flawless.",
+      "cn": "我们练习了这么久，以至于整个流程变得轻车熟路，使得表演完美无瑕"
+    },
+    {
+      "en": "We seldom have long weekends, so we cherish them by spending quality time with family.",
+      "cn": "我们很少有长周末，所以我们珍惜这些时间，用来和家人共度美好时光"
+    }
+  ]
+]
+```
+
+Example 4
+```
+Question:
+topic: electric ▪ electrical
+1. Electric is usually used to describe something that uses or produces electricity. You use electrical with more general nouns such as equipment and wiring and things that are concerned with electricity
+2. . However, the difference is not always so clear now
+
+Answer:
+[
+  [
+    {
+      "en": "I have an electric car.",
+      "cn": "我有一辆电动车。"
+    },
+    {
+      "en": "The electric lights went out during the storm.",
+      "cn": "暴风雨期间，电灯熄灭了。"
+    },
+    {
+      "en": "Please be careful with the electric fence.",
+      "cn": "请小心电围栏。"
+    }
+  ],
+  [
+    {
+      "en": "an electric/​electrical company",
+      "cn": "电力公司"
+    },
+    {
+      "en": "an electric/​electrical current",
+      "cn": "电流"
+    },
+    {
+      "en": "an electric/​electrical shock",
+      "cn": "触电"
+    }
+  ]
+]
+```
+
+Example 5:
+```
+Question:
+topic: rise ▪ raise
+1. Raise is a verb that must have an object and rise is used without an object. When you raise something, you lift it to a higher position or increase it.
+2. When people or things rise, they move from a lower to a higher position.
+3. Rise can also mean ‘to increase in number or quantity’.
+
+Answer:
+[
+  [
+    {
+      "en": "The teacher raised her hand to silence the class.",
+      "cn": "老师举手示意学生安静。"
+    },
+    {
+      "en": "The company raised the price of its products.",
+      "cn": "该公司提高了产品价格。"
+    },
+    {
+      "en": "The government raised the minimum wage.",
+      "cn": "政府提高了最低工资标准。"
+    }
+  ],
+  [
+    {
+      "en": "The sun rises in the east.",
+      "cn": "太阳从东方升起。"
+    },
+    {
+      "en": "The smoke rose from the chimney.",
+      "cn": "烟雾从烟囱里升起。"
+    },
+    {
+      "en": "The temperature is rising.",
+      "cn": "气温正在上升。"
+    }
+  ],
+  [
+    {
+      "en": "The number of unemployed people is rising.",
+      "cn": "失业人数正在上升。"
+    },
+    {
+      "en": "The cost of living is rising.",
+      "cn": "生活成本正在上升。"
+    },
+    {
+      "en": "The popularity of the new band is rising.",
+      "cn": "新乐队的受欢迎程度正在上升。"
+    }
+  ]
+]
+```
+
+
+topic: shade ▪ shadow
+1. Shade [U] is an area or a part of a place that is protected from the light and heat of the sun and so is darker and cooler
+2. A shadow [C] is the dark shape made when a light shines on a person or an object
+3. Shadow [U] is an area of darkness in which it is difficult to distinguish things easily
