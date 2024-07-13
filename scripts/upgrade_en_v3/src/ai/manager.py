@@ -69,6 +69,9 @@ class Manager:
         elif tasker_type == DefTranslateTasker:
             result_recorder.update_def_cn(result["id"], result["def_cn"])
 
+        with logger.contextualize({ "update_db_type": tasker_type.__name__, **result }):
+            logger.info("{} updating db", tasker_type.__name__)
+
     @logger.catch
     def _handle_result(self, tasker_type, result):
         self._update_db(tasker_type, result)
