@@ -40,7 +40,7 @@ def log_result_ai_formatter(record):
     )
 
 logger.remove()
-# logger.add(log_path / 'main.log', level="INFO")
+logger.add(log_path / 'main.log', level="INFO")
 logger.add(log_path / 'ai.log', filter='src.ai', level="INFO")
 logger.add(log_path / 'results.log', filter=lambda r: "update_db_type" in r["extra"], format=log_result_ai_formatter)
 
@@ -83,13 +83,13 @@ def test(word):
 
 if __name__ == '__main__':
     results_recorder.start()
-    main()
+    # main()
 
-    ai_manager = AIManager(results_recorder)
+    # ai_manager = AIManager(results_recorder)
+    #
+    # ai_manager.run()
 
-    ai_manager.run()
-
-    # results = test("northwestern")
+    results = test("clean")
     # def_ids = []
     # for r in results:
     #     for p in r["defs"]:

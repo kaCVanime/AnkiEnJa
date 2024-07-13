@@ -295,20 +295,25 @@ class OaldpeParser(Base):
             note = note.get_text()
 
 
-        definition = re.sub(':$', '', box.get_text().strip())
+        definition = re.sub('(\s?Compare)?:$', '', box.get_text().strip())
 
         return {
             "id": id,
             "word": word,
             "definition": definition,
             "examples": examples,
-            "note": note
+            "note": note or ''
         }
 
 
     def _parse_syn_defs(self, body, prefix):
         defs = body.find_all('span', class_='defpara')
         return [self._parse_syn_def(d, prefix) for d in defs]
+
+    def _par_syn_group(self, body):
+        bs = body.find_all('span', class_='unbox', recursive=False)
+        assert len(bs) >= 2
+        return f'{bs[0].next_element} ▪ {bs[1].get_text()}'
 
 
     def get_synonyms(self):
@@ -318,6 +323,7 @@ class OaldpeParser(Base):
             {
                 "id": (syn_id := self._parse_syn_id(box)),
                 "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_syn_overview(body))[0],
+                "group": self._par_syn_group(body),
                 "overview_cn": re.sub('以上(?:各|两)词均?(?:含|指|为|用以|可指)?(.+?)(?:之义)?。', r'\1', overviews[1]),
                 "defs": self._parse_syn_defs(body, syn_id)
             }
@@ -378,9 +384,16 @@ class OaldpeParser(Base):
             undt.extract()
             cn = undt.find('chn', class_='simple').get_text()
 
+        if labelxs := item.find_all('labelx'):
+            for l in labelxs:
+                l.extract()
+
+        definition = re.sub('(\s?Compare)?:$', '', item.get_text().strip())
+        if len(definition) < 5:
+            return None
         return {
             "id": id,
-            "definition": item.get_text(),
+            "definition": definition,
             "def_cn": cn,
             "examples": examples
         }
@@ -388,7 +401,7 @@ class OaldpeParser(Base):
     def _parse_wiw_items(self, li, prefix):
         items = li.find_all('div', class_='item', recursive=False)
 
-        return [self._parse_wiw_item(item, f'{prefix}_{idx}') for idx, item in enumerate(items)]
+        return list(filter(None, [self._parse_wiw_item(item, f'{prefix}_{idx}') for idx, item in enumerate(items)]))
 
     def _parse_wiw_bullets(self, body, prefix):
         lis = body.ul.find_all('li', recursive=False)
@@ -401,6 +414,7 @@ class OaldpeParser(Base):
         return [
             {
                 "id": (wiw_id := self._parse_wiw_id(box)),
+                "group": box.find('span', class_='box_title').find('span', class_='closed').get_text().replace('/', '▪'),
                 "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_wiw_overview(body))[
                     0],
                 # "overview_cn": re.sub('.+?均(.+)|.+?(常.+)', r'\1', overviews[1]),
