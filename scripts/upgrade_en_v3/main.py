@@ -1,3 +1,5 @@
+import json
+
 from loguru import logger
 from pathlib import Path
 from tqdm.contrib.concurrent import thread_map
@@ -11,14 +13,42 @@ temp_path = Path('./src/temp')
 for p in (log_path, temp_path):
     p.mkdir(exist_ok=True)
 
+
+
+log_result_ai_template = '''
+{time} | {id} updated. ----------------------
+{task}
+{topic}
+def_cn: {def_cn}
+Score: {score}
+Reason: {reason}
+Examples:
+{examples}
+'''
+
+def log_result_ai_formatter(record):
+    ex = record["extra"]
+    return log_result_ai_template.format(
+        time=record["time"],
+        id=ex["id"],
+        task=ex["update_db_type"],
+        def_cn=ex.get("def_cn", "-"),
+        score=ex.get("score", "-"),
+        reason=ex.get("reason", "-"),
+        topic=ex.get("topic", "-"),
+        examples=json.dumps(examples, indent=4, ensure_ascii=False) if (examples := ex.get("examples", "")) else "-"
+    )
+
 logger.remove()
 # logger.add(log_path / 'main.log', level="INFO")
 logger.add(log_path / 'ai.log', filter='src.ai', level="INFO")
+logger.add(log_path / 'results.log', filter=lambda r: "update_db_type" in r["extra"], format=log_result_ai_formatter)
+
+
 parser = ParserManager()
 
 results_recorder = Recorder()
 
-pass
 
 def normalize(s):
     return s.replace('·', '')
