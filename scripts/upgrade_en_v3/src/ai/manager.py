@@ -3,13 +3,13 @@ from loguru import logger
 from queue import Queue
 from threading import Lock, Thread
 from tqdm.contrib.concurrent import thread_map
-from itertools import tee
+from itertools import tee, chain
 from tqdm import tqdm
 import random
 import json
 from functools import reduce
 
-from .tasker import RateTasker, TranslateTasker, SenseTasker, ClassifyTasker, DefTranslateTasker
+from .tasker import RateTasker, TranslateTasker, SenseTasker, ClassifyTasker, DefTranslateTasker, SynonymSenseTasker
 from ..utils import Recorder
 
 
@@ -22,7 +22,23 @@ lock = Lock()
 class Manager:
     def __init__(self, r):
         self.result_recorder = result_recorder
-        self.todos = result_recorder.get_todos()
+        self.todos = chain(
+            result_recorder.get_todos(),
+            [
+                {
+                    **r,
+                    "dict_type": "Synonyms"
+                } for r in
+                result_recorder.get_synonyms()
+            ],
+            [
+                {
+                    **r,
+                    "dict_type": "Whichwords"
+                } for r in
+                result_recorder.get_whichwords()
+            ]
+        )
 
         self.blacklist = []
 
@@ -41,8 +57,11 @@ class Manager:
         self.def_translate_tasker = DefTranslateTasker(self)
         self.def_translate_thread = Thread(target=self.def_translate_tasker.run, daemon=True)
 
-        self.taskers = [self.rate_tasker, self.classify_tasker, self.translate_tasker, self.sense_tasker, self.def_translate_tasker]
-        self.threads = [self.rate_thread, self.classify_thread, self.translate_thread, self.sense_thread, self.def_translate_thread]
+        self.synonym_sense_tasker = SynonymSenseTasker(self)
+        self.synonym_sense_thread = Thread(target=self.synonym_sense_tasker.run, daemon=True)
+
+        self.taskers = [self.rate_tasker, self.classify_tasker, self.translate_tasker, self.sense_tasker, self.def_translate_tasker, self.synonym_sense_tasker]
+        self.threads = [self.rate_thread, self.classify_thread, self.translate_thread, self.sense_thread, self.def_translate_thread, self.synonym_sense_thread]
 
         self.query_tqdm = None
 
@@ -68,6 +87,11 @@ class Manager:
             result_recorder.update_def_examples(result["id"], json.dumps(result["examples"], ensure_ascii=False))
         elif tasker_type == DefTranslateTasker:
             result_recorder.update_def_cn(result["id"], result["def_cn"])
+        elif tasker_type == SynonymSenseTasker:
+            if result.get("dict_type", "") == 'Synonyms':
+                result_recorder.update_synonyms_defs(result["id"], result["defs"])
+            else:
+                result_recorder.update_whichword_defs(result["id"], result["defs"])
 
         with logger.contextualize({ "update_db_type": tasker_type.__name__, **result }):
             logger.info("{} updating db", tasker_type.__name__)
@@ -120,6 +144,16 @@ class Manager:
     @logger.catch
     def _get_handlers(self, entry):
         handlers = []
+
+        if (dict_type := entry.get("dict_type", "")) == 'Synonyms' or dict_type == 'Whichwords':
+            if dict_type == 'Synonyms':
+                processed = all([len(t["examples"]) >= 3 for t in entry["defs"]])
+            else:
+                processed = all([not isinstance(t, list) for t in entry["defs"]])
+
+            if not processed:
+                handlers.append(lambda e: self.handle_job(self.synonym_sense_tasker, e, priority=10))
+            return
 
         if not entry["topic"]:
             handlers.append(lambda e: self.handle_job(self.classify_tasker, e, priority=1))
