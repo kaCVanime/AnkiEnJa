@@ -5,11 +5,10 @@ class ModelListen(ModelBase):
     fields = [
         "id",
         "word",
-        "kanji",
-        "accent",
+        "label",
+        "usage",
         "definition",
         "def_cn",
-        "reason",
         "examples",
         "audio",
     ]
@@ -28,14 +27,17 @@ class ModelRead(ModelBase):
     fields = [
         "id",
         "word",
-        "kanji",
-        "accent",
+        "cefr",
+        "AmEPhonetic",
+        "BrEPhonetic",
+        "pos",
+        "usage",
+        "labels,"
         "definition",
         "def_cn",
-        "reason",
         "examples",
+        "brief",
         "audio",
-        "usage"
     ]
     is_cloze = False
     card_templates = [
@@ -52,14 +54,17 @@ class ModelWrite(ModelBase):
     fields = [
         "id",
         "word",
-        "kanji",
-        "accent",
+        "cefr",
+        "AmEPhonetic",
+        "BrEPhonetic",
+        "pos",
+        "usage",
+        "labels",
         "definition",
         "def_cn",
-        "reason",
         "examples",
+        "brief",
         "audio",
-        "usage"
     ]
     is_cloze = False
     card_templates = [
@@ -74,12 +79,13 @@ class ModelSynonyms(ModelBase):
     name = "Synonyms"
     fields = [
         "id",
+        "words",
         "overview",
         "overview_cn",
         "definition",
-        "definition_cn",
+        "def_cn",
         "examples",
-        "note"
+        "note",
     ]
     is_cloze = False
     card_templates = [

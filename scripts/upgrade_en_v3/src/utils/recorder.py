@@ -338,6 +338,7 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN words
                 ON words.entry_id = entries.id
+            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND d.score is NOT NULL AND d.reason is NOT NULL
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)
@@ -356,6 +357,7 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
                 ON idioms.entry_id = entries.id
+            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND d.score is NOT NULL AND d.reason is NOT NULL
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)
@@ -373,6 +375,7 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN phrvs
                 ON phrvs.entry_id = entries.id
+            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND d.score is NOT NULL AND d.reason is NOT NULL
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)
@@ -478,9 +481,10 @@ class Recorder:
                 {label_filter}
             ) as words
             ON words.entry_id = entries.id
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR d.score is NULL OR d.reason is NULL
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
-                CASE WHEN d.examples='[]' THEN 1 ELSE 0 END +
+                CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.topic='' THEN 1 ELSE 0 END +
                 CASE WHEN d.score IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.reason IS NULL THEN 1 ELSE 0 END
@@ -505,10 +509,10 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
                 ON idioms.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples='[]' OR d.topic='' OR d.score is NULL OR d.reason is NULL
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR d.score is NULL OR d.reason is NULL
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
-                CASE WHEN d.examples='[]' THEN 1 ELSE 0 END +
+                CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.topic='' THEN 1 ELSE 0 END +
                 CASE WHEN d.score IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.reason IS NULL THEN 1 ELSE 0 END
@@ -535,10 +539,10 @@ class Recorder:
                 {label_filter}
             ) as phrvs
             ON phrvs.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples='[]' OR d.topic='' OR d.score is NULL OR d.reason is NULL
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR d.score is NULL OR d.reason is NULL
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
-                CASE WHEN d.examples='[]' THEN 1 ELSE 0 END +
+                CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.topic='' THEN 1 ELSE 0 END +
                 CASE WHEN d.score IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.reason IS NULL THEN 1 ELSE 0 END
