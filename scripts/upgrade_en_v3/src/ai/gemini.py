@@ -54,6 +54,7 @@ class Base(ABC):
     @retry(max_retries=4, delay=3)
     def _query_retry(self, entries):
         logger.info('{} querying gemini', type(self).__name__)
+        entries = self.preprocess_entries(entries)
         resp = self._query(entries)
         text = preprocess_response(resp.text)
         logger.debug('{}: Response received. {}', type(self).__name__, text)
@@ -97,6 +98,9 @@ class Base(ABC):
     @abstractmethod
     def preprocess_result(self, results, entries):
         pass
+
+    def preprocess_entries(self, entries):
+        return entries
 
 
 class Translator(Base):
@@ -259,3 +263,67 @@ class Classifier(Base):
                 }
             )
         return x
+
+
+class SynonymSensor(Base):
+    hint_path = file_path / 'hint_sense_synonyms.txt'
+
+    def flatten_list(self, l):
+        result = []
+
+        for item in l:
+            if isinstance(item, list):
+                result.extend(item)
+            else:
+                result.append(item)
+        return result
+
+    def preprocess_entries(self, entry):
+        assert isinstance(entry, list)
+        assert len(entry) == 1
+        entry = entry[0]
+        return {
+            "id": entry["id"],
+            "words": entry["words"],
+            "dict_type": entry["dict_type"],
+            "defs": self.flatten_list(entry["defs"])
+        }
+    def _validate(self, results, entry):
+        assert len(results) == len(entry["defs"]), "defs length not match"
+        for egs in results:
+            assert len(egs) == 3, "incorrect examples length"
+            for eg in egs:
+                assert "en" in eg, "missing field: en"
+                assert "cn" in eg, "missing field: cn"
+
+
+    def construct_question(self, entry):
+        defs = '\n'.join([
+            f'{idx + 1}. {t["definition"]}'
+            for idx, t in enumerate(entry["defs"])
+        ])
+        return f'''
+            topic: {entry["words"]}
+            {defs}
+        '''
+
+    def preprocess_result(self, results, entry):
+        for idx, egs in enumerate(results):
+            d = entry["defs"][idx]
+            start = len(d["examples"])
+            d["examples"].extend(
+                [
+                    {
+                        **eg,
+                        "name": f'{d["id"]}_{ei+start}',
+                        "usage": "",
+                        "labels": "",
+                        "ai": True
+                    }
+                    for ei, eg in enumerate(egs)
+                ]
+            )
+
+        return [entry]
+
+

@@ -388,7 +388,7 @@ class Recorder:
         '''
 
         cursor = self.connection.execute(sql)
-        return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs']))
+        return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs', 'words']))
 
 
     def get_whichwords(self):
@@ -400,7 +400,7 @@ class Recorder:
         '''
 
         cursor = self.connection.execute(sql)
-        return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs']))
+        return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs', 'words']))
 
     def _transact(self, sql, vals):
         with lock:
@@ -440,6 +440,22 @@ class Recorder:
             WHERE id=?
         '''
         self._transact(sql, (score, reason, def_id))
+
+    def update_synonyms_defs(self, synonym_id, defs):
+        sql = f'''
+            UPDATE synonyms
+            SET defs=?
+            WHERE id=?
+        '''
+        self._transact(sql, (json.dumps(defs, ensure_ascii=False), synonym_id))
+
+    def update_whichword_defs(self, whichword_id, defs):
+        sql = f'''
+            UPDATE whichwords
+            SET defs=?
+            WHERE id=?
+        '''
+        self._transact(sql, (json.dumps(defs, ensure_ascii=False), whichword_id))
 
     def get_todos(self):
         return chain(

@@ -190,9 +190,3 @@ Answer:
   ]
 ]
 ```
-
-
-topic: shade ▪ shadow
-1. Shade [U] is an area or a part of a place that is protected from the light and heat of the sun and so is darker and cooler
-2. A shadow [C] is the dark shape made when a light shines on a person or an object
-3. Shadow [U] is an area of darkness in which it is difficult to distinguish things easily
