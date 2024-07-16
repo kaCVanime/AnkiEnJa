@@ -146,7 +146,7 @@ def lookup(word, yomi, mode="all"):
         word = replace_repeater(word)
         results = query(word)
     if not len(results) and yomi:
-        logger.warning(f"{word}: try mode full hiragana")
+        logger.debug(f"{word}: try mode full hiragana")
         # word = convert_to_hiragana(word)
         word = kata2hira(yomi)
         results = query(word)
