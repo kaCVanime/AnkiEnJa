@@ -72,11 +72,8 @@ def correct_for_idiom(nid):
     fields = get_note_fields(nid)
     if re.search(r'[a-zA-Z]', fields["kanji"]):
         return None
-    word = re.sub(r'[・‐]', "", fields["word"])
-    l_k = len(fields["kanji"])
-    l_w = len(word)
     idiom = fields["id"]
-    if l_k <= 3 and l_w >= 6 and "_" not in idiom and convert_to_hiragana(fields["kanji"]) != word:
+    if "_" not in idiom and idiom != fields["kanji"]:
         nids = anki_invoke("findNotes", query=f"deck:KJXP id:{idiom}")
         for nid in nids:
             note = {
