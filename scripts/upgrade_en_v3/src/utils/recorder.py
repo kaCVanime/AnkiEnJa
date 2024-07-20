@@ -565,6 +565,15 @@ class Recorder:
         '''
         self._transact(sql, updates, many=True)
 
+    def clear_rate(self, todos):
+        updates = [(t["id"],) for t in todos]
+        sql = '''
+            UPDATE defs
+            SET score=NULL, reason=NULL
+            WHERE id=?
+        '''
+        self._transact(sql, updates, many=True)
+
 
 class SQLResultIterator:
     def __init__(self, cursor, fields):
