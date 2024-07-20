@@ -79,6 +79,7 @@ class ModelSynonyms(ModelBase):
     name = "Synonyms"
     fields = [
         "id",
+        "word",
         "words",
         "overview",
         "overview_cn",
@@ -86,6 +87,7 @@ class ModelSynonyms(ModelBase):
         "def_cn",
         "examples",
         "note",
+        "type"
     ]
     is_cloze = False
     card_templates = [
