@@ -93,6 +93,7 @@ def main():
         todo_changes = find_matches(results, rows)
         if todo_changes:
             results_recorder.correct_usages(todo_changes)
+            results_recorder.clear_rate(todo_changes)
             for to in todo_changes:
                 logger.info("{}: {} -> {}", to["id"], to["change"][0], to["change"][1])
 
