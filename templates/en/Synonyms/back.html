@@ -1,0 +1,123 @@
+<div class="root">
+  <header>
+    <h2 id="term" class="center">{{word}}</h2>
+    <div id="tag-box">
+      <div id="frequency-tag">
+        <span class="bar-1"></span>
+        <span class="bar-2"></span>
+        <span class="bar-3"></span>
+        <span class="bar-4"></span>
+        <span class="bar-4"></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="eg-box"></div>
+    <div id="def-box">
+      <span class="definition">{{definition}}</span>
+      <span class="def_cn">{{def_cn}}</span>
+    </div>
+    <div id="brief" class="mt-10">{{note}}</div>
+    <div id="error" class="hide"></div>
+  </main>
+
+
+</div>
+<script>
+  var examplesJson = `{{examples}}`
+
+
+  var egBoxEl = document.getElementById("eg-box")
+  var errEl = document.getElementById("error")
+
+  var tags = `{{Tags}}`
+  tags = tags.split(" ")
+
+  var tagBoxEl = document.getElementById("tag-box")
+
+  var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+  var aiTags = tags.filter(tag => !tag.startsWith("K_"))
+  setFrequency(frequencyTag)
+  aiTags.forEach(tag => addSpanElements(tagBoxEl, tag, ["tag", "ai-tag"]))
+
+
+  function setFrequency(tag) {
+    const el = document.getElementById("frequency-tag")
+    switch (tag) {
+      case 'K_1_required':
+        el.classList.add('star-5')
+        break
+      case 'K_2_daily':
+        el.classList.add('star-4')
+        break
+      case 'K_3_usual':
+        el.classList.add('star-3')
+        break
+      case 'K_4_rare':
+        el.classList.add('star-1')
+        break
+      default:
+        el.classList.add('star-1')
+    }
+  }
+
+  function parseJson(json) {
+    try {
+      return JSON.parse(json)
+    } catch (e) {
+      return undefined
+    }
+  }
+
+   function addSpanElements(parent, content, classlist = []) {
+    if (!content) return parent;
+    const el = document.createElement("span");
+    el.textContent = content
+    el.classList.add(...classlist);
+    parent.appendChild(el)
+    return el
+  }
+
+  function addLabel(parent, content) {
+    return addSpanElements(parent, content, ["label", "italic"])
+  }
+
+  function addUsage(parent, content) {
+    return addSpanElements(parent, content, ["usage"])
+  }
+
+  function addContent(parent, content) {
+    return addSpanElements(parent, content, ["content"])
+  }
+
+  function makeElement(item) {
+    if (!item) return;
+    const div = document.createElement("div")
+    if (item.labels) addLabel(div, item.labels)
+    if (item.usage) addUsage(div, item.usage)
+    addContent(div, item.en)
+    return div
+  }
+
+  function addExample() {
+    const egName = localStorage.getItem("KEXP_SYNONYM")
+    if (!egName) return;
+    const exampleData = parseJson(examplesJson) || []
+    const picked = exampleData.find(item => item.name === egName)
+    const exampleEl = makeElement(picked)
+    if (exampleEl) {
+      egBoxEl.appendChild(exampleEl)
+    }
+  }
+
+  try {
+    addExample()
+  } catch (err) {
+    console.log(err);
+    errEl.classList.remove('hide')
+    errEl.textContent = err;
+  }
+
+
+</script>
