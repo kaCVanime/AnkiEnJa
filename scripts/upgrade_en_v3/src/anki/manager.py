@@ -132,7 +132,7 @@ class AnkiManager:
             return ['K_1_required']
         elif score >= 85:
             return ['K_2_daily']
-        elif score > 55:
+        elif score > 50:
             return ['K_3_usual']
         else:
             return ['K_4_rare']
@@ -185,36 +185,38 @@ class AnkiManager:
         self.process(todos, self.handle)
 
 
-        # print('adding synonyms to anki...')
-        # synonyms = results_recorder.get_synonyms()
-        # whichwords = results_recorder.get_whichwords()
-        # def split_syn_entry(entry, typ):
-        #     comm = {
-        #         "words": entry["words"],
-        #         "overview": entry["overview"] if typ == "Synonyms" else "",
-        #         "overview_cn": entry["overview_cn"] if typ == "Synonyms" else "",
-        #     }
-        #     return [
-        #         {
-        #             **comm,
-        #             "id": d["id"],
-        #             "definition": d["definition"],
-        #             "def_cn": d["def_cn"],
-        #             "note": d.get("note", ""),
-        #             "examples": d["examples"]
-        #         } for d in entry["defs"]
-        #     ]
-        # ss = [
-        #     item
-        #     for e in synonyms
-        #     for item in split_syn_entry(e, "Synonyms")
-        # ]
-        # ws = [
-        #     item
-        #     for e in whichwords
-        #     for item in split_syn_entry(e, "Whichwords")
-        # ]
-        # self.process([*ss, *ws], self.handle_synonyms)
+        print('adding synonyms to anki...')
+        synonyms = results_recorder.get_synonyms()
+        whichwords = results_recorder.get_whichwords()
+        def split_syn_entry(entry, typ):
+            comm = {
+                "words": entry["words"],
+                    "overview": entry["overview"] if typ == "Synonyms" else "",
+                "overview_cn": entry["overview_cn"] if typ == "Synonyms" else "",
+                "type": typ
+            }
+            return [
+                {
+                    **comm,
+                    "id": d["id"],
+                    "definition": d["definition"],
+                    "word": d.get("word", ""),
+                    "def_cn": d["def_cn"],
+                    "note": d.get("note", ""),
+                    "examples": d["examples"]
+                } for d in entry["defs"]
+            ]
+        ss = [
+            item
+            for e in synonyms
+            for item in split_syn_entry(e, "Synonyms")
+        ]
+        ws = [
+            item
+            for e in whichwords
+            for item in split_syn_entry(e, "Whichwords")
+        ]
+        self.process([*ss, *ws], self.handle_synonyms)
 
 
 
