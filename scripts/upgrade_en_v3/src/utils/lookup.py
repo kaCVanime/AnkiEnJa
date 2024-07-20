@@ -11,31 +11,42 @@ results_recorder = Recorder()
 parser = ParserManager()
 
 
-def lookup(word, word_list):
+def try_save(flag, word, results=None):
+    if not flag:
+        return
+
+    if not results:
+        results_recorder.save_word_entry_only(word)
+        return
+
+    t0 = time.perf_counter()
+    results_recorder.save(results)
+    t1 = time.perf_counter()
+    logger.debug('{} saved in {}s', word, t1 - t0)
+
+
+def lookup(word, word_list, save=True):
     html_results = dict_helper.query_oaldpe(word)
     if not html_results:
         html_results = dict_helper.query_oaldpe(word.lower())
     if not html_results:
         logger.error('no entry for {}', word)
-        results_recorder.save_word_entry_only(word)
+        try_save(flag=save, word=word, results=None)
         return []
 
     html, redirect_word = pick(html_results, word, word_list, redirect_word=None)
     if not html:
-        results_recorder.save_word_entry_only(word)
+        try_save(flag=save, word=word, results=None)
         return []
 
     results = parser.parse(html, word, redirect_word=redirect_word)
 
     if not results:
         logger.error('no results for {}', word)
-        results_recorder.save_word_entry_only(word)
+        try_save(flag=save, word=word, results=None)
         return []
 
-    t0 = time.perf_counter()
-    results_recorder.save(results)
-    t1 = time.perf_counter()
-    logger.debug('{} saved in {}s', word, t1-t0)
+    try_save(flag=save, word=word, results=results)
 
     return results
 

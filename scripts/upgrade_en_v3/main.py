@@ -71,15 +71,17 @@ def get_todos(word_list):
 def main():
     word_list = get_coca()
     def f(todo):
-        return lookup(todo, word_list)
+        return lookup(todo, word_list, save=False)
 
     thread_map(f, get_todos(word_list))
+    # for t in get_todos(word_list):
+    #     f(t)
 
 
 
 def test(word):
     word_list = get_coca()
-    return lookup(word, word_list)
+    return lookup(word, word_list, save=False)
 
 if __name__ == '__main__':
     results_recorder.start()
@@ -89,7 +91,7 @@ if __name__ == '__main__':
     #
     # ai_manager.run()
 
-    results = test("clean")
+    results = test("adept")
     # def_ids = []
     # for r in results:
     #     for p in r["defs"]:
