@@ -36,11 +36,11 @@ def log_result_ai_formatter(record):
         score=ex.get("score", "-"),
         reason=ex.get("reason", "-"),
         topic=ex.get("topic", "-"),
-        examples=json.dumps(examples, indent=4, ensure_ascii=False) if (examples := ex.get("examples", "")) else "-"
+        examples='\n'.join([f'{idx+1}. en: {t["en"]}\n cn: {t["cn"]}\n ai:|{t["ai"]}' for idx, t in enumerate(ex["examples"])]) if ex["examples"] else ""
     )
 
 logger.remove()
-logger.add(log_path / 'main.log', level="INFO")
+logger.add(log_path / 'main.log', level="INFO", filter=lambda r: 'src.ai' not in r['name'])
 logger.add(log_path / 'ai.log', filter='src.ai', level="INFO")
 logger.add(log_path / 'results.log', filter=lambda r: "update_db_type" in r["extra"], format=log_result_ai_formatter)
 
@@ -71,7 +71,7 @@ def get_todos(word_list):
 def main():
     word_list = get_coca()
     def f(todo):
-        return lookup(todo, word_list, save=False)
+        return lookup(todo, word_list, save=True)
 
     thread_map(f, get_todos(word_list))
     # for t in get_todos(word_list):
@@ -81,17 +81,17 @@ def main():
 
 def test(word):
     word_list = get_coca()
-    return lookup(word, word_list, save=False)
+    return lookup(word, word_list, save=True)
 
 if __name__ == '__main__':
     results_recorder.start()
-    # main()
+    main()
 
-    # ai_manager = AIManager(results_recorder)
-    #
-    # ai_manager.run()
+    ai_manager = AIManager(results_recorder)
 
-    results = test("adept")
+    ai_manager.run()
+
+    # results = test("clean")
     # def_ids = []
     # for r in results:
     #     for p in r["defs"]:

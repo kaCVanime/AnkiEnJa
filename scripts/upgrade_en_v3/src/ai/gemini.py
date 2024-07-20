@@ -8,6 +8,7 @@ from loguru import logger
 
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
+from google.api_core.exceptions import ResourceExhausted
 
 from .rate_limiter import rate_limit
 from .retry import retry
@@ -47,13 +48,13 @@ class Base(ABC):
 
     def construct_question(self, entries):
         return '\n'.join(
-            [f'{idx + 1}. {e.get("usage", "") or e.get("word", "")} - {e["definition"]}.' for idx, e in
+            [f'{idx + 1}. {e.get("word", "")} - {e["definition"]}.' for idx, e in
              enumerate(entries)]
         )
 
-    @retry(max_retries=4, delay=3)
+    @retry(max_retries=4, delay=3, exit_errors=[ResourceExhausted])
     def _query_retry(self, entries):
-        logger.info('{} querying gemini', type(self).__name__)
+        logger.debug('{} querying gemini', type(self).__name__)
         entries = self.preprocess_entries(entries)
         resp = self._query(entries)
         text = preprocess_response(resp.text)
@@ -119,7 +120,7 @@ class Translator(Base):
     def construct_question(self, entries):
         p = [
             {
-                "word": r.get("usage") or r.get("word"),
+                "word": r.get("word"),
                 "definition": r["definition"],
                 "examples": [x["en"] for x in r["examples"] if x.get("ai", False)]
             }
