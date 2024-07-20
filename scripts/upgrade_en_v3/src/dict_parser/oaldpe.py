@@ -121,15 +121,21 @@ class OaldpeParser(Base):
         s = "".join([a.get_text() for a in labels]) if labels else ""
         return s
 
+    def _parse_usage(self, li, sensetop):
+        cf0 = sensetop.find_all('span', class_='cf', recursive=False) if sensetop else []
+        cf1 = li.find_all('span', class_='cf', recursive=False)
+
+        return ' | '.join([abbrev(cf.get_text()) for cf in [*cf0, *cf1]])
+
     def _parse_def(self, li):
         definition = get_soup_text(li.find('span', class_='def'))
         if not definition:
             return None
-
+        sense_top = li.find('span', class_='sensetop', recursive=False)
         variants = li.find('div', { "class": "variants" })
 
         cefr = li.get('cefr', '')
-        cf = li.find('span', class_='cf')
+
         id = li.get('id')
         topic = li.find('span', class_='topic-g', recursive=False)
         if topic and not cefr:
@@ -149,8 +155,8 @@ class OaldpeParser(Base):
         return {
             "id": id,
             "cefr": cefr.upper(),
-            "usage": abbrev(cf.get_text()) if cf else "",
-            "labels": self._parse_labels(li.find('span', class_='sensetop', recursive=False)) or self._parse_labels(li),
+            "usage": self._parse_usage(li, sense_top),
+            "labels": self._parse_labels(sense_top) or self._parse_labels(li),
             "definition": definition,
             "def_cn": normalize_chn(def_t.find('chn', class_='simple').get_text()) if def_t else '',
             "examples": examples or None,

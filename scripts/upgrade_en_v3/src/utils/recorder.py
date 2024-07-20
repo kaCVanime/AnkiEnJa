@@ -405,12 +405,12 @@ class Recorder:
         cursor = self.connection.execute(sql)
         return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs', 'words']))
 
-    def _transact(self, sql, vals):
+    def _transact(self, sql, vals, many=False):
         with lock:
             conn = self.connection
 
             try:
-                cursor = conn.execute(sql, vals)
+                cursor = conn.execute(sql, vals) if not many else conn.executemany(sql, vals)
                 conn.commit()
                 return cursor
             except Exception as e:
@@ -552,8 +552,18 @@ class Recorder:
 
         return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'usage']))
 
-    def test(self):
-        pass
+    def test_sql(self, sql):
+        cursor = self.connection.execute(sql)
+        return cursor.fetchall()
+
+    def correct_usages(self, todos):
+        updates = [(t["change"][1], t["id"]) for t in todos]
+        sql = '''
+            UPDATE defs
+            SET usage=?
+            WHERE id=?
+        '''
+        self._transact(sql, updates, many=True)
 
 
 class SQLResultIterator:
