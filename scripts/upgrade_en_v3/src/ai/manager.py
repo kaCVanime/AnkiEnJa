@@ -93,8 +93,17 @@ class Manager:
             else:
                 result_recorder.update_whichword_defs(result["id"], result["defs"])
 
-        with logger.contextualize({ "update_db_type": tasker_type.__name__, **result }):
-            logger.info("{} updating db", tasker_type.__name__)
+        with logger.contextualize(
+                **{
+                    "update_db_type": tasker_type.__name__,
+                    "topic": result.get("topic", "-"),
+                    "score": result.get("score", "-"),
+                    "reason": result.get("reason", "-"),
+                    "examples": result.get("examples", ""),
+                    "def_cn": result.get("def_cn", "-"),
+                    "id": result["id"]
+                }):
+            logger.debug("{} updating db", tasker_type.__name__)
 
     @logger.catch
     def _handle_result(self, tasker_type, result):
@@ -141,11 +150,12 @@ class Manager:
     def handle_job(self, tasker, entry, priority):
         tasker.append(entry, priority=priority)
 
-    @logger.catch
+    # @logger.catch
     def _get_handlers(self, entry):
         handlers = []
 
         if (dict_type := entry.get("dict_type", "")) == 'Synonyms' or dict_type == 'Whichwords':
+            pass
             if dict_type == 'Synonyms':
                 processed = all([len(t["examples"]) >= 3 for t in entry["defs"]])
             else:
@@ -153,12 +163,12 @@ class Manager:
 
             if not processed:
                 handlers.append(lambda e: self.handle_job(self.synonym_sense_tasker, e, priority=10))
-            return
+            return handlers
 
         if not entry["topic"]:
             handlers.append(lambda e: self.handle_job(self.classify_tasker, e, priority=1))
 
-        if not entry["reason"] or not entry["score"]:
+        if not entry["reason"] and not entry["score"]:
             handlers.append(lambda e: self.handle_job(self.rate_tasker, e, priority=5))
 
         if not entry["def_cn"]:
@@ -181,9 +191,13 @@ class Manager:
         return True
 
     def process(self, entry):
-        entry["examples"] = json.loads(entry["examples"]) if entry["examples"] else []
-        if not self._is_safe(entry["definition"]) or not self._is_safe(entry.get("word", "")) or not self._is_safe(entry.get("usage", "")):
-            return
+        if (dict_type := entry.get("dict_type", "")) != 'Synonyms' and dict_type != 'Whichwords':
+            entry["examples"] = json.loads(entry["examples"]) if entry["examples"] else []
+            if not self._is_safe(entry["definition"]) or not self._is_safe(entry.get("word", "")) or not self._is_safe(entry.get("usage", "")):
+                return
+        else:
+            entry["defs"] = json.loads(entry["defs"]) if entry["defs"] else []
+
         handlers = self._get_handlers(entry)
         for h in handlers:
             h(entry)

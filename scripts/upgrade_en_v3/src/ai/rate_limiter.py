@@ -44,7 +44,7 @@ def rate_limit(func):
             logger.debug('sleeping')
             sleep(1)
 
-        logger.info('executing {}', func.__name__)
+        logger.debug('executing {}', func.__name__)
 
         for r in (second, minute, day):
             assert limiter.hit(r)

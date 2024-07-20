@@ -481,7 +481,7 @@ class Recorder:
                 {label_filter}
             ) as words
             ON words.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR d.score is NULL OR d.reason is NULL
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.score is NULL AND d.reason is NULL)
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
                 CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
@@ -509,7 +509,7 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
                 ON idioms.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR d.score is NULL OR d.reason is NULL
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.score is NULL AND d.reason is NULL)
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
                 CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
@@ -539,7 +539,7 @@ class Recorder:
                 {label_filter}
             ) as phrvs
             ON phrvs.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR d.score is NULL OR d.reason is NULL
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.score is NULL AND d.reason is NULL)
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
                 CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
