@@ -75,7 +75,7 @@
     if (ks.length <= 1) {
       ks = kanji.split("┊")
     }
-    return ks.every(k => k.includes('▽') || k.includes('×'))
+    return ks.every(k => k.includes('×'))
   }
   function setFrequency(tag) {
     const el = document.getElementById("frequency-tag")
