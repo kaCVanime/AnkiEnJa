@@ -1,18 +1,19 @@
 <div id=deck deck_name="{{Deck}}"></div>
 <div class="root">
   <header>
-    <h2 id="term" class="center transparent lang-ja">{{kanji}}</h2>
+    <h2 id="term" class="center transparent lang-ja" title="×不常用的汉字
+▽不常用的读音
+‐熟字训且常用汉字
+＝熟字训且不常用汉字">{{kanji}}</h2>
     <div class="center transparent flex-col">
       <span id="accent" class="phonetic italic lang-ja">{{accent}}</span>
     </div>
-    <div id="tag-box">
-      <div id="frequency-tag">
-        <span class="bar-1"></span>
-        <span class="bar-2"></span>
-        <span class="bar-3"></span>
-        <span class="bar-4"></span>
-        <span class="bar-5"></span>
-      </div>
+    <div id="frequency-tag">
+      <span class="bar-1"></span>
+      <span class="bar-2"></span>
+      <span class="bar-3"></span>
+      <span class="bar-4"></span>
+      <span class="bar-5"></span>
     </div>
   </header>
   <main>
@@ -25,10 +26,13 @@
     </div>
     <div id="error" class="hide"></div>
   </main>
+  <footer>
+    <div id="topic-box"></div>
+  </footer>
+
 </div>
 
 <script>
-
   var examplesJson = `{{examples}}`
   var kanji = `{{kanji}}`
   var word = `{{word}}`
@@ -40,29 +44,32 @@
 
   var termEl = document.getElementById('term')
   var accentEl = document.getElementById('accent')
-  var useWord = preferWord(kanji)
-
-
-  if (useWord) {
-    termEl.textContent = word
-    accentEl.classList.add('hide')
-  } else if (!accent) {
-    accentEl.textContent = word
-  }
 
   var egBoxEl = document.getElementById("eg-box")
   var errEl = document.getElementById("error")
 
-
   var tags = `{{Tags}}`
-  tags = tags.split(" ")
-  var tagBoxEl = document.getElementById("tag-box")
+  var topicBoxEl = document.getElementById("topic-box")
 
-  var frequencyTag = tags.find(tag => tag.startsWith("K_"))
-  var aiTags = tags.filter(tag => !tag.startsWith("K_"))
-  setFrequency(frequencyTag)
-  aiTags.forEach(tag => addSpanElements(tagBoxEl, tag, ["tag", "ai-tag"]))
+  function changeWord(word, kanji) {
+    var useWord = preferWord(kanji)
 
+    if (useWord) {
+      termEl.textContent = word
+      accentEl.classList.add('hide')
+    } else if (!accent) {
+      accentEl.textContent = word
+    }
+  }
+
+  function addTags(ts) {
+    const tags = ts.split(" ")
+
+    var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+    var aiTags = tags.filter(tag => !tag.startsWith("K_"))
+    setFrequency(frequencyTag)
+    aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
+  }
 
   function preferWord(kanji) {
     if (!kanji) return true
@@ -104,12 +111,7 @@
     }
   }
 
-  function filterLabels(data=[], excludeLabels=[]) {
-    const result = data.filter(item => !item.label || !excludeLabels.some((label) => item.label.indexOf(label) > -1))
-    return result.length ? result : data
-  }
-
-   function addSpanElements(parent, content, classlist = []) {
+  function addSpanElements(parent, content, classlist = []) {
     if (!content) return parent;
     const el = document.createElement("span");
     el.textContent = content
@@ -152,6 +154,8 @@
   }
 
   try {
+    changeWord(word, kanji)
+    addTags(tags)
     addRandomExample()
   } catch (err) {
     console.log(err);

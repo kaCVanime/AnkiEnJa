@@ -7,14 +7,12 @@
     <div class="center flex-col">
       <span id="accent" class="phonetic italic lang-ja">{{accent}}</span>
     </div>
-    <div id="tag-box">
-      <div id="frequency-tag">
-        <span class="bar-1"></span>
-        <span class="bar-2"></span>
-        <span class="bar-3"></span>
-        <span class="bar-4"></span>
-        <span class="bar-5"></span>
-      </div>
+    <div id="frequency-tag">
+      <span class="bar-1"></span>
+      <span class="bar-2"></span>
+      <span class="bar-3"></span>
+      <span class="bar-4"></span>
+      <span class="bar-5"></span>
     </div>
   </header>
 
@@ -28,7 +26,9 @@
     <div id="brief" class="mt-10 lang-ja">{{reason}}</div>
     <div id="error" class="hide"></div>
   </main>
-
+  <footer>
+    <div id="topic-box"></div>
+  </footer>
 
 </div>
 <script>
@@ -43,28 +43,32 @@
 
   var termEl = document.getElementById('term')
   var accentEl = document.getElementById('accent')
-  var useWord = preferWord(kanji)
-
-  if (useWord) {
-    termEl.textContent = word
-    accentEl.classList.add('hide')
-  } else if (!accent) {
-    accentEl.textContent = word
-  }
 
   var egBoxEl = document.getElementById("eg-box")
   var errEl = document.getElementById("error")
 
   var tags = `{{Tags}}`
-  tags = tags.split(" ")
+  var topicBoxEl = document.getElementById("topic-box")
 
-  var tagBoxEl = document.getElementById("tag-box")
+  function changeWord(word, kanji) {
+    var useWord = preferWord(kanji)
 
-  var frequencyTag = tags.find(tag => tag.startsWith("K_"))
-  var aiTags = tags.filter(tag => !tag.startsWith("K_"))
-  setFrequency(frequencyTag)
-  aiTags.forEach(tag => addSpanElements(tagBoxEl, tag, ["tag", "ai-tag"]))
+    if (useWord) {
+      termEl.textContent = word
+      accentEl.classList.add('hide')
+    } else if (!accent) {
+      accentEl.textContent = word
+    }
+  }
 
+  function addTags(ts) {
+    const tags = ts.split(" ")
+
+    var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+    var aiTags = tags.filter(tag => !tag.startsWith("K_"))
+    setFrequency(frequencyTag)
+    aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
+  }
 
   function preferWord(kanji) {
     if (!kanji) return true
@@ -115,7 +119,6 @@
     return el
   }
 
-
   function addUsage(parent, content) {
     return addSpanElements(parent, content, ["usage", "lang-ja"])
   }
@@ -144,6 +147,8 @@
   }
 
   try {
+    changeWord(word, kanji)
+    addTags(tags)
     addExample()
   } catch (err) {
     console.log(err);
