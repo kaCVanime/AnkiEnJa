@@ -189,6 +189,7 @@ class AnkiManager:
         synonyms = results_recorder.get_synonyms()
         whichwords = results_recorder.get_whichwords()
         def split_syn_entry(entry, typ):
+            entry["defs"] = json.loads(entry["defs"])
             comm = {
                 "words": entry["words"],
                     "overview": entry["overview"] if typ == "Synonyms" else "",

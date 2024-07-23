@@ -365,7 +365,7 @@ class Recorder:
 
     def get_phrvs(self):
         sql = '''
-            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos, phrvs.labels as e_labels
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos, phrvs.labels as e_labels,
             CASE
                 WHEN d.usage='' THEN phrvs.usage
                 WHEN d.usage!='' THEN d.usage
