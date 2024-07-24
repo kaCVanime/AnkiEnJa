@@ -32,7 +32,7 @@ class ModelRead(ModelBase):
         "BrEPhonetic",
         "pos",
         "usage",
-        "labels,"
+        "labels",
         "definition",
         "def_cn",
         "examples",
