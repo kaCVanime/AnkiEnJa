@@ -192,7 +192,7 @@ class AnkiManager:
             entry["defs"] = json.loads(entry["defs"])
             comm = {
                 "words": entry["words"],
-                    "overview": entry["overview"] if typ == "Synonyms" else "",
+                "overview": entry["overview"] if typ == "Synonyms" else "",
                 "overview_cn": entry["overview_cn"] if typ == "Synonyms" else "",
                 "type": typ
             }
