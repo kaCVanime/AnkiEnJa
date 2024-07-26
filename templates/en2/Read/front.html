@@ -31,7 +31,7 @@
   var errEl = document.getElementById("error")
 
   var tags = `{{Tags}}`
-  var tagBoxEl = document.getElementById("topic-box")
+  var topicBoxEl = document.getElementById("topic-box")
 
   function addTags(ts) {
     const tags = ts.split(" ")
@@ -67,9 +67,12 @@
   }
 
   function parseJson(json) {
+    if (json.startsWith('"')) json = json.slice(1)
+    if (json.endsWith('"')) json = json.slice(0, -1)
     try {
       return JSON.parse(json)
     } catch (e) {
+      console.error(e)
       return undefined
     }
   }

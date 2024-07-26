@@ -56,6 +56,16 @@ html.night_mode, html.nightMode, .card.night_mode, .card.nightMode {
     transform-origin: 0 0;
 }
 
+.root.opaque {
+    transform: scale(0.80);
+    opacity: 0.35;
+}
+.root.opaque #term {
+    color: #5c5c5c;
+    font-size: 24px;
+}
+
+
 .transparent {
     opacity: 0;
 }

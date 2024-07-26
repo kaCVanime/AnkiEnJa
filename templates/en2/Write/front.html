@@ -16,7 +16,7 @@
   </header>
   <main>
     <div class="center italic label mt-10 mb-10 transparent">{{usage}}</div>
-    {{type:term}}
+    {{type:word}}
     <div id="eg-box"></div>
     <div id="def-box">
       <span class="definition">{{definition}}</span>
@@ -71,9 +71,12 @@
   }
 
   function parseJson(json) {
+    if (json.startsWith('"')) json = json.slice(1)
+    if (json.endsWith('"')) json = json.slice(0, -1)
     try {
       return JSON.parse(json)
     } catch (e) {
+      console.error(e)
       return undefined
     }
   }
