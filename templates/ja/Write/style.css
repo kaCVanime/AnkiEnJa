@@ -119,11 +119,11 @@ html.night_mode, html.nightMode, .card.night_mode, .card.nightMode {
 
 @font-face {
     font-family: ShipporiMincho;
-    src: url('ShipporiMincho-Regular.ttf');
+    src: url('_ShipporiMincho-Regular.ttf');
 }
 @font-face {
     font-family: NotoSerifSC;
-    src: url('NotoSerifSC-Regular.ttf');
+    src: url('_NotoSerifSC-Regular.ttf');
 }
 
 .lang-ja {
