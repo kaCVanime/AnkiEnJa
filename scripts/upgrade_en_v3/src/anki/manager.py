@@ -71,7 +71,7 @@ class AnkiManager:
             "labels": self._handle_labels(entry),
             "definition": entry["definition"] or "",
             "def_cn": entry["def_cn"] or "",
-            "examples": json.dumps(entry["examples"], ensure_ascii=False),
+            "examples": entry["examples"],
             "brief": entry.get("reason", "") or "",
         }
 
