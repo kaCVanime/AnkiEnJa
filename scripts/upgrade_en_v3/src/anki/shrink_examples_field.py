@@ -2,7 +2,7 @@ import json
 from tqdm import tqdm
 from loguru import logger
 
-from .anki_connect import invoke as anki_invoke
+from anki_connect import invoke as anki_invoke
 logger.remove()
 logger.add('correct_examples.log')
 
@@ -20,6 +20,13 @@ def update_examples(nid):
     while type(egs) == str:
         egs = json.loads(egs)
 
+    if len(egs) > 10:
+        ai_egs = [eg for eg in egs if eg.get("ai", False)]
+        if len(egs) - len(ai_egs) > 3:
+            egs = [eg for eg in egs if not eg.get("ai", False)]
+        else:
+            egs = [eg for eg in egs if not eg.get("ai", False)].extend(ai_egs[:4])
+
     for eg in egs:
         if not eg.get("usage", ""):
             eg.pop("usage", None)
@@ -36,14 +43,14 @@ def update_examples(nid):
     }
     anki_invoke("updateNoteFields", note=note)
 def main():
-    nids = anki_invoke("findNotes", query=r'deck:KEXP2 -(examples:re:^\" or examples:*usage*)')
+    nids = anki_invoke("findNotes", query=r'deck:KEXP2 examples:re:^\"')
 
     for nid in tqdm(nids):
         try:
             update_examples(nid)
         except Exception as e:
             logger.error(e)
-
+b
 
 if __name__ == '__main__':
     main()
