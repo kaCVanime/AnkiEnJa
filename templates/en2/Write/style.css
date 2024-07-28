@@ -2,7 +2,7 @@ html, .card {
     --card-color: black;
     --card-bg-color: white;
 
-    --term-color: #b72222;
+    --term-color: #2294b7;
 
     --BrE-phonetic-color: #147db1;
     --AmE-phonetic-color: #b11433;
@@ -12,12 +12,12 @@ html, .card {
 
     --eg-color: grey;
     --eg-bg-color: #f6f6f6;
-    --def-color: #df9797;
+    --def-color: #97b4df;
 
     --tag-color: #5c5c5c;
-    --ori-tag-bg-color: #f7e7d0;
-    --ai-tag-bg-color: #cedef2;
-    --cefr-tag-bg-color: #f7e7d0;
+    --ori-tag-bg-color: #f7e3d0;
+    --ai-tag-bg-color: #dce0f2;
+    --cefr-tag-bg-color: #f7e3d0;
 
     --brief-color: #9b9b9b;
 
@@ -28,10 +28,10 @@ html.night_mode, html.nightMode, .card.night_mode, .card.nightMode {
     --card-color: #968e8b;
     --card-bg-color: #121212;
 
-    --term-color: #66a6d4;
+    --term-color: #94c3d7;
 
-    --BrE-phonetic-color: #568fac;
-    --AmE-phonetic-color: #b44e63;
+    --BrE-phonetic-color: #4e6170;
+    --AmE-phonetic-color: #764b4c;
 
     --label-color:  #717171;
     --usage-color: #8b8b8b;
