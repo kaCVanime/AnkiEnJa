@@ -175,6 +175,7 @@ class AnkiManager:
             try:
                 handle(t)
             except Exception as e:
+                logger.error(e)
                 if 'duplicate' not in str(e):
                     raise e
 
@@ -188,25 +189,30 @@ class AnkiManager:
         print('adding synonyms to anki...')
         synonyms = results_recorder.get_synonyms()
         whichwords = results_recorder.get_whichwords()
+
+        @logger.catch
         def split_syn_entry(entry, typ):
-            entry["defs"] = json.loads(entry["defs"])
-            comm = {
-                "words": entry["words"],
-                "overview": entry["overview"] if typ == "Synonyms" else "",
-                "overview_cn": entry["overview_cn"] if typ == "Synonyms" else "",
-                "type": typ
-            }
-            return [
-                {
-                    **comm,
-                    "id": d["id"],
-                    "definition": d["definition"],
-                    "word": d.get("word", ""),
-                    "def_cn": d["def_cn"],
-                    "note": d.get("note", ""),
-                    "examples": d["examples"]
-                } for d in entry["defs"]
-            ]
+            try:
+                entry["defs"] = json.loads(entry["defs"])
+                comm = {
+                    "words": entry["words"],
+                    "overview": entry["overview"] if typ == "Synonyms" else "",
+                    "overview_cn": entry["overview_cn"] if typ == "Synonyms" else "",
+                    "type": typ
+                }
+                return [
+                    {
+                        **comm,
+                        "id": d["id"],
+                        "definition": d["definition"],
+                        "word": d.get("word", ""),
+                        "def_cn": d.get("def_cn", ""),
+                        "note": d.get("note", ""),
+                        "examples": json.dumps(d["examples"], ensure_ascii=False)
+                    } for d in entry["defs"]
+                ]
+            except Exception as e:
+                return []
         ss = [
             item
             for e in synonyms
