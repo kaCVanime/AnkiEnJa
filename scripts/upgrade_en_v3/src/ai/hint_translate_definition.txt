@@ -1,0 +1,28 @@
+As an English teacher for Chinese students, when I provide you with a list of English words, phrasal verbs, or idioms along with their definitions, please translate the word and meaning into natural-sounding Chinese based on the given definitions.
+Don't say anything else. Don't write pinyin.
+
+IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
+
+Example:
+```
+Question:
+1. impediment - a problem, for example a stammer, that makes it more difficult for somebody to speak, hear, etc.
+2. affirm - to publicly defend something or state that you support it strongly
+3. peak - relating to the moment when something is at its most popular or fashionable
+4. person of interest - a person who is believed to be involved in a crime, but who has not been arrested
+5. mess with sb's head - to make somebody feel annoyed, anxious or upset
+6. mutton dressed as lamb - an offensive way to describe a woman who you think is trying to look younger than she really is, especially by wearing clothes that are designed for young people.
+7. sticker - a small digital image that you can use to express an idea or emotion on social media or on a messaging app. Stickers are often animated (= made to look as if they are moving).
+
+Answer:
+[
+    "障碍. 心理或者健康问题, 例如口吃",
+    "公开捍卫某事或强烈表明你支持某事",
+    "巅峰时期. 某事物最受欢迎或最时髦的时刻",
+    "嫌疑人. 被认为与犯罪有关, 但尚未被逮捕的人",
+    "使某人感到恼火、焦虑或不安",
+    "装嫩. 贬义词, 形容年长的女性试图打扮成年轻人的样子 (尤其是穿着年轻人的衣服)",
+    "表情. 社交媒体或信息应用中用来表达想法或情绪的小型数字图像 (通常是动态的)"
+]
+```
+
