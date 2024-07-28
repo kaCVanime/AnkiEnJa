@@ -2,24 +2,23 @@ html, .card {
     --card-color: black;
     --card-bg-color: white;
 
-    --term-color: #b72222;
-
-    --BrE-phonetic-color: #147db1;
-    --AmE-phonetic-color: #b11433;
+    --term-color: #739d7f;
+    --words-color: #12964b;
 
     --label-color:  #8a7967;
     --usage-color: #665a57;
 
     --eg-color: grey;
     --eg-bg-color: #f6f6f6;
-    --def-color: #df9797;
+    --def-color: #348b42;
 
     --tag-color: #5c5c5c;
     --ori-tag-bg-color: #f7e7d0;
     --ai-tag-bg-color: #cedef2;
     --cefr-tag-bg-color: #f7e7d0;
 
-    --brief-color: #9b9b9b;
+    --overview-color: #9b9b9b;
+    --brief-color: #7d9281;
 
     --footer-border-color: lightgrey;
 }
@@ -28,10 +27,8 @@ html.night_mode, html.nightMode, .card.night_mode, .card.nightMode {
     --card-color: #968e8b;
     --card-bg-color: #121212;
 
-    --term-color: #66a6d4;
-
-    --BrE-phonetic-color: #568fac;
-    --AmE-phonetic-color: #b44e63;
+    --term-color: #5f6b61;
+    --words-color: #657d69;
 
     --label-color:  #717171;
     --usage-color: #8b8b8b;
@@ -45,7 +42,8 @@ html.night_mode, html.nightMode, .card.night_mode, .card.nightMode {
     --ai-tag-bg-color: #282828;
     --cefr-tag-bg-color: #3f3f3f;
 
-    --brief-color: #8b8b8b;
+    --overview-color: #8b8b8b;
+    --brief-color: #4d6953;
 
     --footer-border-color: #575757;
 }
@@ -161,11 +159,15 @@ footer {
     background-color: var(--cefr-tag-bg-color);
 }
 
-/*释义的使用频度介绍*/
-#brief {
+#overview {
     font-size: 16px;
+    color: var(--overview-color);
+}
+#brief {
+    font-size: 20px;
     color: var(--brief-color);
 }
+
 
 
 /*头部*/
@@ -173,15 +175,8 @@ footer {
 #term {
     color: var(--term-color);
 }
-
-.phonetic:not(.hide) + .phonetic {
-	margin-top: 10px;
-}
-.BrEPhonetic {
-	color: var(--BrE-phonetic-color);
-}
-.AmEPhonetic {
-	color: var(--AmE-phonetic-color);
+#words {
+    color: var(--words-color);
 }
 
 

@@ -1,6 +1,7 @@
 <div class="root">
   <header>
-    <h2 id="term" class="center">{{word}}</h2>
+    <h5 id="term" class="center"></h5>
+    <h3 id="words" class="center">{{word}}</h3>
     <div id="frequency-tag">
       <span class="bar-1"></span>
       <span class="bar-2"></span>
@@ -112,7 +113,7 @@
 
   try {
     addTags(tags)
-    addRandomExample()
+    addExample()
   } catch (err) {
     console.log(err);
     errEl.classList.remove('hide')
