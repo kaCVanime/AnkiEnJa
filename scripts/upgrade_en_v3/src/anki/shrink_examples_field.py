@@ -50,7 +50,6 @@ def main():
             update_examples(nid)
         except Exception as e:
             logger.error(e)
-b
 
 if __name__ == '__main__':
     main()
