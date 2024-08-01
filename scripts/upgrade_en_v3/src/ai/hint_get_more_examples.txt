@@ -7,10 +7,10 @@ IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
 Example:
 ```
 Question:
-1. hunter - a fast strong horse used in hunting foxes.
-2. valet - a person who parks your car for you at a hotel or restaurant.
-3. speckled - covered with small marks or spots.
-4. consumption - a serious disease of the lungs.
+1. "hunter" - a fast strong horse used in hunting foxes.
+2. "valet" - a person who parks your car for you at a hotel or restaurant.
+3. "speckled" - covered with small marks or spots.
+4. "consumption" - a serious disease of the lungs.
 
 Answer:
 [
