@@ -1,20 +1,18 @@
 <div id=deck deck_name="{{Deck}}"></div>
 <div class="root">
   <header>
-    <h2 id="term" class="center"></h2>
-    <div id="tag-box">
-      <div id="frequency-tag">
-        <span class="bar-1"></span>
-        <span class="bar-2"></span>
-        <span class="bar-3"></span>
-        <span class="bar-4"></span>
-        <span class="bar-4"></span>
-      </div>
+    <h5 id="term" class="center"></h5>
+    <h3 id="words" class="center">{{words}}</h3>
+    <div id="frequency-tag">
+      <span class="bar-1"></span>
+      <span class="bar-2"></span>
+      <span class="bar-3"></span>
+      <span class="bar-4"></span>
+      <span class="bar-4"></span>
     </div>
   </header>
   <main>
     <div id="eg-box"></div>
-    <div id="words">{{words}}</div>
     <div id="overview">
       <span>{{overview}}</span>
       <span>{{overview_cn}}</span>
@@ -22,11 +20,14 @@
 
     <div id="error" class="hide"></div>
   </main>
-
+  <footer>
+    <div id="topic-box"></div>
+  </footer>
 </div>
 <script>
   var symType = `{{type}}`
   var termEl = document.getElementById('term')
+  var words = `{{words}}`
   termEl.textContent = symType === 'Synonyms' ? '近义词辨析' : '单词辨析'
 
   var examplesJson = `{{examples}}`
@@ -35,14 +36,16 @@
   var errEl = document.getElementById("error")
 
   var tags = `{{Tags}}`
-  tags = tags.split(" ")
-  var tagBoxEl = document.getElementById("tag-box")
+  var topicBoxEl = document.getElementById("topic-box")
 
-  var frequencyTag = tags.find(tag => tag.startsWith("K_"))
-  var aiTags = tags.filter(tag => !tag.startsWith("K_"))
-  setFrequency(frequencyTag)
-  aiTags.forEach(tag => addSpanElements(tagBoxEl, tag, ["tag", "ai-tag"]))
+  function addTags(ts) {
+    const tags = ts.split(" ")
 
+    var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+    var aiTags = tags.filter(tag => !tag.startsWith("K_"))
+    setFrequency(frequencyTag)
+    aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
+  }
 
   function setFrequency(tag) {
     const el = document.getElementById("frequency-tag")
@@ -112,13 +115,14 @@
     const exampleEl = makeElement(picked)
     if (exampleEl) {
       egBoxEl.appendChild(exampleEl)
-      localStorage.setItem("KEXP_SYNONYM", picked.name)
+      localStorage.setItem("KEXP2_SYNONYM", picked.name)
     } else {
-      localStorage.removeItem("KEXP_SYNONYM")
+      localStorage.removeItem("KEXP2_SYNONYM")
     }
   }
 
   try {
+    addTags(tags)
     addRandomExample()
   } catch (err) {
     console.log(err);
