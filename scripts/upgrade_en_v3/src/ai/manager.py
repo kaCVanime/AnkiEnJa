@@ -99,7 +99,8 @@ class Manager:
                     "topic": result.get("topic", "-"),
                     "score": result.get("score", "-"),
                     "reason": result.get("reason", "-"),
-                    "examples": result.get("examples", ""),
+                    "examples": json.dumps(egs, ensure_ascii=False, indent=4) if (
+                            egs := result.get("examples", "")) else '-',
                     "def_cn": result.get("def_cn", "-"),
                     "id": result["id"]
                 }):
