@@ -357,7 +357,7 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
                 ON idioms.entry_id = entries.id
-
+            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND (d.score is NOT NULL OR d.reason is NOT NULL)
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)

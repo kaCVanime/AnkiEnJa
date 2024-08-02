@@ -16,7 +16,7 @@ def process(idiom):
         egs = json.loads(idiom["examples"])
         ori_egs = [eg for eg in egs if not eg.get("en_ai", False)]
         if len(egs) != len(ori_egs):
-            # recorder.update_def_examples(idiom["id"], json.dumps(ori_egs, ensure_ascii=False))
+            recorder.update_def_examples(idiom["id"], json.dumps(ori_egs, ensure_ascii=False))
             with logger.contextualize(id=idiom["id"], new=json.dumps(ori_egs, ensure_ascii=False, indent=4), old=json.dumps(egs, ensure_ascii=False, indent=4)):
                 logger.info('')
 
