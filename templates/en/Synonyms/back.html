@@ -1,14 +1,13 @@
 <div class="root">
   <header>
-    <h2 id="term" class="center">{{word}}</h2>
-    <div id="tag-box">
-      <div id="frequency-tag">
-        <span class="bar-1"></span>
-        <span class="bar-2"></span>
-        <span class="bar-3"></span>
-        <span class="bar-4"></span>
-        <span class="bar-4"></span>
-      </div>
+    <h5 id="term" class="center"></h5>
+    <h3 id="words" class="center">{{word}}</h3>
+    <div id="frequency-tag">
+      <span class="bar-1"></span>
+      <span class="bar-2"></span>
+      <span class="bar-3"></span>
+      <span class="bar-4"></span>
+      <span class="bar-4"></span>
     </div>
   </header>
 
@@ -21,26 +20,27 @@
     <div id="brief" class="mt-10">{{note}}</div>
     <div id="error" class="hide"></div>
   </main>
-
-
+  <footer>
+    <div id="topic-box"></div>
+  </footer>
 </div>
 <script>
   var examplesJson = `{{examples}}`
-
 
   var egBoxEl = document.getElementById("eg-box")
   var errEl = document.getElementById("error")
 
   var tags = `{{Tags}}`
-  tags = tags.split(" ")
+  var topicBoxEl = document.getElementById("topic-box")
 
-  var tagBoxEl = document.getElementById("tag-box")
+  function addTags(ts) {
+    const tags = ts.split(" ")
 
-  var frequencyTag = tags.find(tag => tag.startsWith("K_"))
-  var aiTags = tags.filter(tag => !tag.startsWith("K_"))
-  setFrequency(frequencyTag)
-  aiTags.forEach(tag => addSpanElements(tagBoxEl, tag, ["tag", "ai-tag"]))
-
+    var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+    var aiTags = tags.filter(tag => !tag.startsWith("K_"))
+    setFrequency(frequencyTag)
+    aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
+  }
 
   function setFrequency(tag) {
     const el = document.getElementById("frequency-tag")
@@ -70,7 +70,7 @@
     }
   }
 
-   function addSpanElements(parent, content, classlist = []) {
+  function addSpanElements(parent, content, classlist = []) {
     if (!content) return parent;
     const el = document.createElement("span");
     el.textContent = content
@@ -101,7 +101,7 @@
   }
 
   function addExample() {
-    const egName = localStorage.getItem("KEXP_SYNONYM")
+    const egName = localStorage.getItem("KEXP2_SYNONYM")
     if (!egName) return;
     const exampleData = parseJson(examplesJson) || []
     const picked = exampleData.find(item => item.name === egName)
@@ -112,6 +112,7 @@
   }
 
   try {
+    addTags(tags)
     addExample()
   } catch (err) {
     console.log(err);
