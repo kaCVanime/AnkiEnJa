@@ -91,7 +91,7 @@ class Base(ABC):
         logger.warning('{}: question: {}', type(self).__name__, question)
         return self.model.generate_content(
             question,
-            request_options={"timeout": 30.0},
+            request_options={"timeout": 600},
             safety_settings={
                 HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
