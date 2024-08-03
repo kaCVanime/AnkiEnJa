@@ -16,33 +16,21 @@ for p in (log_path, temp_path):
 
 
 log_result_ai_template = '''
-{time} | {id} updated. ----------------------
-{task}
-{topic}
-def_cn: {def_cn}
-Score: {score}
-Reason: {reason}
+{time} | {extra[id]} updated. ----------------------
+{extra[update_db_type]}
+{extra[topic]}
+def_cn: {extra[def_cn]}
+Score: {extra[score]}
+Reason: {extra[reason]}
 Examples:
-{examples}
+{extra[examples]}
 '''
 
-def log_result_ai_formatter(record):
-    ex = record["extra"]
-    return log_result_ai_template.format(
-        time=record["time"],
-        id=ex["id"],
-        task=ex["update_db_type"],
-        def_cn=ex.get("def_cn", "-"),
-        score=ex.get("score", "-"),
-        reason=ex.get("reason", "-"),
-        topic=ex.get("topic", "-"),
-        examples='\n'.join([f'{idx+1}. en: {t["en"]}\n cn: {t["cn"]}\n ai:|{t["ai"]}' for idx, t in enumerate(ex["examples"])]) if ex["examples"] else ""
-    )
 
 logger.remove()
 logger.add(log_path / 'main.log', level="INFO", filter=lambda r: 'src.ai' not in r['name'])
 logger.add(log_path / 'ai.log', filter='src.ai', level="INFO")
-logger.add(log_path / 'results.log', filter=lambda r: "update_db_type" in r["extra"], format=log_result_ai_formatter)
+logger.add(log_path / 'results.log', filter=lambda r: "update_db_type" in r["extra"], format=log_result_ai_template)
 
 
 parser = ParserManager()

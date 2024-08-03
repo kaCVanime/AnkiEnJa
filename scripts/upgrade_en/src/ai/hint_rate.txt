@@ -6,11 +6,11 @@ IMPORTANT: The response must be a JSON array. Make Sure the JSON is valid.
 Example:
 ```
 Question:
-1. pill - an annoying person.
-2. easy come, easy go - used to mean that somebody does not care very much about money or possessions especially if they spend it or lose something.
-3. league - a unit for measuring distance, equal to about 3 miles or 4 000 metres.
-4. have money, time, etc. to play with - to have plenty of money, time, etc. for doing something.
-5. level - having a flat surface that does not slope.
+1. "pill" - an annoying person.
+2. "easy come, easy go" - used to mean that somebody does not care very much about money or possessions especially if they spend it or lose something.
+3. "league" - a unit for measuring distance, equal to about 3 miles or 4 000 metres.
+4. "have money, time, etc. to play with" - to have plenty of money, time, etc. for doing something.
+5. "level" - having a flat surface that does not slope.
 
 Answer:
 [

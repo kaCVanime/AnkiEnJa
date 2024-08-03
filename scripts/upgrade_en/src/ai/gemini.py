@@ -36,6 +36,18 @@ class TestResponse:
     def __init__(self, content):
         self.text = content
 
+def get_head(e):
+    word = e.get("word", None)
+    usage = e.get("usage", None)
+    if word:
+        if not usage:
+            return word
+        elif word not in usage:
+            return f'{word} {usage}'
+        else:
+            return usage
+
+    return usage
 
 class Base(ABC):
     hint_path = None
@@ -48,7 +60,7 @@ class Base(ABC):
 
     def construct_question(self, entries):
         return '\n'.join(
-            [f'{idx + 1}. {e.get("word", "")} - {e["definition"]}.' for idx, e in
+            [f'{idx + 1}. "{get_head(e)}" - {e["definition"]}.' for idx, e in
              enumerate(entries)]
         )
 
@@ -76,10 +88,10 @@ class Base(ABC):
     def _query(self, entries):
         logger.debug('{}: construct question from {}', type(self).__name__, entries)
         question = self.construct_question(entries)
-        logger.debug('{}: question: {}', type(self).__name__, question)
+        logger.warning('{}: question: {}', type(self).__name__, question)
         return self.model.generate_content(
             question,
-            request_options={"timeout": 30.0},
+            request_options={"timeout": 600},
             safety_settings={
                 HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
