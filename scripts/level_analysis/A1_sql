@@ -1,0 +1,10 @@
+SELECT word FROM
+(       SELECT d.id, d.cefr, d.topic, d.score, d.reason, d.usage, words.word
+        FROM defs AS d
+            INNER JOIN entries
+            ON d.entry_id = entries.id
+            INNER JOIN words
+            ON words.entry_id = entries.id
+		WHERE cefr='A1'
+)
+GROUP by word
