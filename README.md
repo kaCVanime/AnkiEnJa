@@ -22,6 +22,8 @@
 8. TODO. 自定义**配音包**。跟机械感说拜拜，只听喜欢的音色。
 
 # 展示
+### 分级
+![Levels](screenshots/deck_split.png)
 ### "阅读理解"卡片
 ![Read](screenshots/v2_read.png)
 ---
@@ -32,7 +34,7 @@
 ![JAWrite](screenshots/v2_Write_ja.png)
 
 # 下载地址
-英语: https://ankiweb.net/shared/info/1018349790  
+英语: https://ankiweb.net/shared/info/974341345  
 日语: https://ankiweb.net/shared/info/283976325
 
 # 未来计划
@@ -45,7 +47,7 @@ https://ankiweb.net/shared/info/1249258442
 ### 根据tag批量暂停不想学习的卡片
 https://ankiweb.net/shared/info/342205704
 
-## 请支持正版
+# 请支持正版
 本牌组完全免费，仅供个人学习交流使用，禁止一切商业用途。  
   
 如果你觉得好用，请支持👇以下正版辞典。
@@ -74,3 +76,10 @@ JLPT文法解説まとめ.mdx @epistularum
 
 [fastwordquery](https://github.com/sth2018/FastWordQuery)  
 Google Gemini
+
+
+## 各级词汇对国内各等级考试的覆盖情况(相对)
+![levels-overview-keep](screenshots/levels-overview-keep.png)
+
+## 国内各等级考试词汇在国外各级的分布情况
+![levels-overview](screenshots/levels-overview.png)
