@@ -1,5 +1,4 @@
-from abc import ABC, abstractmethod
-from .gemini import Rater, Translator, Senser, Classifier, DefTranslator, SynonymSensor
+from abc import ABC
 from threading import Thread, Event
 from loguru import logger
 import queue
@@ -91,35 +90,4 @@ class Base(ABC):
     def get_queue_size(self):
         return self._queue.qsize()
 
-
-class ClassifyTasker(Base):
-    def __init__(self, parent):
-        super().__init__(parent, Classifier())
-
-
-class RateTasker(Base):
-    def __init__(self, parent):
-        super().__init__(parent, Rater())
-
-class TranslateTasker(Base):
-    capacity = 4
-    def __init__(self, parent):
-        super().__init__(parent, Translator())
-
-
-class SenseTasker(Base):
-    capacity = 7
-    def __init__(self, parent):
-        super().__init__(parent, Senser())
-
-
-class DefTranslateTasker(Base):
-    def __init__(self, parent):
-        super().__init__(parent, DefTranslator())
-
-
-class SynonymSenseTasker(Base):
-    capacity = 1
-    def __init__(self, parent):
-        super().__init__(parent, SynonymSensor())
 

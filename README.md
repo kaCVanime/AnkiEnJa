@@ -68,7 +68,7 @@ https://ankiweb.net/shared/info/342205704
 **牛津高阶英汉双解词典** - 商务印书馆 
 
 ## 鸣谢
-牛津高阶英汉双解辞典(第10版).mdx @DDD  
+牛津高阶英汉双解辞典(第10版).mdx @leon046-@顺其自然
 牛津高阶英汉双解词典(第9版)_V3.1.2版.mdx @Origin by Robot athenawang29@gmail.com @v3.1.2 by A*ure
 新世纪日汉双解大辞典.mdx @freecomic101 @蜻蜓点水等
 小学馆-日中辞典第三版.mdx @okayer

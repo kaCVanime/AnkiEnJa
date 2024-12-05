@@ -49,7 +49,7 @@ class Recorder:
     def __init__(self):
         if not db_file.is_file():
             self.init_db()
-
+        self.start()
 
     def start(self):
         if not self.connection:

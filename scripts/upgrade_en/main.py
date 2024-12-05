@@ -62,28 +62,11 @@ def main():
         return lookup(todo, word_list, save=True)
 
     thread_map(f, get_todos(word_list))
-    # for t in get_todos(word_list):
-    #     f(t)
-
-
-
-def test(word):
-    word_list = get_coca()
-    return lookup(word, word_list, save=True)
 
 if __name__ == '__main__':
-    results_recorder.start()
     main()
 
-    ai_manager = AIManager(results_recorder)
-
+    ai_manager = AIManager()
     ai_manager.run()
 
-    # results = test("clean")
-    # def_ids = []
-    # for r in results:
-    #     for p in r["defs"]:
-    #         assert p["id"] not in def_ids
-    #         def_ids.append(p["id"])
-    results_recorder.close()
     pass
