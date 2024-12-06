@@ -17,7 +17,7 @@ def query_qwen(instruction, message):
     r = requests.post(
         'http://localhost:8080/v1/chat/completions',
         headers={
-          "Authorization": "Bearer no-key"
+            "Authorization": "Bearer no-key"
         },
         timeout=300,
         json={
@@ -118,18 +118,43 @@ class Base(ABC):
 
 
 class Translator(Base):
-    hint_path = instruction_path / 'hint_translate.txt'
+    hint_path = instruction_path / 'translate.txt'
 
     def preprocess_entries(self, entries):
         assert isinstance(entries, list)
         assert len(entries) == 1
-        return entries[0]
+        return format_entry_usage(entries[0])
 
     def adjust_instruction(self, entry):
-        if (labels:= entry.get("labels", None)):
-            if re.search('\bformal\b', labels):
-                self.current_instruction = self.system_instruction.replace('偏口语化', '偏正式').replace('过于书面化', '过于口语化')
+        patterns = (
+            ("informal", "偏日常随意", "拘谨"),
+            ("\bformal\b", "偏正式", "随意"),
+            ("ironic", "带讽刺", "太礼貌"),
+            ("literary", "文学作品", "较日常"),
+            ("old-fashioned", "较老派过时", "较现代"),
+            ("old use", "较老派过时", "较现代"),
+            ("disapproving", "表达反对", "中立或赞同"),
+            ("humorous", "风趣幽默", "较书面刻板"),
+            ("slang", "俚语", "较书面化"),
+            ("offensive", "带冒犯", "较礼貌或中立"),
+            ("approving", "鼓励赞同", "中立或反对")
+        )
+        if labels := entry.get("labels", None):
+            a = []
+            b = []
+            delimiter = '、'
+            for p, ta, tb in patterns:
+                if re.search(p, labels):
+                    a.append(ta)
+                    b.append(tb)
 
+            if len(a) > 1 and 'or' in labels:
+                delimiter = '或是'
+
+            self.current_instruction = self.system_instruction.replace('偏口语化', delimiter.join(a)).replace(
+                '过于书面化',
+                delimiter.join(b)
+            )
 
     def _validate(self, results, entry):
         super()._validate(results, entry)
@@ -172,7 +197,7 @@ class Senser(Base):
     def preprocess_entries(self, entries):
         assert isinstance(entries, list)
         assert len(entries) == 1
-        return entries[0]
+        return format_entry_usage(entries[0])
 
     def construct_question(self, entry):
         return f'''
@@ -226,3 +251,12 @@ def format_hint_value(entry, key, allow_empty=True):
         return 'None'
 
     return f'"{val}"'
+
+
+def format_entry_usage(entry):
+    usage = entry.get("usage", None)
+    word = entry.get("word", None)
+
+    if usage and (usage.startswith("+") or usage.startswith("(+")):
+        entry["usage"] = word + usage
+    return entry

@@ -66,3 +66,21 @@ usage: None
 sense: "never happening or existing"
 context: None
 
+keyword: "drive"
+word class: "verb"
+usage: "drive sb/sth + adv./prep."
+sense: "to force somebody/something to move in a particular direction"
+context: None
+
+
+keyword: "he"
+word class: "noun"
+usage: "he-"
+sense: "a male animal"
+context: None
+
+keyword: "by the way"
+word class: "noun"
+usage: None
+sense: "used to introduce a comment or question that is not directly related to what you have been talking about"
+context: "(informal)"

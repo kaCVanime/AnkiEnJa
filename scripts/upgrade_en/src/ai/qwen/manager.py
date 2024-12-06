@@ -1,11 +1,6 @@
-from pathlib import Path
 from loguru import logger
-from queue import Queue
 from threading import Lock, Thread
-from tqdm.contrib.concurrent import thread_map
-from itertools import tee, chain
-from tqdm import tqdm
-import random
+
 import json
 from functools import reduce
 
@@ -26,24 +21,14 @@ class QwenManager:
 
         self.blacklist = []
 
-        self.rate_tasker = RateTasker(self)
-        self.rate_thread = Thread(target=self.rate_tasker.run, daemon=True)
-
-        self.classify_tasker = ClassifyTasker(self)
-        self.classify_thread = Thread(target=self.classify_tasker.run, daemon=True)
-
         self.translate_tasker = TranslateTasker(self)
         self.translate_thread = Thread(target=self.translate_tasker.run, daemon=True)
 
         self.sense_tasker = SenseTasker(self)
         self.sense_thread = Thread(target=self.sense_tasker.run, daemon=True)
 
-
-        self.synonym_sense_tasker = SynonymSenseTasker(self)
-        self.synonym_sense_thread = Thread(target=self.synonym_sense_tasker.run, daemon=True)
-
-        self.taskers = [self.rate_tasker, self.classify_tasker, self.translate_tasker, self.sense_tasker, self.synonym_sense_tasker]
-        self.threads = [self.rate_thread, self.classify_thread, self.translate_thread, self.sense_thread, self.synonym_sense_thread]
+        self.taskers = [self.translate_tasker, self.sense_tasker]
+        self.threads = [self.translate_thread, self.sense_thread]
 
         self._parent = parent
 
@@ -58,17 +43,17 @@ class QwenManager:
 
 
     def _update_db(self, tasker_type, result):
-        if tasker_type == ClassifyTasker:
-            result_recorder.update_def_topic(result["id"], result["topic"])
-        elif tasker_type == RateTasker:
-            result_recorder.update_def_rate(result["id"], result["score"], result["reason"])
-        elif tasker_type == TranslateTasker or tasker_type == SenseTasker:
+        # if tasker_type == ClassifyTasker:
+        #     result_recorder.update_def_topic(result["id"], result["topic"])
+        # if tasker_type == RateTasker:
+        #     result_recorder.update_def_rate(result["id"], result["score"], result["reason"])
+        if tasker_type == TranslateTasker or tasker_type == SenseTasker:
             result_recorder.update_def_examples(result["id"], json.dumps(result["examples"], ensure_ascii=False))
-        elif tasker_type == SynonymSenseTasker:
-            if result.get("dict_type", "") == 'Synonyms':
-                result_recorder.update_synonyms_defs(result["id"], result["defs"])
-            else:
-                result_recorder.update_whichword_defs(result["id"], result["defs"])
+        # elif tasker_type == SynonymSenseTasker:
+        #     if result.get("dict_type", "") == 'Synonyms':
+        #         result_recorder.update_synonyms_defs(result["id"], result["defs"])
+        #     else:
+        #         result_recorder.update_whichword_defs(result["id"], result["defs"])
 
         with logger.contextualize(
                 **{
@@ -135,16 +120,6 @@ class QwenManager:
         return handlers
 
 
-
-class ClassifyTasker(BaseTasker):
-    def __init__(self, parent):
-        super().__init__(parent, Classifier())
-
-
-class RateTasker(BaseTasker):
-    def __init__(self, parent):
-        super().__init__(parent, Rater())
-
 class TranslateTasker(BaseTasker):
     capacity = 4
     def __init__(self, parent):
@@ -157,7 +132,3 @@ class SenseTasker(BaseTasker):
         super().__init__(parent, Senser())
 
 
-class SynonymSenseTasker(BaseTasker):
-    capacity = 1
-    def __init__(self, parent):
-        super().__init__(parent, SynonymSensor())

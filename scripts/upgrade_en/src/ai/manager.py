@@ -8,7 +8,7 @@ from functools import reduce
 
 from ..utils import Recorder
 
-from .qwen.QwenManager import QwenManager
+from .qwen.manager import QwenManager
 
 
 result_recorder = Recorder()

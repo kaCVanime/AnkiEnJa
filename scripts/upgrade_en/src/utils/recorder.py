@@ -591,4 +591,14 @@ class SQLResultIterator:
         return self._parse(row)
 
     def _parse(self, row):
-        return {k: row[idx] for idx, k in enumerate(self.fields)}
+        return {k: validate_row_value(k, row[idx]) for idx, k in enumerate(self.fields)}
+
+
+def validate_row_value(key, val):
+    # filter variants like
+    # (North American English usually美式英语通常作美式英語通常作 oatmeal)
+    # (abbreviation BTW)
+    # (often Satanic)
+    if key == 'variants' and val and val.startswith('('):
+        return ''
+    return val

@@ -66,7 +66,7 @@ def main():
 if __name__ == '__main__':
     main()
 
-    ai_manager = AIManager()
-    ai_manager.run()
+    # ai_manager = AIManager()
+    # ai_manager.run()
 
     pass
