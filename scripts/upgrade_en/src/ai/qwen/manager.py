@@ -94,34 +94,34 @@ class QwenManager:
     def get_handlers(self, entry):
         handlers = []
 
-        if (dict_type := entry.get("dict_type", "")) == 'Synonyms' or dict_type == 'Whichwords':
-            pass
-            if dict_type == 'Synonyms':
-                processed = all([len(t["examples"]) >= 3 for t in entry["defs"]])
-            else:
-                processed = all([not isinstance(t, list) for t in entry["defs"]])
+        # if (dict_type := entry.get("dict_type", "")) == 'Synonyms' or dict_type == 'Whichwords':
+        #     pass
+        #     if dict_type == 'Synonyms':
+        #         processed = all([len(t["examples"]) >= 3 for t in entry["defs"]])
+        #     else:
+        #         processed = all([not isinstance(t, list) for t in entry["defs"]])
+        #
+        #     if not processed:
+        #         handlers.append(lambda e: self._handle_job(self.synonym_sense_tasker, e, priority=10))
+        #     return handlers
 
-            if not processed:
-                handlers.append(lambda e: self._handle_job(self.synonym_sense_tasker, e, priority=10))
-            return handlers
+        # if not entry["topic"]:
+        #     handlers.append(lambda e: self._handle_job(self.classify_tasker, e, priority=1))
+        #
+        # if not entry["reason"] and not entry["score"]:
+        #     handlers.append(lambda e: self._handle_job(self.rate_tasker, e, priority=5))
 
-        if not entry["topic"]:
-            handlers.append(lambda e: self._handle_job(self.classify_tasker, e, priority=1))
+        # if any([(eg.get("ai", False) and eg.get("tld", False)) for eg in entry["examples"]]):
+        #     handlers.append(lambda e: self._handle_job(self.translate_tasker, e, priority=10))
 
-        if not entry["reason"] and not entry["score"]:
-            handlers.append(lambda e: self._handle_job(self.rate_tasker, e, priority=5))
-
-        if any([eg["ai"] for eg in entry["examples"] if not eg.get("en_ai", False)]):
-            handlers.append(lambda e: self._handle_job(self.translate_tasker, e, priority=10))
-
-        if len(entry['examples']) < 3:
+        if len(entry['examples']) <= 3:
             handlers.append(lambda e: self._handle_job(self.sense_tasker, e, priority=100))
 
         return handlers
 
 
 class TranslateTasker(BaseTasker):
-    capacity = 4
+    capacity = 1
     def __init__(self, parent):
         super().__init__(parent, Translator())
 

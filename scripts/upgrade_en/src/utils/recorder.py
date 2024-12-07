@@ -35,7 +35,7 @@ class Recorder:
     common_def_fields = ['id', 'cefr', 'labels', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score',
                          'reason']
 
-    common_todo_def_fields = ['id', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score', 'reason']
+    common_todo_def_fields = ['id', 'labels', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score', 'reason']
 
     _instance = None
     connection = None
@@ -469,7 +469,7 @@ class Recorder:
 
     def get_todo_words(self):
         sql = f'''
-            SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, d.usage 
+            SELECT d.id, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, words.pos, words.labels AS e_labels, d.usage 
             FROM (
                 SELECT * from defs
                 {label_filter}
@@ -492,11 +492,11 @@ class Recorder:
         '''
         cursor = self.connection.execute(sql)
 
-        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'word', 'usage']))
+        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'word', 'pos', 'e_labels', 'usage']))
 
     def get_todo_idioms(self):
         sql = f'''
-            SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, 
+            SELECT d.id, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, 
             CASE
                 WHEN d.usage='' THEN idioms.usage
                 WHEN d.usage!='' THEN d.usage
@@ -523,7 +523,7 @@ class Recorder:
 
     def get_todo_phrvs(self):
         sql = f'''
-            SELECT d.id, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason,
+            SELECT d.id, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos, phrvs.labels as e_labels
             CASE
                 WHEN d.usage='' THEN phrvs.usage
                 WHEN d.usage!='' THEN d.usage
@@ -550,7 +550,7 @@ class Recorder:
         '''
         cursor = self.connection.execute(sql)
 
-        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'usage']))
+        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'pos', 'e_labels', 'usage']))
 
     def test_sql(self, sql):
         cursor = self.connection.execute(sql)
@@ -591,14 +591,6 @@ class SQLResultIterator:
         return self._parse(row)
 
     def _parse(self, row):
-        return {k: validate_row_value(k, row[idx]) for idx, k in enumerate(self.fields)}
+        return {k: row[idx] for idx, k in enumerate(self.fields)}
 
 
-def validate_row_value(key, val):
-    # filter variants like
-    # (North American English usually美式英语通常作美式英語通常作 oatmeal)
-    # (abbreviation BTW)
-    # (often Satanic)
-    if key == 'variants' and val and val.startswith('('):
-        return ''
-    return val

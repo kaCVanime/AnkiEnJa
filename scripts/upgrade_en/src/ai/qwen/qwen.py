@@ -76,7 +76,31 @@ class Base(ABC):
     def adjust_instruction(self, entries):
         pass
 
-    @retry(max_retries=4, delay=3, stop_errors=[AssertionError])
+    def _get_keyword(self, entry):
+        return entry.get("word")
+
+    def _get_word_class(self, entry):
+        return entry.get("pos")
+
+    def _get_usage(self, entry):
+        return entry.get("usage")
+
+    def _get_sense(self, entry):
+        return entry.get("definition")
+
+    def _get_context(self, entry):
+        return entry.get("labels", "") + entry.get("topic", "")
+
+    def _format_hint_value(self, entry, key, allow_empty=True, value=None):
+        if not allow_empty:
+            assert bool(value), f'Error {entry.get("id")} has empty {key}'
+
+        if not value:
+            return 'None'
+
+        return f'"{value}"'
+
+    @retry(max_retries=4, delay=3)
     def _query_retry(self, entries):
         logger.debug('{} querying qwen', type(self).__name__)
         entries = self.preprocess_entries(entries)
@@ -123,7 +147,7 @@ class Translator(Base):
     def preprocess_entries(self, entries):
         assert isinstance(entries, list)
         assert len(entries) == 1
-        return format_entry_usage(entries[0])
+        return format_entry(entries[0])
 
     def adjust_instruction(self, entry):
         patterns = (
@@ -134,12 +158,12 @@ class Translator(Base):
             ("old-fashioned", "较老派过时", "较现代"),
             ("old use", "较老派过时", "较现代"),
             ("disapproving", "表达反对", "中立或赞同"),
-            ("humorous", "风趣幽默", "较书面刻板"),
+            ("humorous", "风趣幽默", "较刻板"),
             ("slang", "俚语", "较书面化"),
-            ("offensive", "带冒犯", "较礼貌或中立"),
-            ("approving", "鼓励赞同", "中立或反对")
+            ("offensive", "带冒犯", "较礼貌"),
+            ("approving", "鼓励赞同", "反对")
         )
-        if labels := entry.get("labels", None):
+        if labels := entry.get("labels"):
             a = []
             b = []
             delimiter = '、'
@@ -168,8 +192,8 @@ class Translator(Base):
 
     def construct_question(self, entry):
         header = f'''
-            关键词: {format_hint_value(entry, 'word', False)}
-            关键词释义: {format_hint_value(entry, 'definition', False)}
+            关键词: {self._format_hint_value(entry, 'word', False, value=self._get_keyword(entry))}
+            关键词释义: {self._format_hint_value(entry, 'definition', False, value=self._get_sense(entry))}
             需要翻译的句子
             
         '''
@@ -179,9 +203,14 @@ class Translator(Base):
 
     def preprocess_result(self, results, entry):
         entry = deepcopy(entry)
+
         ai_egs = list(filter(lambda eg: eg.get("ai", False), entry["examples"]))
-        for idx, eg in enumerate(entry["examples"]):
-            ai_egs[idx]["cn"] = eg
+
+        for idx, eg in enumerate(ai_egs):
+            eg["cn"] = results[idx]
+            # mark as processed
+            eg["tld"] = True
+
 
         return [
             {
@@ -197,15 +226,15 @@ class Senser(Base):
     def preprocess_entries(self, entries):
         assert isinstance(entries, list)
         assert len(entries) == 1
-        return format_entry_usage(entries[0])
+        return format_entry(entries[0])
 
     def construct_question(self, entry):
         return f'''
-            keyword: {format_hint_value(entry, 'word', False)}
-            usage: {format_hint_value(entry, 'usage', True)}
-            word class: {format_hint_value(entry, 'pos', True)}
-            sense: {format_hint_value(entry, 'definition', False)}
-            context: {format_hint_value(entry, 'context', True)}
+            keyword: {self._format_hint_value(entry, 'word', False, value=self._get_keyword(entry))}
+            usage: {self._format_hint_value(entry, 'usage', True, value=self._get_usage(entry))}
+            word class: {self._format_hint_value(entry, 'pos', True, value=self._get_word_class(entry))}
+            sense: {self._format_hint_value(entry, 'definition', False, value=self._get_sense(entry))}
+            context: {self._format_hint_value(entry, 'context', True, value=self._get_context(entry))}
         '''
 
     def _validate(self, results, entries):
@@ -230,7 +259,6 @@ class Senser(Base):
                     "cn": "",
                     "name": f'{entry["id"]}_{start + idx}',
                     "ai": True,
-                    "en_ai": True
                 }
             )
 
@@ -242,21 +270,64 @@ class Senser(Base):
         ]
 
 
-def format_hint_value(entry, key, allow_empty=True):
-    val = entry.get(key, None)
-    if not allow_empty:
-        assert val is not None, f'Error {entry.get("id")} has empty {key}'
+def format_entry(entry):
+    is_normal_word = "word" in entry
 
-    if val is None:
-        return 'None'
+    entry["labels"] = format_labels(entry)
+    entry["variants"] = format_variants(entry)
+    entry["topic"] = format_topic(entry)
 
-    return f'"{val}"'
+    if is_normal_word:
+        entry["word"] = entry.get("variants") or entry.get("word")
+        entry["usage"] = format_usage(entry)
+    else:
+        # idioms or phrvs
+        entry["word"] = entry.get("usage")
+        entry["usage"] = None
+
+    return entry
 
 
-def format_entry_usage(entry):
-    usage = entry.get("usage", None)
-    word = entry.get("word", None)
+def format_usage(entry):
+    # "+ adv./prep" -> "<word> + adv./prep"
+    usage = entry.get("usage")
+    word = entry.get("word")
 
     if usage and (usage.startswith("+") or usage.startswith("(+")):
-        entry["usage"] = word + usage
-    return entry
+        usage = word + ' ' + usage
+    return usage
+
+
+def format_labels(entry):
+    # deduplicate
+    entry_labels = entry.get("e_labels", "")
+    def_labels = entry.get("labels", "")
+    if entry_labels and def_labels:
+        e_label = re.findall(r'\((.+?)\)', entry_labels)[0]
+        d_label = re.findall(r'\((.+?)\)', def_labels)[0]
+        if e_label in d_label:
+            return f'({e_label})'
+        elif d_label in e_label:
+            return f'({d_label})'
+        else:
+            return entry_labels + def_labels
+
+    return entry_labels or def_labels
+
+
+def format_variants(entry):
+    # filter variants like
+    # (North American English usually美式英语通常作美式英語通常作 oatmeal)
+    # (abbreviation BTW)
+    # (often Satanic)
+
+    v = entry.get("variants", "")
+    if v.startswith('('):
+        return ''
+    return v
+
+
+def format_topic(entry):
+    topics = entry.get("topic", "").split("=_=")
+    s = ";".join(topics)
+    return f'({s})'
