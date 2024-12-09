@@ -108,7 +108,7 @@ class Base(ABC):
         resp = self._query(entries)
         logger.debug('{}: Response received. {}', type(self).__name__, resp)
         result = preprocess_response(resp)
-        self._validate(result, entries)
+        self.validate(result, entries)
         result = self.preprocess_result(result, entries)
         return None, result
 
@@ -128,7 +128,7 @@ class Base(ABC):
         return query_qwen(self.current_instruction, question)
 
     @abstractmethod
-    def _validate(self, result, entries):
+    def validate(self, result, entries):
         assert isinstance(result, list), "ai response is not a valid list"
 
         return True
@@ -180,8 +180,8 @@ class Translator(Base):
                 delimiter.join(b)
             )
 
-    def _validate(self, results, entry):
-        super()._validate(results, entry)
+    def validate(self, results, entry):
+        super().validate(results, entry)
 
         assert len(results) == len(
             [x["en"] for x in entry["examples"] if x.get("ai", False)]
@@ -237,8 +237,8 @@ class Senser(Base):
             context: {self._format_hint_value(entry, 'context', True, value=self._get_context(entry))}
         '''
 
-    def _validate(self, results, entries):
-        super()._validate(results, entries)
+    def validate(self, results, entries):
+        super().validate(results, entries)
 
         assert len(results) >= 7, 'not making enough examples'
 
