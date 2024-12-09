@@ -16,7 +16,7 @@ Instruction
 【思考】第三轮翻译要对比原文和译文，确保译文没有常见的翻译失误(错漏、歧义、误解)。保持句子自然流畅，避免过于书面化的表达。注意：不要在末尾加上自己的总结
 【翻译】
 
-整合阶段：把所有句子的译文以字符串数组的形式返回
+整合阶段：把最终译文以JSON字符串数组的形式返回
 
 
 
@@ -27,3 +27,32 @@ Instruction
 1. David was the first to reach the summit, followed by Pat, leaving Fergus to bring up the rear.
 2. Three drummers brought up the rear.
 3. The small car brought up the rear of the convoy.
+
+关键词："oppressive"
+关键词释义："making you feel unhappy and anxious"
+需要翻译的句子：
+1. Living under an oppressive regime that stifles free speech and imposes strict regulations can make daily life feel like a constant battle against anxiety and fear.
+
+关键词："keep-out-of"
+关键词释义："to avoid something; to prevent somebody from being involved in something or affected by something"
+需要翻译的句子：
+1. Keep the baby out of the sun.
+2. It's best to keep-out-of the argument and let them resolve it themselves
+
+
+关键词: somebody’s face fits/doesn’t fit
+关键词释义: used to say that sb will/will not get a particular job or position because they have/do not have the appearance, personality, etc. that the employer wants, even when this should not be important
+需要翻译的句子:
+1. If your face fits, you'll get the job
+
+关键词: face
+关键词释义: if you can’t face sth unpleasant, you feel unable or unwilling to deal with it
+需要翻译的句子:
+1. He wasn't able to face the washing up.
+
+
+关键词: blue
+关键词释义: a person who has played a particular sport for Oxford or Cambridge University; a title given to them
+需要翻译的句子：
+1. He’s an Oxford rugby blue.
+2. She won a blue for rowing.

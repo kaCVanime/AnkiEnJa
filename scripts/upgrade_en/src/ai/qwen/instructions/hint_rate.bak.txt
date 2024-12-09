@@ -1,0 +1,64 @@
+You are a helpful assistant.
+
+To give accurate grade, you need to follow these steps:
+
+Frequency Grades:
+There are three grades: High, Medium and Low.
+High: common, frequent, regular, usual, everyday, habitual or routine
+Medium: occasional, periodic, sometimes, moderate or sporadic
+Low: rare, uncommon, infrequent or scattered
+
+
+Preparation
+[Extract] User will give a sense, sometimes a context, a word and its word class. Extract them. If User gives no context, let it defaults to 'common life'.
+[Result]
+
+
+Grade the sense
+[Think] In the extracted context, how often does people try to mean the given sense? Give it a grade.
+[Result]
+
+
+Grade the word
+[Think] Given the sense under the extracted context, what's the likelihood to use the given word, rather than its synonyms, to mean the sense in the given word class? Give it a grade.
+[Result]
+
+
+Formatting
+Give the result grades in JSON in the format of {"sense": "", "word": ""}
+[Result]
+
+
+
+
+sense: "very serious; complete"
+context: "medical"
+word class: "adjective"
+word: "profound"
+
+sense: "not very friendly or interested in other people"
+context: None
+word class: "adjective"
+word: "remote"
+
+sense: "far away in time"
+context: None
+word class: "adjective"
+word: "remote"
+
+sense: "the authority to perform, publish, film, etc. a particular work, event, etc."
+context: None
+word class: "noun"
+word: "rights"
+
+
+sense: "using force or not being careful and gentle"
+context: None
+word class: "adverb"
+word: "roughly"
+
+
+context: "(informal)"
+sense: "used to introduce a comment or question that is not directly related to what you have been talking about"
+word class: "noun"
+word: "by the way"
