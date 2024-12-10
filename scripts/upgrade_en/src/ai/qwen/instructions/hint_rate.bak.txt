@@ -1,3 +1,6 @@
+top_p: 0.3
+temperature: 0.2
+
 You are a helpful assistant.
 
 To give accurate grade, you need to follow these steps:
@@ -62,3 +65,40 @@ context: "(informal)"
 sense: "used to introduce a comment or question that is not directly related to what you have been talking about"
 word class: "noun"
 word: "by the way"
+
+
+context: None
+sense: "if sb is under a cloud, other people think that they have done sth wrong and do not trust them"
+word class: None
+word: "under a cloud"
+
+
+context: None
+sense: "the kind of mind that somebody has that makes them think or behave in a particular way"
+word class: "noun"
+word: "psychology"
+
+context: None
+sense: "the place at a port, an airport, etc. where the passports and other documents of people coming into a country are checked"
+word class: "noun"
+word: "immigration"
+
+context: None
+sense: "to eat more than you need or more than is healthy"
+word class: "verb"
+word: "overeat"
+
+context: None
+sense: "a legal document from a court telling somebody to do or not to do something"
+word class: "noun"
+word: "writ"
+
+context: "(medical)"
+sense: "a piece of solid waste from your body"
+word class: "noun"
+word: "stool"
+
+context: None
+sense: "polite, especially in a way that shows respect"
+word class: "adjective"
+word: "courteous"

@@ -38,26 +38,23 @@ def query_qwen(instruction, message):
 
 
 def preprocess_response(text):
-    """
-        Extracts a JSON string from a passage. The JSON string is assumed to
-        appear at the end of the passage.
+    json_objects = []
+    json_pattern = r'(\{.*?\}|\[.*?\])'
 
-        Parameters:
-            text (str): The input text containing the JSON string.
+    potential_jsons = re.findall(json_pattern, text, re.DOTALL)
 
-        Returns:
-            dict or list: The parsed JSON object if valid, None otherwise.
-        """
-    try:
-        # Find potential JSON strings (starts with { or [ and ends with } or ])
-        match = re.search(r'\{.*\}|\[.*\]', text, re.DOTALL)
-        if match:
-            json_string = match.group(0)
-            # Attempt to parse the JSON string
-            return json.loads(json_string)
-    except json.JSONDecodeError:
-        pass
-    return None
+    for potential_json in potential_jsons:
+        try:
+            parsed_json = json.loads(potential_json)
+            json_objects.append(parsed_json)
+        except json.JSONDecodeError:
+            pass
+
+    if not json_objects:
+        return None
+
+    return json_objects[len(json_objects) - 1]
+
 
 
 class Base(ABC):
@@ -268,6 +265,31 @@ class Senser(Base):
                 "examples": examples
             }
         ]
+
+class Rater(Base):
+    hint_path = instruction_path / 'rate.txt'
+
+    def preprocess_entries(self, entries):
+        assert isinstance(entries, list)
+        assert len(entries) == 1
+        return format_entry(entries[0])
+
+    def construct_question(self, entry):
+        return f'''
+            context: {self._format_hint_value(entry, 'context', True, value=self._get_context(entry))}
+            sense: {self._format_hint_value(entry, 'definition', False, value=self._get_sense(entry))}
+            word class: {self._format_hint_value(entry, 'pos', True, value=self._get_word_class(entry))}
+            word: {self._format_hint_value(entry, 'word', False, value=self._get_keyword(entry))}
+        '''
+
+    def validate(self, results, entries):
+
+        assert type(results) is dict, 'result is not a valid dict'
+
+        assert "sense" in results and "word" in results, 'missing key in result'
+
+        options = ["HIGH", "MEDIUM", "LOW"]
+        assert results["sense"].upper() in options and results["word"].upper() in options, "invalid value"
 
 
 def format_entry(entry):
