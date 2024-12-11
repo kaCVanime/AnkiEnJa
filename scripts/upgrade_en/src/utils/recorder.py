@@ -31,15 +31,13 @@ label_filter = '''
         )
 '''
 
-class Recorder:
-    common_def_fields = ['id', 'cefr', 'labels', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score',
-                         'reason']
 
-    common_todo_def_fields = ['id', 'labels', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'score', 'reason']
+class Recorder:
+    common_def_fields = ['id', 'cefr', 'labels', 'definition', 'def_cn', 'examples', 'variants', 'topic', 'f_sense',
+                         'f_word']
 
     _instance = None
     connection = None
-
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -115,7 +113,7 @@ class Recorder:
                 '''
                 CREATE TABLE defs
                 (
-                    id TEXT not null unique,
+                    id TEXT not null,
                     entry_id INTEGER,
                     cefr TEXT,
                     usage TEXT,
@@ -125,8 +123,8 @@ class Recorder:
                     examples TEXT,
                     variants TEXT,
                     topic TEXT,
-                    score INTEGER,
-                    reason TEXT,
+                    f_sense TEXT,
+                    f_word TEXT,
                     FOREIGN KEY(entry_id) REFERENCES entries(id) ON DELETE CASCADE 
                 )
             '''
@@ -179,7 +177,7 @@ class Recorder:
             cur.execute(sql, (word,))
 
     def _add_entry(self, cursor, word):
-        sql='''
+        sql = '''
           INSERT INTO entries(word)
           VALUES(?)
         '''
@@ -212,7 +210,7 @@ class Recorder:
 
     def _save_word(self, cursor, item):
         entry_id = self._add_entry(cursor, item['word'])
-        sql ='''
+        sql = '''
             INSERT INTO words
             VALUES(?,?,?,?,?,?,?)
         '''
@@ -228,8 +226,6 @@ class Recorder:
         cursor.execute(sql, value)
 
         self._save_defs(cursor, entry_id, item["defs"])
-
-
 
     def _save_idiom(self, cursor, entry_id, item):
         sql = '''
@@ -252,7 +248,7 @@ class Recorder:
 
     def _save_phrv(self, cursor, word, item):
         entry_id = self._add_entry(cursor, word)
-        sql ='''
+        sql = '''
             INSERT INTO phrvs
             VALUES(?,?,?,?)
         '''
@@ -272,6 +268,7 @@ class Recorder:
         for entries in phrvs:
             for entry in entries:
                 self._save_phrv(cursor, word, entry)
+
     @logger.catch
     def _save_synonym_or_whichword(self, cursor, table, item):
         sql = f'''
@@ -332,22 +329,24 @@ class Recorder:
 
     def get_words(self):
         sql = '''
-            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, words.phonetics, words.pos, words.labels AS e_labels, d.usage
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.f_sense, d.f_word, words.word, words.phonetics, words.pos, words.labels AS e_labels, d.usage
             FROM defs AS d
                 INNER JOIN entries
                 ON d.entry_id = entries.id
                 INNER JOIN words
                 ON words.entry_id = entries.id
-            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND (d.score is NOT NULL OR d.reason is NOT NULL)
+            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND (d.f_sense is NOT NULL OR d.f_word is NOT NULL)
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)
 
-        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'word', 'phonetics', 'pos', 'e_labels', 'usage']))
+        return iter(
+            SQLResultIterator(cursor, [*self.common_def_fields, 'word', 'phonetics', 'pos', 'e_labels', 'usage'])
+        )
 
     def get_idioms(self):
         sql = '''
-            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason,
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.f_sense, d.f_word,
             CASE
                 WHEN d.usage='' THEN idioms.usage
                 WHEN d.usage!='' THEN d.usage
@@ -365,7 +364,7 @@ class Recorder:
 
     def get_phrvs(self):
         sql = '''
-            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos, phrvs.labels as e_labels,
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.f_sense, d.f_word, phrvs.pos, phrvs.labels as e_labels,
             CASE
                 WHEN d.usage='' THEN phrvs.usage
                 WHEN d.usage!='' THEN d.usage
@@ -375,7 +374,7 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN phrvs
                 ON phrvs.entry_id = entries.id
-            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND (d.score is NOT NULL OR d.reason is NOT NULL)
+            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND (d.f_sense is NOT NULL OR d.f_word is NOT NULL)
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)
@@ -393,7 +392,6 @@ class Recorder:
         cursor = self.connection.execute(sql)
         return iter(SQLResultIterator(cursor, ['id', 'overview', 'overview_cn', 'defs', 'words']))
 
-
     def get_whichwords(self):
         sql = '''
             SELECT *
@@ -410,7 +408,10 @@ class Recorder:
             conn = self.connection
 
             try:
-                cursor = conn.execute(sql, vals) if not many else conn.executemany(sql, vals)
+                if vals:
+                    cursor = conn.execute(sql, vals) if not many else conn.executemany(sql, vals)
+                else:
+                    cursor = conn.execute(sql)
                 conn.commit()
                 return cursor
             except Exception as e:
@@ -426,7 +427,6 @@ class Recorder:
         '''
         self._transact(sql, (val, def_id))
 
-
     def update_def_topic(self, def_id, topics):
         self._update_def(def_id, 'topic', topics)
 
@@ -436,13 +436,13 @@ class Recorder:
     def update_def_cn(self, def_id, def_cn):
         self._update_def(def_id, 'def_cn', def_cn)
 
-    def update_def_rate(self, def_id, score, reason):
+    def update_def_rate(self, def_id, f_sense, f_word):
         sql = f'''
             UPDATE defs
-            SET score=?, reason=?
+            SET f_sense=?, f_word=?
             WHERE id=?
         '''
-        self._transact(sql, (score, reason, def_id))
+        self._transact(sql, (f_sense, f_word, def_id))
 
     def update_synonyms_defs(self, synonym_id, defs):
         sql = f'''
@@ -469,7 +469,7 @@ class Recorder:
 
     def get_todo_words(self):
         sql = f'''
-            SELECT d.id, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, words.word, words.pos, words.labels AS e_labels, d.usage 
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.f_sense, d.f_word, words.word, words.pos, words.labels AS e_labels, d.usage 
             FROM (
                 SELECT * from defs
                 {label_filter}
@@ -481,22 +481,22 @@ class Recorder:
                 {label_filter}
             ) as words
             ON words.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.score is NULL AND d.reason is NULL)
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.f_sense is NULL AND d.f_word is NULL)
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
                 CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.topic='' THEN 1 ELSE 0 END +
-                CASE WHEN d.score IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.reason IS NULL THEN 1 ELSE 0 END
+                CASE WHEN d.f_sense IS NULL THEN 1 ELSE 0 END +
+                CASE WHEN d.f_word IS NULL THEN 1 ELSE 0 END
             ) ASC, RANDOM();
         '''
         cursor = self.connection.execute(sql)
 
-        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'word', 'pos', 'e_labels', 'usage']))
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'word', 'pos', 'e_labels', 'usage']))
 
     def get_todo_idioms(self):
         sql = f'''
-            SELECT d.id, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, 
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.f_sense, d.f_word, 
             CASE
                 WHEN d.usage='' THEN idioms.usage
                 WHEN d.usage!='' THEN d.usage
@@ -509,21 +509,21 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
                 ON idioms.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.score is NULL AND d.reason is NULL)
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.f_sense is NULL AND d.f_word is NULL)
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
                 CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.topic='' THEN 1 ELSE 0 END +
-                CASE WHEN d.score IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.reason IS NULL THEN 1 ELSE 0 END
+                CASE WHEN d.f_sense IS NULL THEN 1 ELSE 0 END +
+                CASE WHEN d.f_word IS NULL THEN 1 ELSE 0 END
             ) ASC, RANDOM();
         '''
         cursor = self.connection.execute(sql)
-        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'usage']))
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'usage']))
 
     def get_todo_phrvs(self):
         sql = f'''
-            SELECT d.id, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.score, d.reason, phrvs.pos, phrvs.labels as e_labels
+            SELECT d.id, d.cefr, d.labels, d.definition, d.def_cn, d.examples, d.variants, d.topic, d.f_sense, d.f_word, phrvs.pos, phrvs.labels as e_labels,
             CASE
                 WHEN d.usage='' THEN phrvs.usage
                 WHEN d.usage!='' THEN d.usage
@@ -539,22 +539,35 @@ class Recorder:
                 {label_filter}
             ) as phrvs
             ON phrvs.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.score is NULL AND d.reason is NULL)
+            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.f_sense is NULL AND d.f_word is NULL)
             ORDER BY (
                 CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
                 CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
                 CASE WHEN d.topic='' THEN 1 ELSE 0 END +
-                CASE WHEN d.score IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.reason IS NULL THEN 1 ELSE 0 END
+                CASE WHEN d.f_sense IS NULL THEN 1 ELSE 0 END +
+                CASE WHEN d.f_word IS NULL THEN 1 ELSE 0 END
             ) ASC, RANDOM();
         '''
         cursor = self.connection.execute(sql)
 
-        return iter(SQLResultIterator(cursor, [*self.common_todo_def_fields, 'pos', 'e_labels', 'usage']))
+        return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'pos', 'e_labels', 'usage']))
 
     def test_sql(self, sql):
         cursor = self.connection.execute(sql)
         return cursor.fetchall()
+
+    def remove_duplicate_defs(self):
+        sql = '''
+            DELETE FROM defs
+            WHERE id NOT IN
+            (
+                SELECT Min(id) AS MinRecordID
+                FROM defs
+                GROUP BY definition
+            )
+        '''
+
+        self._transact(sql, None)
 
     def correct_usages(self, todos):
         updates = [(t["change"][1], t["id"]) for t in todos]
@@ -565,14 +578,6 @@ class Recorder:
         '''
         self._transact(sql, updates, many=True)
 
-    def clear_rate(self, todos):
-        updates = [(t["id"],) for t in todos]
-        sql = '''
-            UPDATE defs
-            SET score=NULL, reason=NULL
-            WHERE id=?
-        '''
-        self._transact(sql, updates, many=True)
 
 
 class SQLResultIterator:
@@ -592,5 +597,3 @@ class SQLResultIterator:
 
     def _parse(self, row):
         return {k: row[idx] for idx, k in enumerate(self.fields)}
-
-

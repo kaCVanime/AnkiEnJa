@@ -42,22 +42,44 @@ def normalize(s):
     return s.replace('·', '')
 
 def get_coca():
-    with open('src/assets/COCA_20000.txt', mode='r', encoding='utf-8') as f:
+    with open('src/assets/wordlist/COCA_20000.txt', mode='r', encoding='utf-8') as f:
         word_list = [r.strip() for r in f.readlines()]
     return word_list
 
+def get_others():
+    s = set()
+    files = ['4000essential', 'highschool', 'cet4', 'cet6', 'toefl', 'collins-2', 'collins-3', 'collins-4', 'collins-5', 'ielts8000', 'longman9k', 'macmillan7500', 'oxford5000']
+    for w in files:
+        with open(f'src/assets/wordlist/{w}.txt', mode='r', encoding='utf-8') as f:
+            word_list = [r.strip() for r in f.readlines()]
+        for word in word_list:
+            # filter phrvs
+            if ' ' not in word:
+                s.add(word)
+    return list(s)
+
+def get_wordlist():
+    s = set()
+    coca = get_coca()
+    others = get_others()
+    for w in [*coca, *others]:
+        s.add(w)
+
+    return list(s)
+
 
 def get_todos(word_list):
-    b1 = ['republican', 'follow-up', 'em', 'start-up', 'trade-off', 'cut-off', 'close-up', 'warm-up', 'cover-up', 'stand-up', 'run-down', 'drop-off', 'run-up', 'Labour', 'break-in', 'sit-up', 'carry-on', 'stand-in', 'run-in', 'shake-up', 'blow-up', 'layoff']
-    b2 = ['tear', 'Bible', 'OK', 'makeup', 'Olympics', 'setup', 'cleanup', 'lineup', 'northwestern', 'fund-raiser', 'Freeman', 'runoff', 'payoff', 'breakup', 'best-seller', 'kinda', 'Pentagon', 'wake-up', 'kickoff', 'take-out', 'time-out', 'goddamned', 'roundup', 'side-by-side', 'telecom', 'hangout', 'reverend', 'holdout', 'e-mailed', 'on-the-job']
-    blacklist=[*b1, *b2]
+    # b1 = ['republican', 'follow-up', 'em', 'start-up', 'trade-off', 'cut-off', 'close-up', 'warm-up', 'cover-up', 'stand-up', 'run-down', 'drop-off', 'run-up', 'Labour', 'break-in', 'sit-up', 'carry-on', 'stand-in', 'run-in', 'shake-up', 'blow-up', 'layoff']
+    # b2 = ['tear', 'Bible', 'OK', 'makeup', 'Olympics', 'setup', 'cleanup', 'lineup', 'northwestern', 'fund-raiser', 'Freeman', 'runoff', 'payoff', 'breakup', 'best-seller', 'kinda', 'Pentagon', 'wake-up', 'kickoff', 'take-out', 'time-out', 'goddamned', 'roundup', 'side-by-side', 'telecom', 'hangout', 'reverend', 'holdout', 'e-mailed', 'on-the-job']
+    # blacklist=[*b1, *b2]
+    blacklist = []
     completed = [normalize(k) for k in results_recorder.get_keys()]
     todo = [w for w in word_list if w not in completed and w not in blacklist]
     return todo
 
 @logger.catch
 def main():
-    word_list = get_coca()
+    word_list = get_wordlist()
     def f(todo):
         return lookup(todo, word_list, save=True)
 
@@ -66,7 +88,9 @@ def main():
 if __name__ == '__main__':
     main()
 
+    results_recorder.remove_duplicate_defs()
+
     # ai_manager = AIManager()
     # ai_manager.run()
-
+    # wl = get_wordlist()
     pass

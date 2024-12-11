@@ -1,6 +1,8 @@
 import json
 import re
 import requests
+import textwrap
+
 from abc import ABC, abstractmethod
 from pathlib import Path
 from copy import copy, deepcopy
@@ -54,7 +56,6 @@ def preprocess_response(text):
         return None
 
     return json_objects[len(json_objects) - 1]
-
 
 
 class Base(ABC):
@@ -192,11 +193,10 @@ class Translator(Base):
             关键词: {self._format_hint_value(entry, 'word', False, value=self._get_keyword(entry))}
             关键词释义: {self._format_hint_value(entry, 'definition', False, value=self._get_sense(entry))}
             需要翻译的句子
-            
         '''
         s = [f'{idx + 1}. {x["en"]}' for idx, x in entry["examples"] if x.get("ai", False)]
 
-        return header + '\n'.join(s)
+        return textwrap.dedent(header + '\n'.join(s))
 
     def preprocess_result(self, results, entry):
         entry = deepcopy(entry)
@@ -207,7 +207,6 @@ class Translator(Base):
             eg["cn"] = results[idx]
             # mark as processed
             eg["tld"] = True
-
 
         return [
             {
@@ -226,13 +225,15 @@ class Senser(Base):
         return format_entry(entries[0])
 
     def construct_question(self, entry):
-        return f'''
+        return textwrap.dedent(
+            f'''
             keyword: {self._format_hint_value(entry, 'word', False, value=self._get_keyword(entry))}
             usage: {self._format_hint_value(entry, 'usage', True, value=self._get_usage(entry))}
             word class: {self._format_hint_value(entry, 'pos', True, value=self._get_word_class(entry))}
             sense: {self._format_hint_value(entry, 'definition', False, value=self._get_sense(entry))}
             context: {self._format_hint_value(entry, 'context', True, value=self._get_context(entry))}
         '''
+        )
 
     def validate(self, results, entries):
         super().validate(results, entries)
@@ -266,6 +267,7 @@ class Senser(Base):
             }
         ]
 
+
 class Rater(Base):
     hint_path = instruction_path / 'rate.txt'
 
@@ -274,16 +276,20 @@ class Rater(Base):
         assert len(entries) == 1
         return format_entry(entries[0])
 
+    def preprocess_result(self, results, entry):
+        return results
+
     def construct_question(self, entry):
-        return f'''
+        return textwrap.dedent(
+            f'''
             context: {self._format_hint_value(entry, 'context', True, value=self._get_context(entry))}
             sense: {self._format_hint_value(entry, 'definition', False, value=self._get_sense(entry))}
             word class: {self._format_hint_value(entry, 'pos', True, value=self._get_word_class(entry))}
             word: {self._format_hint_value(entry, 'word', False, value=self._get_keyword(entry))}
         '''
+        )
 
     def validate(self, results, entries):
-
         assert type(results) is dict, 'result is not a valid dict'
 
         assert "sense" in results and "word" in results, 'missing key in result'
@@ -352,4 +358,6 @@ def format_variants(entry):
 def format_topic(entry):
     topics = entry.get("topic", "").split("=_=")
     s = ";".join(topics)
+    if not s:
+        return ''
     return f'({s})'
