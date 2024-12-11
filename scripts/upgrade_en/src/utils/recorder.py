@@ -559,9 +559,9 @@ class Recorder:
     def remove_duplicate_defs(self):
         sql = '''
             DELETE FROM defs
-            WHERE id NOT IN
+            WHERE ROWID NOT IN
             (
-                SELECT Min(id) AS MinRecordID
+                SELECT Min(ROWID)
                 FROM defs
                 GROUP BY definition
             )

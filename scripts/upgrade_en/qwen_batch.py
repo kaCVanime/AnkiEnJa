@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from openai import OpenAI
 
@@ -9,8 +10,11 @@ client = OpenAI(
 def upload_file(file):
     file_object = client.files.create(file=file, purpose="batch")
     return file_object.id
-def list_file():
-    return client.files.list()
+def list_file(purpose=None):
+    l = client.files.list().data
+    if purpose:
+        return [f for f in l if f.purpose == purpose]
+    return l
 
 def get_file(id):
     return client.files.retrieve(file_id=id)
@@ -37,15 +41,38 @@ def download_file(id, output):
     if not output.parent.is_dir():
         output.parent.mkdir()
     content.write_to_file(output)
+
+def check_custom_ids(p):
+    with open(p, mode='r', encoding='utf-8') as f :
+        lines = f.readlines()
+
+    ids = []
+    for l in lines:
+        obj = json.loads(l)
+        cid = obj["custom_id"]
+        if cid in ids:
+            raise Exception(f'duplicate: {cid}')
+        else:
+            ids.append(cid)
+def upload_and_run(pattern='rate*.jsonl'):
+    todos = sorted(Path('./batch').glob(pattern))
+    for todo in todos:
+        check_custom_ids(todo)
+        id = upload_file(todo)
+        run_batch(id)
+
+def remove_todos():
+    file_list = list_file('batch')
+    for fb in file_list:
+        del_file(fb.id)
 def main():
-    fn = 'rate0'
-    # print(list_file())
-    # print(del_file(''))
-    # id = upload_file(Path('./batch') / 'rate0.jsonl')
-    # bid = run_batch("file-batch-9dsPWUvbozkjrZfyZvpdhhBC")
+
+    upload_and_run()
+    print(list_batch().model_dump_json(indent=4))
+
     # print(get_batch(bid))
     # print(list_batch().model_dump_json(indent=4))
-    download_file("file-batch_output-pRE95VbpNALxtdno7o88F0Mp", Path('./batch_results') / f'{fn}.jsonl')
+    # download_file("file-batch_output-vu4fbUwHQZpXQmmaofwlf2GZ", Path('./batch_results') / f'test1w.jsonl')
     pass
 
 if __name__ == '__main__':

@@ -34,7 +34,7 @@ class Batcher:
 
             fp = open(p, 'a', encoding='utf-8')
             sz_file = fp.tell()
-            if self.num_handled[i] >= 1e2-1 or sz_file + sz_content >= 100 * 1024 * 1024:
+            if self.num_handled[i] >= 1e4-1 or sz_file + sz_content >= 100 * 1024 * 1024:
                 fp.close()
                 i += 1
                 if i >= len(self.num_handled):
