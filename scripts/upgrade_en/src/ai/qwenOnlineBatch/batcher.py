@@ -14,6 +14,7 @@ batch_path.mkdir(exist_ok=True)
 class Batcher:
     top_p = None
     temperature = None
+    num_handled = [0]
     def __init__(self, name):
         self.name = name
 
@@ -21,6 +22,7 @@ class Batcher:
         with lock:
             fp = self.get_fp(content)
             fp.write(content + '\n')
+            self.num_handled[len(self.num_handled) - 1] += 1
             fp.close()
 
 
@@ -30,14 +32,13 @@ class Batcher:
         while True:
             p = batch_path / f'{self.name}{i}.jsonl'
 
-            fp = open(p, 'a+', encoding='utf-8')
+            fp = open(p, 'a', encoding='utf-8')
             sz_file = fp.tell()
-            fp.seek(0)
-            num_lines = sum(1 for _ in fp)
-
-            if num_lines >= 5e4 - 2 or sz_file + sz_content >= 100 * 1024 * 1024:
+            if self.num_handled[i] >= 1e2-1 or sz_file + sz_content >= 100 * 1024 * 1024:
                 fp.close()
                 i += 1
+                if i >= len(self.num_handled):
+                    self.num_handled.append(0)
                 continue
 
             return fp

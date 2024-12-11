@@ -1,0 +1,7 @@
+tqdm
+loguru
+requests
+beautifulsoup4
+pykakasi
+limits
+openai

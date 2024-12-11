@@ -5,6 +5,7 @@
 *.log
 *.pkl
 *test.py
+*.jsonl
 
 */temp
 

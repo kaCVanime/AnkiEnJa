@@ -10,7 +10,7 @@ def random_line(afile):
         line = aline
     return line
 
-with open('batch/sense0.jsonl', 'r', encoding='utf-8') as f:
+with open('batch/rate0.jsonl', 'r', encoding='utf-8') as f:
     line = random_line(f)
     obj = json.loads(line)
     print(

@@ -1,6 +1,6 @@
 import json
 from copy import deepcopy
-from tqdm.contrib.concurrent import thread_map
+from tqdm import tqdm
 from itertools import tee
 import sys
 
@@ -45,8 +45,8 @@ def process(entry):
 def main():
     todos = result_recorder.get_todos()
     todos, todos_clone = tee(todos)
-    thread_map(process, todos, total=len(list(todos_clone)))
-
+    for todo in tqdm(todos, total=len(list(todos_clone))):
+        process(todo)
 
 
 if __name__ == '__main__':
