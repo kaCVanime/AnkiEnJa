@@ -33,8 +33,11 @@ def run_batch(id):
 def get_batch(id):
     return client.batches.retrieve(id)
 
-def list_batch():
-    return client.batches.list(limit=20)
+def list_batch(status):
+    data = client.batches.list(limit=20).data
+    if status:
+        return [d for d in data if d.status == status]
+    return data
 
 def download_file(id, output):
     content = client.files.content(file_id=id)
@@ -67,8 +70,8 @@ def remove_todos():
         del_file(fb.id)
 def main():
 
-    upload_and_run()
-    print(list_batch().model_dump_json(indent=4))
+    # upload_and_run()
+    bs = list_batch(status='completed')
 
     # print(get_batch(bid))
     # print(list_batch().model_dump_json(indent=4))

@@ -1,22 +1,14 @@
 import random
 import json
-from src.ai.qwen.qwen import preprocess_response
+from src.ai.qwenOnlineBatch.result_parser import RateParser
 
-def random_line(afile):
-    line = next(afile)
-    for num, aline in enumerate(afile, 2):
-        if random.randrange(num):
-            continue
-        line = aline
-    return line
+fp = 'batch_results/test1w.jsonl'
 
-with open('batch_results/rate0.jsonl', 'r', encoding='utf-8') as f:
-    line = random_line(f)
-    obj = json.loads(line)
+rate_parser = RateParser(fp)
+
+
+
+if __name__ == '__main__':
+    # print(rate_parser.get_stats())
+    rate_parser.get_random_result()
     pass
-    result = obj["response"]["body"]["choices"][0]["message"]["content"]
-    print(preprocess_response(result))
-    print('-----------------')
-    print(obj["custom_id"])
-    print(result)
-

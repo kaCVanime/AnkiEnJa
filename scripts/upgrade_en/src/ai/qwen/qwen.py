@@ -289,7 +289,7 @@ class Rater(Base):
         '''
         )
 
-    def validate(self, results, entries):
+    def validate(self, results, entries=None):
         assert type(results) is dict, 'result is not a valid dict'
 
         assert "sense" in results and "word" in results, 'missing key in result'
