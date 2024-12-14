@@ -1,0 +1,800 @@
+[
+  {
+    "subject": "Culture and the arts",
+    "level": 1,
+    "children": {
+      "subject": "",
+      "level": 2,
+      "children": [
+        {
+          "subject": "The arts",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Literature",
+              "level": 4,
+              "children": [
+                {
+                  "subject": "Fiction",
+                  "level": 5
+                },
+                {
+                  "subject": "Poetry",
+                  "level": 5
+                },
+                {
+                  "subject": "Critical theory",
+                  "level": 5
+                }
+              ]
+            },
+            {
+              "subject": "Visual arts",
+              "level": 4,
+              "children": [
+                {
+                  "subject": "Architecture",
+                  "level": 5
+                },
+                {
+                  "subject": "Crafts",
+                  "level": 5
+                },
+                {
+                  "subject": "Drawing",
+                  "level": 5
+                },
+                {
+                  "subject": "Design",
+                  "level": 5
+                },
+                {
+                  "subject": "Film",
+                  "level": 5
+                },
+                {
+                  "subject": "Painting",
+                  "level": 5
+                },
+                {
+                  "subject": "Photography",
+                  "level": 5
+                },
+                {
+                  "subject": "Sculpture",
+                  "level": 5
+                }
+              ]
+            },
+            {
+              "subject": "Performing arts",
+              "level": 4,
+              "children": [
+                {
+                  "subject": "Acting",
+                  "level": 5
+                },
+                {
+                  "subject": "Dance",
+                  "level": 5
+                },
+                {
+                  "subject": "Film",
+                  "level": 5
+                },
+                {
+                  "subject": "Theatre",
+                  "level": 5
+                },
+                {
+                  "subject": "Music",
+                  "level": 5
+                },
+                {
+                  "subject": "Stagecraft",
+                  "level": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "subject": "Gastronomy",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Food preparation",
+              "level": 4
+            },
+            {
+              "subject": "Cuisines",
+              "level": 4
+            },
+            {
+              "subject": "Meals",
+              "level": 4
+            },
+            {
+              "subject": "Food, human food and drink",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Recreation and Entertainment",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Festivals",
+              "level": 4
+            },
+            {
+              "subject": "Tourism",
+              "level": 4
+            },
+            {
+              "subject": "Fiction",
+              "level": 4
+            },
+            {
+              "subject": "Games",
+              "level": 4,
+              "children": [
+                {
+                  "subject": "Board games",
+                  "level": 5
+                },
+                {
+                  "subject": "Card games",
+                  "level": 5
+                },
+                {
+                  "subject": "Video games",
+                  "level": 5
+                }
+              ]
+            },
+            {
+              "subject": "Sports",
+              "level": 4,
+              "children": [
+                {
+                  "subject": "Ball games",
+                  "level": 5
+                },
+                {
+                  "subject": "Combat sports",
+                  "level": 5
+                },
+                {
+                  "subject": "Traveling / racing sports",
+                  "level": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "subject": "Humanities",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "subject": "Geography and places",
+    "level": 1
+  },
+  {
+    "subject": "Health and fitness",
+    "level": 1
+  },
+  {
+    "subject": "History and events",
+    "level": 1
+  },
+  {
+    "subject": "Human activities",
+    "level": 1,
+    "children": [
+      {
+        "subject": "Human activity",
+        "level": 2,
+        "children": [
+          {
+            "subject": "Agriculture",
+            "level": 3
+          },
+          {
+            "subject": "The arts",
+            "level": 3
+          },
+          {
+            "subject": "Communication",
+            "level": 3
+          },
+          {
+            "subject": "Education",
+            "level": 3
+          },
+          {
+            "subject": "Entertainment",
+            "level": 3
+          },
+          {
+            "subject": "Exercise",
+            "level": 3
+          },
+          {
+            "subject": "Government",
+            "level": 3
+          },
+          {
+            "subject": "Industry",
+            "level": 3
+          },
+          {
+            "subject": "Law enforcement",
+            "level": 3
+          },
+          {
+            "subject": "Philosophy",
+            "level": 3
+          },
+          {
+            "subject": "Politics",
+            "level": 3
+          },
+          {
+            "subject": "Religion",
+            "level": 3
+          },
+          {
+            "subject": "Science",
+            "level": 3
+          },
+          {
+            "subject": "Sports",
+            "level": 3
+          },
+          {
+            "subject": "Transport",
+            "level": 3
+          },
+          {
+            "subject": "Underwater diving",
+            "level": 3
+          },
+          {
+            "subject": "War",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "subject": "Impact of human activity",
+        "level": 2,
+        "children": [
+          {
+            "subject": "Environmentalism",
+            "level": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Mathematics and logic",
+    "level": 1
+  },
+  {
+    "subject": "Natural and physical sciences",
+    "level": 1,
+    "children": [
+      {
+        "subject": "Basis of natural science",
+        "level": 2,
+        "children": [
+          {
+            "subject": "Scientific method",
+            "level": 3
+          },
+          {
+            "subject": "Metric system",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "subject": "Branches of natural science",
+        "level": 2,
+        "children": [
+          {
+            "subject": "Biology",
+            "level": 3
+          },
+          {
+            "subject": "Physical sciences",
+            "level": 3,
+            "children": [
+              {
+                "subject": "Chemistry",
+                "level": 4
+              },
+              {
+                "subject": "Earth science",
+                "level": 4,
+                "children": [
+                  {
+                    "subject": "Earth",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Geography",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Geology",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Plate tectonics",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Geophysics",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Meteorology",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Oceanography",
+                    "level": 5
+                  }
+                ]
+              },
+              {
+                "subject": "Physics",
+                "level": 4,
+                "children": [
+                  {
+                    "subject": "Acoustics",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Energy",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Fluid dynamics",
+                    "level": 5
+                  }
+                ]
+              },
+              {
+                "subject": "Space science",
+                "level": 4,
+                "children": [
+                  {
+                    "subject": "Astronomy",
+                    "level": 5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "People and self",
+    "level": 1
+  },
+  {
+    "subject": "Philosophy and thinking",
+    "level": 1
+  },
+  {
+    "subject": "Religion and belief systems",
+    "level": 1
+  },
+  {
+    "subject": "Society and social sciences",
+    "level": 1,
+    "children": [
+      {
+        "subject": "Social science",
+        "level": 2,
+        "children": [
+          {
+            "subject": "Anthropology",
+            "level": 3
+          },
+          {
+            "subject": "Archaeology",
+            "level": 3
+          },
+          {
+            "subject": "Economics",
+            "level": 3
+          },
+          {
+            "subject": "Futures studies",
+            "level": 3
+          },
+          {
+            "subject": "Genocide studies",
+            "level": 3
+          },
+          {
+            "subject": "Geography",
+            "level": 3
+          },
+          {
+            "subject": "History",
+            "level": 3
+          },
+          {
+            "subject": "Law",
+            "level": 3
+          },
+          {
+            "subject": "Linguistics",
+            "level": 3
+          },
+          {
+            "subject": "Political science",
+            "level": 3
+          },
+          {
+            "subject": "Psychology",
+            "level": 3
+          },
+          {
+            "subject": "Semiotics",
+            "level": 3
+          },
+          {
+            "subject": "Sociology",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "subject": "Society",
+        "level": 2,
+        "children": [
+          {
+            "subject": "Community",
+            "level": 3
+          },
+          {
+            "subject": "Business",
+            "level": 3
+          },
+          {
+            "subject": "Communication",
+            "level": 3
+          },
+          {
+            "subject": "Education",
+            "level": 3
+          },
+          {
+            "subject": "Globalization",
+            "level": 3
+          },
+          {
+            "subject": "Politics",
+            "level": 3
+          },
+          {
+            "subject": "Law",
+            "level": 3
+          },
+          {
+            "subject": "Rights",
+            "level": 3
+          },
+          {
+            "subject": "Urban planning",
+            "level": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Technology and applied sciences",
+    "level": 1,
+    "children": {
+      "subject": "Technologies and applied sciences",
+      "level": 2,
+      "children": [
+        {
+          "subject": "Aerospace",
+          "level": 3
+        },
+        {
+          "subject": "Applied physics",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Meteorology",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Agriculture",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Fishing",
+              "level": 4
+            },
+            {
+              "subject": "Forestry",
+              "level": 4
+            },
+            {
+              "subject": "Organic gardening and farming",
+              "level": 4
+            },
+            {
+              "subject": "Sustainable agriculture",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Communication",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Books",
+              "level": 4
+            },
+            {
+              "subject": "Telecommunication",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Computing",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Computer engineering",
+              "level": 4
+            },
+            {
+              "subject": "Computer science",
+              "level": 4
+            },
+            {
+              "subject": "Information technology",
+              "level": 4
+            },
+            {
+              "subject": "Software engineering",
+              "level": 4
+            },
+            {
+              "subject": "Software",
+              "level": 4
+            },
+            {
+              "subject": "Internet",
+              "level": 4
+            },
+            {
+              "subject": "Computer industry",
+              "level": 4
+            },
+            {
+              "subject": "Computer security",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Construction",
+          "level": 3
+        },
+        {
+          "subject": "Design",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Architecture",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Electronics",
+          "level": 3
+        },
+        {
+          "subject": "Industry",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Automation",
+              "level": 4
+            },
+            {
+              "subject": "Industrial machinery",
+              "level": 4
+            },
+            {
+              "subject": "Machines",
+              "level": 4
+            },
+            {
+              "subject": "Manufacturing",
+              "level": 4
+            },
+            {
+              "subject": "Metalworking",
+              "level": 4
+            },
+            {
+              "subject": "Robotics",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "work",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Energy development",
+              "level": 4
+            },
+            {
+              "subject": "Energy storage",
+              "level": 4
+            },
+            {
+              "subject": "Nuclear technology",
+              "level": 4
+            },
+            {
+              "subject": "Wind energy",
+              "level": 4
+            },
+            {
+              "subject": "Solar energy",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Engineering",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Chemical engineering",
+              "level": 4
+            },
+            {
+              "subject": "Computer engineering",
+              "level": 4
+            },
+            {
+              "subject": "Control engineering",
+              "level": 4
+            },
+            {
+              "subject": "Electrical engineering",
+              "level": 4
+            },
+            {
+              "subject": "Mechanical engineering",
+              "level": 4
+            },
+            {
+              "subject": "Software engineering",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Firefighting",
+          "level": 3
+        },
+        {
+          "subject": "Forensic science",
+          "level": 3
+        },
+        {
+          "subject": "Futures studies",
+          "level": 3
+        },
+        {
+          "subject": "Health",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Biotechnology",
+              "level": 4
+            },
+            {
+              "subject": "Ergonomics",
+              "level": 4
+            },
+            {
+              "subject": "Medicine",
+              "level": 4
+            }
+          ]
+        },
+        {
+          "subject": "Hydrology",
+          "level": 3
+        },
+        {
+          "subject": "information",
+          "level": 3
+        },
+        {
+          "subject": "Military science",
+          "level": 3
+        },
+        {
+          "subject": "Mining",
+          "level": 3
+        },
+        {
+          "subject": "Nanotechnology",
+          "level": 3
+        },
+        {
+          "subject": "Prehistoric technology",
+          "level": 3
+        },
+        {
+          "subject": "Rocketry",
+          "level": 3
+        },
+        {
+          "subject": "Sustainability",
+          "level": 3
+        },
+        {
+          "subject": "Transport",
+          "level": 3,
+          "children": [
+            {
+              "subject": "Transport, by type",
+              "level": 4
+            },
+            {
+              "subject": "Transportation planning",
+              "level": 4
+            },
+            {
+              "subject": "Transportation Systems",
+              "level": 4
+            },
+            {
+              "subject": "Public transport",
+              "level": 4
+            },
+            {
+              "subject": "Vehicles",
+              "level": 4
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
