@@ -1,5 +1,6 @@
 .idea
 
+**/ask_topic_classifier/model/
 *.db
 *.db-journal
 *.log

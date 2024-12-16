@@ -167,7 +167,7 @@
                   "level": 5
                 },
                 {
-                  "subject": "Traveling / racing sports",
+                  "subject": "Racing sports",
                   "level": 5
                 }
               ]
@@ -311,7 +311,121 @@
         "children": [
           {
             "subject": "Biology",
-            "level": 3
+            "level": 3,
+            "children": [
+              {
+                "subject": "Biological phenomena",
+                "level": 4,
+                "children": [
+                  {
+                    "subject": "Death",
+                    "level": 5
+                  }
+                ]
+              },
+              {
+                "subject": "Branches of biology",
+                "level": 4,
+                "children": [
+                  {
+                    "subject": "Anatomy",
+                    "level": 5,
+                    "children": [
+                      {
+                        "subject": "Human nervous system",
+                        "level": 6,
+                        "children": [
+                          {
+                            "subject": "Human brain",
+                            "level": 7
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "subject": "Biochemistry",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Biophysics",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Botany",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Cell biology",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Ecology",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Environmental studies",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Evolution",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Genetics",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Immunology",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Neuroscience",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Paleontology",
+                    "level": 5,
+                    "children": [
+                      {
+                        "subject": "Dinosaurs",
+                        "level": 6
+                      }
+                    ]
+                  },
+                  {
+                    "subject": "Pharmacology",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Physiology",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Zoology",
+                    "level": 5
+                  }
+                ]
+              },
+              {
+                "subject": "Life forms",
+                "level": 4,
+                "children": [
+                  {
+                    "subject": "Animals",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Fungi",
+                    "level": 5
+                  },
+                  {
+                    "subject": "Extraterrestrial life",
+                    "level": 5
+                  }
+                ]
+              }
+            ]
           },
           {
             "subject": "Physical sciences",
@@ -451,7 +565,21 @@
           },
           {
             "subject": "Psychology",
-            "level": 3
+            "level": 3,
+            "children": [
+              {
+                "subject": "Abnormal psychology",
+                "level": 4
+              },
+              {
+                "subject": "Human intelligence",
+                "level": 4
+              },
+              {
+                "subject": "Human sexuality",
+                "level": 4
+              }
+            ]
           },
           {
             "subject": "Semiotics",
@@ -560,47 +688,27 @@
             },
             {
               "subject": "Telecommunication",
-              "level": 4
+              "level": 4,
+              "children": [
+                {
+                  "subject": "Radio",
+                  "level": 5
+                },
+                {
+                  "subject": "Internet",
+                  "level": 5
+                },
+                {
+                  "subject": "Television broadcasting",
+                  "level": 5
+                }
+              ]
             }
           ]
         },
         {
           "subject": "Computing",
-          "level": 3,
-          "children": [
-            {
-              "subject": "Computer engineering",
-              "level": 4
-            },
-            {
-              "subject": "Computer science",
-              "level": 4
-            },
-            {
-              "subject": "Information technology",
-              "level": 4
-            },
-            {
-              "subject": "Software engineering",
-              "level": 4
-            },
-            {
-              "subject": "Software",
-              "level": 4
-            },
-            {
-              "subject": "Internet",
-              "level": 4
-            },
-            {
-              "subject": "Computer industry",
-              "level": 4
-            },
-            {
-              "subject": "Computer security",
-              "level": 4
-            }
-          ]
+          "level": 3
         },
         {
           "subject": "Construction",
@@ -741,7 +849,7 @@
           "level": 3
         },
         {
-          "subject": "information",
+          "subject": "Information science",
           "level": 3
         },
         {
@@ -773,7 +881,7 @@
           "level": 3,
           "children": [
             {
-              "subject": "Transport, by type",
+              "subject": "Transport by type",
               "level": 4
             },
             {

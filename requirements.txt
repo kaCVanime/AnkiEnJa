@@ -5,3 +5,5 @@ beautifulsoup4
 pykakasi
 limits
 openai
+transformers
+torch
