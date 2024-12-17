@@ -1,6 +1,6 @@
 .idea
 
-**/ask_topic_classifier/model/
+**/zeroshot_topic_classifier/models/
 *.db
 *.db-journal
 *.log

@@ -1,7 +1,7 @@
 Animals
-Art, architecture, and archaeology
+Art and architecture and archaeology
 Biology
-Business, economics, and finance
+Business and economics and finance
 Chemistry and mineralogy
 Computing
 Culture and society
@@ -13,7 +13,7 @@ Games and video games
 Geography and places
 Geology and geophysics
 Health and medicine
-Heraldry, honors, and vexillology
+Heraldry and honors and vexillology
 History
 Language and linguistics
 Law and crime
@@ -26,7 +26,7 @@ Numismatics and currencies
 Philosophy and psychology
 Physics and astronomy
 Politics and government
-Religion, mysticism and mythology
+Religion and mysticism and mythology
 Royalty and nobility
 Sport and recreation
 Textile and clothing

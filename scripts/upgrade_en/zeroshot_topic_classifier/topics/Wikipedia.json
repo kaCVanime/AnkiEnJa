@@ -43,9 +43,9 @@
     "Education",
     "Electrical engineering",
     "Electronics",
-    "Energy",
     "Energy development",
     "Energy storage",
+    "Energy(Physics)",
     "Entertainment",
     "Environmental studies",
     "Environmentalism",
@@ -59,8 +59,8 @@
     "Firefighting",
     "Fishing",
     "Fluid dynamics",
+    "Food and drink",
     "Food preparation",
-    "Food, human food and drink",
     "Forensic science",
     "Forestry",
     "Fungi",
@@ -151,9 +151,5 @@
     "Video games",
     "War",
     "Wind energy",
-    "Zoology",
-    "medicine",
-    "biology",
-    "business",
-    "culture"
+    "Zoology"
 ]

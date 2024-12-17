@@ -6,4 +6,3 @@ pykakasi
 limits
 openai
 transformers
-torch
