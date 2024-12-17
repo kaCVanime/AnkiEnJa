@@ -50,6 +50,7 @@ class OaldpeParser(Base):
     @staticmethod
     def get_best_redirect_word(html):
         entry = BeautifulSoup(html, 'html.parser')
+
         def get_href_keyword(h):
             keyword = 'entry://'
             return h[len(keyword):] if h else None
@@ -77,7 +78,8 @@ class OaldpeParser(Base):
             return self.entry.find('span', class_='idm').get_text()
 
     def get_word_variants(self):
-        return [v.get_text() for v in self.entry.find('div', class_='webtop').find_all('div', class_='variants', recursive=False)]
+        return [v.get_text() for v in
+                self.entry.find('div', class_='webtop').find_all('div', class_='variants', recursive=False)]
 
     def get_phonetics(self):
         return (
@@ -121,6 +123,20 @@ class OaldpeParser(Base):
         s = "".join([a.get_text() for a in labels]) if labels else ""
         return s
 
+    def _get_def_inline_topics(self, box):
+        if not box:
+            return ''
+        topics = box.find_all('span', class_='dis-g', recursive=False)
+        contents = []
+        for t in topics:
+            dtxts = t.find_all('span', class_='dtxt', recursive=False)
+            for dtxt in dtxts:
+                dtxtx = dtxt.dtxtx
+                if dtxtx:
+                    dtxtx.extract()
+            contents.extend(dtxts)
+        return [get_soup_text(c) for c in contents]
+
     def _parse_usage(self, li, sensetop):
         cf0 = sensetop.find_all('span', class_='cf', recursive=False) if sensetop else []
         cf1 = li.find_all('span', class_='cf', recursive=False)
@@ -132,7 +148,7 @@ class OaldpeParser(Base):
         if not definition:
             return None
         sense_top = li.find('span', class_='sensetop', recursive=False)
-        variants = li.find('div', { "class": "variants" })
+        variants = li.find('div', {"class": "variants"})
 
         cefr = li.get('cefr', '')
 
@@ -143,25 +159,37 @@ class OaldpeParser(Base):
             cefr = get_soup_text(topic_cefr)
 
         eg_box = li.find('ul', class_='examples')
-        examples = list(filter(None, [self._parse_example(li, f'{id}_{idx}') for idx, li in enumerate(eg_box.find_all('li', recursive=False))] if eg_box else []))
+        examples = list(
+            filter(
+                None,
+                [self._parse_example(li, f'{id}_{idx}') for idx, li in
+                 enumerate(eg_box.find_all('li', recursive=False))] if eg_box else []
+            )
+        )
         if len(examples) < 10:
             extra = li.find('span', class_='unbox', unbox='extra_examples')
             if extra:
                 extra_eg_box = extra.find('ul', class_='examples')
                 start = len(examples)
-                examples.extend([self._parse_example(li, f'{id}_{idx+start}') for idx, li in enumerate(extra_eg_box.find_all('li', recursive=False))])
+                examples.extend(
+                    [self._parse_example(li, f'{id}_{idx + start}') for idx, li in
+                     enumerate(extra_eg_box.find_all('li', recursive=False))]
+                )
         def_t = li.find('deft')
 
         return {
             "id": id,
             "cefr": cefr.upper(),
             "usage": self._parse_usage(li, sense_top),
-            "labels": self._parse_labels(sense_top) or self._parse_labels(li),
+            "labels": self._parse_labels(sense_top) + self._parse_labels(li),
             "definition": definition,
             "def_cn": normalize_chn(def_t.find('chn', class_='simple').get_text()) if def_t else '',
             "examples": examples or None,
             "variants": get_soup_text(variants),
-            "topic": "=_=".join([t.get_text() for t in topic.find_all('span', class_='topic_name')]) if topic else ''
+            "topic": "=_=".join(
+                [*([t.get_text() for t in topic.find_all('span', class_='topic_name')] if topic else []),
+                 *self._get_def_inline_topics(li), *self._get_def_inline_topics(sense_top)]
+            )
         }
 
     def _parse_def_box(self, root):
@@ -186,13 +214,14 @@ class OaldpeParser(Base):
             results = []
             for pv in pvgs:
                 if def_box := self._parse_def_box(pv):
-                    results.extend(list(
-                        filter(None, parse_sense_boxes(def_box))
-                    ))
+                    results.extend(
+                        list(
+                            filter(None, parse_sense_boxes(def_box))
+                        )
+                    )
             return results
 
         return None
-
 
     def get_idioms(self):
         return [
@@ -229,17 +258,20 @@ class OaldpeParser(Base):
         redirect_keyword = '@@@LINK='
         if h.startswith(redirect_keyword):
             h.strip()
-            h=h[len(redirect_keyword):].strip()
+            h = h[len(redirect_keyword):].strip()
             # loop
             if h == 'bale-out' or h == 'bale out':
                 return None
             html = dict_helper.query_oaldpe(h)
             h = html[0]
         return parser.parse(h, redirect, mode='phrv')
+
     def get_phrases(self, parent=None):
         box = self.entry.find('aside', class_='phrasal_verb_links')
 
-        return list(filter(None, [self._parse_phrase(p) for p in box.ul.find_all('li', recursive=False)])) if box else None
+        return list(
+            filter(None, [self._parse_phrase(p) for p in box.ul.find_all('li', recursive=False)])
+        ) if box else None
 
     def get_entry_prefix(self, word=None):
         pass
@@ -300,7 +332,6 @@ class OaldpeParser(Base):
                 u.decompose()
             note = note.get_text()
 
-
         definition = re.sub('(\s?Compare)?:$', '', box.get_text().strip())
 
         return {
@@ -311,7 +342,6 @@ class OaldpeParser(Base):
             "note": note or ''
         }
 
-
     def _parse_syn_defs(self, body, prefix):
         defs = body.find_all('span', class_='defpara')
         return [self._parse_syn_def(d, prefix) for d in defs]
@@ -321,14 +351,14 @@ class OaldpeParser(Base):
         assert len(bs) >= 2
         return f'{bs[0].next_element} ▪ {bs[1].get_text()}'
 
-
     def get_synonyms(self):
         boxes = self.entry.find_all('span', class_='unbox', unbox='synonyms')
 
         return [
             {
                 "id": (syn_id := self._parse_syn_id(box)),
-                "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_syn_overview(body))[0],
+                "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_syn_overview(body))[
+                    0],
                 "group": self._par_syn_group(body),
                 "overview_cn": re.sub('以上(?:各|两)词均?(?:含|指|为|用以|可指)?(.+?)(?:之义)?。', r'\1', overviews[1]),
                 "defs": self._parse_syn_defs(body, syn_id)
@@ -368,7 +398,6 @@ class OaldpeParser(Base):
             "ai": bool(s_chn.find('ai')) if s_chn else False,
             "name": prefix
         }
-
 
     def _parse_wiw_item(self, item, id):
         item = copy(item)
@@ -413,14 +442,16 @@ class OaldpeParser(Base):
         lis = body.ul.find_all('li', recursive=False)
         return [self._parse_wiw_items(li, f'{prefix}_{idx}') for idx, li in enumerate(lis)]
 
-
     def get_which_words(self):
         boxes = self.entry.find_all('span', class_='unbox', unbox='which_word')
 
         return [
             {
                 "id": (wiw_id := self._parse_wiw_id(box)),
-                "group": box.find('span', class_='box_title').find('span', class_='closed').get_text().replace('/', '▪'),
+                "group": box.find('span', class_='box_title').find('span', class_='closed').get_text().replace(
+                    '/',
+                    '▪'
+                ),
                 "overview": (body := box.find('span', class_='body')) and (overviews := self._parse_wiw_overview(body))[
                     0],
                 # "overview_cn": re.sub('.+?均(.+)|.+?(常.+)', r'\1', overviews[1]),

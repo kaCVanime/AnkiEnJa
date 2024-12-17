@@ -68,8 +68,19 @@ def remove_todos():
     file_list = list_file('batch')
     for fb in file_list:
         del_file(fb.id)
-def main():
 
+def download_batch_outputs(output_path, created_at):
+    if not output_path:
+        output_path = Path('.')
+    if not created_at:
+        created_at = float('-inf')
+    ids = [f.output_file_id for f in filter(lambda t: t.created_at > created_at, list_batch(status='completed'))]
+    for n in ids:
+        p = output_path / f'{n}.jsonl'
+        if not p.is_file():
+            download_file(n, p)
+
+def main():
     # upload_and_run()
     bs = list_batch(status='completed')
 

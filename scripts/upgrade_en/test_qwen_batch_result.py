@@ -1,10 +1,12 @@
-import random
-import json
+from pathlib import Path
 from src.ai.qwenOnlineBatch.result_parser import RateParser
 
-fp = 'batch_results/test1w.jsonl'
+files = list(Path('./batch_results').glob('*.jsonl'))
 
-rate_parser = RateParser(fp)
+# fp = 'batch_results/test1w.jsonl'
+
+
+rate_parser = RateParser(files)
 
 
 
