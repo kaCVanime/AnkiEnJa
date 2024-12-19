@@ -20,11 +20,7 @@
 
 ### topics
 ##### broad topics
-[BabelDomains](http://lcl.uniroma1.it/babeldomains/)
-##### fine-grained leaf topics
-extract leaf topics from [Wikipedia Outlines](https://en.wikipedia.org/wiki/Wikipedia:Contents/Outlines) then filter by hand
-##### other topics
-picked from [Longman Topics](https://www.ldoceonline.com/browse/topics.html) and []
+filtered topics from [Wikipedia Categories](https://en.wikipedia.org/wiki/Wikipedia:Contents/Categories)
 
 ### input preprocessing
 descriptors and template, inspired by

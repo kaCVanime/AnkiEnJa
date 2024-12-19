@@ -335,7 +335,6 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN words
                 ON words.entry_id = entries.id
-            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND (d.f_sense is NOT NULL OR d.f_word is NOT NULL)
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)
@@ -356,7 +355,6 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
                 ON idioms.entry_id = entries.id
-
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)
@@ -374,7 +372,6 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN phrvs
                 ON phrvs.entry_id = entries.id
-            WHERE d.def_cn!='' AND d.examples IS NOT NULL AND d.topic!='' AND (d.f_sense is NOT NULL OR d.f_word is NOT NULL)
             ORDER BY RANDOM();
         '''
         cursor = self.connection.execute(sql)

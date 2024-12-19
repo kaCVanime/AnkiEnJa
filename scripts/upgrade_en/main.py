@@ -87,7 +87,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
     results_recorder.remove_duplicate_defs()
 
     # ai_manager = AIManager()
