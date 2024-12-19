@@ -1,0 +1,86 @@
+[
+  {
+    "subject": "Function words",
+    "level": 1,
+    "children": [
+      {
+        "subject": "Discussion and agreement",
+        "level": 2
+      },
+      {
+        "subject": "Doubt and guessing and certainty",
+        "level": 2
+      },
+      {
+        "subject": "Opinion and argument",
+        "level": 2
+      },
+      {
+        "subject": "Permission and obligation",
+        "level": 2
+      },
+      {
+        "subject": "Preferences and decisions",
+        "level": 2
+      },
+      {
+        "subject": "Suggestions and advice",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "subject": "Notions",
+    "level": 1,
+    "children": [
+      {
+        "subject": "Change and cause and effect",
+        "level": 2
+      },
+      {
+        "subject": "Danger",
+        "level": 2
+      },
+      {
+        "subject": "Difficulty and failure",
+        "level": 2
+      },
+      {
+        "subject": "Success",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "subject": "Time and Frequency terms",
+    "level": 1
+  },
+  {
+    "subject": "Action",
+    "level": 1
+  },
+  {
+    "subject": "Interjections and Exclamations",
+    "level": 1
+  },
+  {
+    "subject": "Expressions of State and Expressions of Quality",
+    "level": 1
+  },
+  {
+    "subject": "Daily life",
+    "level": 1
+  },
+  {
+    "subject": "Furniture",
+    "level": 1
+  },
+  {
+    "subject": "Utensils",
+    "level": 1
+  },
+  {
+    "subject": "Feelings",
+    "level": 1
+  }
+]

@@ -16,7 +16,8 @@ def process(item):
     assert bool(definition)
 
     # query = f'{word}: {s_topic}{definition}'
-    query = f'{s_topic}{definition}'
+    # query = f'{s_topic}{definition}'
+    query = f'{word} means "{s_topic}{definition}"'
     result = get_topic(query)
 
     pass

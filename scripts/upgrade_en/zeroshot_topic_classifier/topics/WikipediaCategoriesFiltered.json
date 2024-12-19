@@ -444,26 +444,6 @@
           {
             "subject": "Statistics",
             "level": 3,
-            "children": [
-              "Analysis of variance",
-              "Bayesian statistics",
-              "Categorical data",
-              "Covariance and correlation",
-              "Data analysis",
-              "Decision theory",
-              "Design of experiments",
-              "Logic and statistics",
-              "Multivariate statistics",
-              "Nonparametric statistics",
-              "Parametric statistics",
-              "Regression analysis",
-              "Sampling(statistics)",
-              "Statistical theory",
-              "Stochastic processes",
-              "Summary statistics",
-              "Survival analysis",
-              "Time series"
-            ],
             "subcategory": []
           }
         ]
