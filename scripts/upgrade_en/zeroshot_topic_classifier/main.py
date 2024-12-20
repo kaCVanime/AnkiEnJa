@@ -1,7 +1,8 @@
 import json
 from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer, AutoConfig
 from pathlib import Path
-from collections import defaultdict
+from collections import defaultdict, Counter
+from functools import reduce
 from loguru import logger
 
 cwd = Path(__file__).parent
@@ -18,75 +19,119 @@ config = AutoConfig.from_pretrained(mp)
 ask = pipeline('zero-shot-classification', model=model, tokenizer=tokenizer, device=0)
 
 # Health and fitness -> { Health: Health and fitness, fitness: Health and fitness }
-def build_descriptors():
-    with open(topics_fp, mode='rt', encoding='utf-8') as f:
-        return {k.strip().capitalize(): domain.strip() for domain in f for k in domain.strip().split(' and ')}
+
+def build_descriptors(fp):
+    with open(fp, mode='rt', encoding='utf-8') as f:
+        d = defaultdict(set)
+        for domain in f:
+            dom = domain.strip()
+            for k in dom.split(' and '):
+                d[k.strip().capitalize()].add(dom.capitalize())
+        return d
 
 
-descriptors = build_descriptors()
+
+descriptors = build_descriptors(topics_fp)
+
+def add_oald_descriptors(descriptors):
+    d = build_descriptors(oald_topics_fp)
+    for k, v in d.items():
+        descriptors[k] = descriptors[k].union(v)
+
+add_oald_descriptors(descriptors)
 topics = list(descriptors.keys())
 
-def get_oald_descriptors(descriptors):
-    with open(oald_topics_fp, mode='rt', encoding='utf-8') as f:
-        d = {k.strip().capitalize(): domain.strip() for domain in f for k in domain.strip().split(' and ')}
-    dkeys = [a.lower() for a in descriptors.keys()]
-    for k in d:
-        if k.lower() in dkeys:
-            d.pop(k)
+def get_best_origin_topics(cls_results, descriptors, s):
+    threshold = 0.9
+    c_thres = 0.65
 
-    return d
+    scores = defaultdict(float)
+    for label, score in cls_results:
+        domains = descriptors[label]
+        for domain in domains:
+            scores[domain] += score
 
-oald_descriptors = get_oald_descriptors(descriptors)
-descriptors = { **descriptors, **oald_descriptors }
-topics = [*topics, *oald_descriptors.keys()]
+    deduplicated = {}
+    for label, score in scores.items():
+        if score not in deduplicated or len(label) < len(deduplicated[score]):
+            deduplicated[score] = label
+    items = [(label, score) for score, label in deduplicated.items()]
+
+    topics = sorted(items, key=lambda item: item[1], reverse=True)
+
+    results = []
+    for i in range(5):
+        label, score = topics[i]
+        if score > threshold:
+            results.append(topics[i])
+        else:
+            break
+
+    if not results:
+        for i in range(2):
+            label, score = topics[i]
+            if score > c_thres:
+                # m = logger.warning if score > 0.75 else logger.error
+                m = logger.warning
+                m('{}({}) -> {}', label, score, s)
+                results.append(topics[i])
+
+    return results
+
 
 def classify(s, word=None):
-    threshold = 0.88
-    c_thres = 0.6
-
-    results = ask(s, candidate_labels=topics, hypothesis_template='The topic of this definition is about {}', multi_label=True)
+    answers = ask(s, candidate_labels=topics, hypothesis_template='The domain of the definition is {}', multi_label=True)
     # results = ask(s, candidate_labels=topics, multi_label=True)
-    ts = results["scores"]
-    ls = results["labels"]
+    scores = answers["scores"]
+    labels = answers["labels"]
 
-    r = defaultdict(float)
-    for i in range(7):
-        r[descriptors[ls[i]]] += ts[i]
+    results = get_best_origin_topics(
+        [
+            (labels[i], scores[i])
+            for i in range(50)
+        ],
+        descriptors,
+        s
+    )
 
-    ss = sorted(r.items(), key=lambda item: item[1], reverse=True)
+    return [r[0] for r in results]
 
-    p = []
-    for topic, score in ss:
-        if score > threshold:
-            p.append(topic)
 
-    if not p:
-        for topic, score in ss[:2]:
-            if score > c_thres:
-                m = logger.warning if score > 0.75 else logger.error
-                m('{}({}) -> {}', topic, score, s)
-                p.append(topic)
-
-    return p
+def test():
+    test_inputs = [
+        # '"solar panel" means "a piece of equipment, often on the roof of a building, that uses light and heat energy from the sun to produce hot water and electricity."',
+        # '"high-powered" means "(of people) having a lot of power and influence; full of energy."',
+        # '"labrador" means "a large dog that can be yellow, black or brown in colour, often used by blind people as a guide"',
+        # '"disc" means "a CD or DVD"',
+        # '"seventy" means "70"',
+        # '"press" means "a piece of equipment that is used for creating pressure on things, to make them flat or to get liquid from them"',
+        # '"broil" means "to become or make somebody become very hot"'
+        "a piece of equipment, often on the roof of a building, that uses light and heat energy from the sun to produce hot water and electricity.",
+        "(of people) having a lot of power and influence; full of energy.",
+        "a large dog that can be yellow, black or brown in colour, often used by blind people as a guide",
+        "a CD or DVD",
+        "70",
+        "a piece of equipment that is used for creating pressure on things, to make them flat or to get liquid from them",
+        "to become or make somebody become very hot"
+    ]
+    results = [
+        {
+            's': s,
+            'r': classify(s)
+        } for s in test_inputs
+    ]
+    pass
 
 
 if __name__ == '__main__':
-    # classify("solar panel: a piece of equipment, often on the roof of a building, that uses light and heat energy from the sun to produce hot water and electricity.")
-    # classify("high-powered: having a lot of power and influence; full of energy.")
-    # classify("high-powered: very powerful")
-    # classify("high-powered: (of people) having a lot of power and influence; full of energy.")
-    # classify("labrador: a large dog that can be yellow, black or brown in colour, often used by blind people as a guide")
-    # classify("disc: a CD or DVD")
-    # classify("70")
-    # classify('to hit something many times in order to break it into smaller pieces')
-    # classify('a piece of furniture for one person to sit on, with a back, a seat and four legs')
-    # classify('broil means to become or make somebody become very hot')
-    # classify("the fact of being strict or severe")
-    # classify("a container on your desk for letters that are waiting to be read or answered")
-    # classify("a formal talk that a person gives to an audience")
-    # classify("a quality of beauty, style and feeling")
-    # classify("to hit somebody very hard so that they fall down")
-    # classify("if a building is bombed out, it has been destroyed by bombs")
-    #
-    # result = classify("high-powered: having a lot of power and influence; full of energy.")
+    test()
+    # classify('(Social issues) the process or result of making somebody feel as if they are not important and cannot influence decisions or events; the fact of putting somebody in a position in which they have no power')
+    # classify('"shower" means "to give somebody a lot of something". Example: "He showered her with gifts."')
+    # classify('"press" means "a piece of equipment that is used for creating pressure on things, to make them flat or to get liquid from them". Example: a trouser press.')
+    # classify('"broil" means "to become or make somebody become very hot". Example: They lay broiling in the sun.')
+    # classify('"broil" means "to become or make somebody become very hot". Example: They lay broiling in the sun.')
+    # classify('"broil" means "to become or make somebody become very hot"')
+    # classify('"boom" means "a loud deep sound"')
+    # classify('"iraqi" means "(a person) from Iraq"')
+    # test(test_inputs)
     pass

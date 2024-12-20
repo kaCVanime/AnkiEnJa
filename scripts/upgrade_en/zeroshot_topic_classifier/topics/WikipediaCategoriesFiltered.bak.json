@@ -7,14 +7,20 @@
         "subject": "Culture and Humanities",
         "level": 2,
         "children": [
+          "Classical studies",
+          "Critical theory",
+          "Cultural anthropology",
           "Clothing",
           "Folklore",
+          "Food culture and drink culture",
           "Food and drink",
           "Language",
           "Literature",
+          "Museology",
           "Mythology",
           "Philosophy",
           "Popular culture",
+          "Science and culture",
           "Traditions"
         ],
         "subcategory": [
@@ -24,10 +30,12 @@
             "children": [
               "Handicrafts",
               "Celebrity",
+              "Censorship in the arts",
               "Festivals",
               "Humour",
               "Literature",
               "Museums",
+              "Parties",
               "Poetry"
             ],
             "subcategory": [
@@ -54,7 +62,7 @@
                   "Crafts",
                   "Design",
                   "Drawing",
-                  "Animation",
+                  "Film(Animation)",
                   "New media art",
                   "Painting",
                   "Photography",
@@ -83,8 +91,11 @@
             "level": 3,
             "children": [
               "Air sports",
-              "Ball games",
+              "American football",
+              "Association football",
               "Auto racing",
+              "Baseball",
+              "Basketball",
               "Boating",
               "Boxing",
               "Canoeing",
@@ -92,15 +103,23 @@
               "Cycling",
               "Physical exercise",
               "Fishing",
+              "Golf",
               "Gymnastics",
               "Hobbies",
               "Horse racing",
+              "Ice hockey",
+              "Lacrosse",
+              "Olympic Games",
+              "Rugby league",
+              "Rugby union",
               "Sailing",
               "Skiing",
               "Swimming",
+              "Tennis",
               "Track and field",
               "Walking",
-              "Water sports"
+              "Water sports",
+              "Whitewater sports"
             ],
             "subcategory": []
           },
@@ -160,6 +179,9 @@
         "level": 2,
         "children": [
           "Health promotion",
+          "Life extension",
+          "Prevention",
+          "Sexual health",
           "Sleep",
           "Beauty"
         ],
@@ -167,18 +189,33 @@
           {
             "subject": "Nutrition",
             "level": 3,
+            "children": [
+              "Dietary supplements",
+              "Dietetics",
+              "Nutrients",
+              "Nutritional advice pyramids"
+            ],
             "subcategory": []
           },
           {
             "subject": "Exercise",
             "level": 3,
             "children": [
+              "Aerobic exercise",
+              "Bodyweight exercises",
+              "Cycling",
               "Exercise equipment",
               "Dance",
+              "Exercise physiology",
               "Hiking",
+              "Pilates",
+              "Running",
+              "Sports",
               "Swimming",
+              "Tai chi",
               "Walking",
-              "Weight training"
+              "Weight training",
+              "Yoga"
             ],
             "subcategory": []
           },
@@ -205,11 +242,33 @@
       {
         "subject": "Public health",
         "level": 2,
+        "children": [
+          "Health care",
+          "Health law",
+          "Health promotion",
+          "Health standards",
+          "Hospitals",
+          "Occupational safety and health",
+          "Pharmaceutical industry",
+          "Pharmaceuticals policy",
+          "Safety"
+        ],
         "subcategory": []
       },
       {
         "subject": "Health science",
         "level": 2,
+        "children": [
+          "Clinical research",
+          "Diseases and disorders",
+          "Epidemiology",
+          "Midwifery",
+          "Nursing",
+          "Nutrition",
+          "Optometry",
+          "Pharmacy",
+          "Public health"
+        ],
         "subcategory": [
           {
             "subject": "Medicine",
@@ -219,6 +278,30 @@
               {
                 "subject": "Human medicine",
                 "level": 4,
+                "children": [
+                  "Alternative medicine",
+                  "Cardiology",
+                  "Endocrinology",
+                  "Forensic science",
+                  "Gastroenterology",
+                  "Genetics",
+                  "Geriatrics",
+                  "Gerontology",
+                  "Gynaecology",
+                  "Hematology",
+                  "Nephrology",
+                  "Neurology",
+                  "Obstetrics",
+                  "Oncology",
+                  "Ophthalmology",
+                  "Orthopedic surgical procedures",
+                  "Pathology",
+                  "Pediatrics",
+                  "Psychiatry",
+                  "Rheumatology",
+                  "Surgery",
+                  "Urology"
+                ],
                 "subcategory": [
                   {
                     "subject": "Dentistry",
@@ -270,6 +353,8 @@
           "Food preparation and drink preparation",
           "Government",
           "Hunting",
+          "Secondary sector of the economy",
+          "Leisure activities",
           "Navigation",
           "Observation",
           "Performing arts",
@@ -310,12 +395,28 @@
         "subject": "Mathematics",
         "level": 2,
         "children": [
+          "Mathematics education",
           "Equations",
           "Heuristics",
           "Measurement",
           "Numbers",
           "Mathematical proofs",
           "Theorems"
+        ],
+        "subcategory": [
+          {
+            "subject": "Fields of mathematics",
+            "level": 3,
+            "children": [
+              "Arithmetic",
+              "Algebra",
+              "Geometry",
+              "Trigonometry",
+              "Mathematical analysis",
+              "Calculus"
+            ],
+            "subcategory": []
+          }
         ]
       },
       {
@@ -324,13 +425,28 @@
         "children": [
           "Deductive reasoning",
           "Inductive reasoning",
-          "Fallacies"
+          "History of logic",
+          "Fallacies",
+          "Metalogic",
+          "Philosophy of logic"
         ],
         "subcategory": []
       },
       {
         "subject": "Applied mathematics",
-        "level": 2
+        "level": 2,
+        "children": [
+          "Computational science",
+          "Operations research",
+          "Theoretical physics"
+        ],
+        "subcategory": [
+          {
+            "subject": "Statistics",
+            "level": 3,
+            "subcategory": []
+          }
+        ]
       }
     ]
   },
@@ -394,6 +510,9 @@
       {
         "subject": "Scientific method",
         "level": 2,
+        "children": [
+          "Scientists"
+        ],
         "subcategory": []
       }
     ]
@@ -410,6 +529,7 @@
         "subject": "Self",
         "level": 2,
         "children": [
+          "Alter egos",
           "Consciousness",
           "Gender",
           "Personality",
@@ -450,6 +570,22 @@
       {
         "subject": "Philosophy",
         "level": 2,
+        "children": [
+          "Branches of philosophy",
+          "Philosophical schools and traditions",
+          "Philosophical concepts",
+          "Philosophical theories",
+          "Philosophical arguments",
+          "Philosophers",
+          "Philosophical literature",
+          "History of philosophy",
+          "Aesthetics",
+          "Epistemology",
+          "Ethics",
+          "Logic",
+          "Metaphysics",
+          "Social philosophy"
+        ],
         "subcategory": []
       },
       {
@@ -458,14 +594,21 @@
         "children": [
           "Attention",
           "Cognition",
+          "Cognitive biases",
           "Creativity",
+          "Decision theory",
           "Emotion",
           "Error",
           "Imagination",
           "Learning",
-          "Memory",
+          "Memory biases",
+          "Mnemonics",
+          "Nootropics",
+          "Strategic management",
           "Perception",
-          "Problem solving"
+          "Problem solving",
+          "Psychological adjustment",
+          "Psychometrics"
         ],
         "subcategory": []
       }
@@ -488,6 +631,7 @@
           "Communication",
           "Crime",
           "Education",
+          "Ethnic groups",
           "Family",
           "Finance",
           "Globalization",
@@ -515,6 +659,7 @@
         "children": [
           "Anthropology",
           "Archaeology",
+          "Cultural studies",
           "Demographics",
           "Economics",
           "Information science",
@@ -525,7 +670,10 @@
           "Psychology",
           "Public administration",
           "Sexology",
-          "Sociology"
+          "Social scientists",
+          "Sociology",
+          "Social work",
+          "Systems theory"
         ],
         "subcategory": []
       }
@@ -536,6 +684,7 @@
     "level": 1,
     "children": [
       "Agriculture",
+      "Agronomy",
       "Architecture",
       "Automation",
       "Biotechnology",
@@ -545,11 +694,17 @@
       "Media studies",
       "Telecommunications",
       "Construction",
+      "Control theory",
       "Design",
+      "Digital divide",
+      "Earthquake engineering",
       "Energy",
+      "Ergonomics",
       "Firefighting",
+      "Fire prevention",
       "Forensic science",
       "Forestry",
+      "Secondary sector of the economy",
       "Information science",
       "Internet",
       "Machines",
@@ -559,6 +714,7 @@
       "Medicine",
       "Metalworking",
       "Microtechnology",
+      "Military science",
       "Mining",
       "Nanotechnology",
       "Nuclear technology",
@@ -566,20 +722,88 @@
       "Plumbing",
       "Robotics",
       "Sound technology",
+      "Technology forecasting",
       "Tools",
       {
         "subject": "Computing",
         "level": 2,
+        "children": [
+          "Application software",
+          "Artificial intelligence",
+          "Classes of computers",
+          "Computer architecture",
+          "Computer engineering",
+          "Computer science",
+          "Computer security",
+          "Computing and society",
+          "Computer data",
+          "Embedded systems",
+          "Free software",
+          "Human-computer interaction",
+          "Information systems",
+          "Information technology",
+          "Internet",
+          "Mobile web",
+          "Computer languages",
+          "Multimedia",
+          "Computer networks",
+          "Operating systems",
+          "Computing platforms",
+          "Product lifecycle management",
+          "Computer programming",
+          "Real-time computing",
+          "Software",
+          "Software engineering",
+          "Unsolved problems in computer science"
+        ],
         "subcategory": []
       },
       {
         "subject": "Electronics",
         "level": 2,
+        "children": [
+          "Avionics",
+          "Electronic circuits",
+          "Electrical connectors",
+          "Consumer electronics",
+          "Digital electronics",
+          "Digital media",
+          "Electrical components",
+          "Electronic design",
+          "Electronics manufacturing",
+          "Embedded systems",
+          "Integrated circuits",
+          "Microwave technology",
+          "Molecular electronics",
+          "Water technology",
+          "Optoelectronics",
+          "Quantum electronics",
+          "Radio-frequency identification",
+          "Radio electronics",
+          "Semiconductors",
+          "Signal cables",
+          "Surveillance",
+          "Telecommunications"
+        ],
         "subcategory": []
       },
       {
         "subject": "Engineering",
         "level": 2,
+        "children": [
+          "Aerospace engineering",
+          "Biological engineering",
+          "Chemical engineering",
+          "Civil engineering",
+          "Electrical engineering",
+          "Environmental engineering",
+          "Materials science",
+          "Mechanical engineering",
+          "Nuclear technology",
+          "Software engineering",
+          "Structural engineering",
+          "Systems engineering"
+        ],
         "subcategory": []
       },
       {

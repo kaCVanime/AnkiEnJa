@@ -23,6 +23,7 @@
 filtered topics from [Wikipedia Categories](https://en.wikipedia.org/wiki/Wikipedia:Contents/Categories)
 ##### extra
 some additional topics from [Oxford Dictionary Topics](https://www.oxfordlearnersdictionaries.com/topic/)
+some custom topics
 
 ### input preprocessing
 descriptors and template, inspired by

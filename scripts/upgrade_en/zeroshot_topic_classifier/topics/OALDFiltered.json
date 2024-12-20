@@ -56,31 +56,45 @@
     "level": 1
   },
   {
-    "subject": "Action",
-    "level": 1
-  },
-  {
     "subject": "Interjections and Exclamations",
     "level": 1
   },
   {
-    "subject": "Expressions of State and Expressions of Quality",
-    "level": 1
-  },
-  {
     "subject": "Daily life",
-    "level": 1
+    "level": 1,
+    "children": [
+      {
+        "subject": "Color",
+        "level": 2
+      },
+      {
+        "subject": "Sound",
+        "level": 2
+      },
+      {
+        "subject": "Expressions of Quantity",
+        "level": 2
+      },
+      {
+        "subject": "Expressions of State",
+        "level": 2
+      },
+      {
+        "subject": "Expressions of Quality",
+        "level": 2
+      },
+      {
+        "subject": "Furniture",
+        "level": 2
+      },
+      {
+        "subject": "Utensil",
+        "level": 2
+      }
+    ]
   },
   {
-    "subject": "Furniture",
-    "level": 1
-  },
-  {
-    "subject": "Utensils",
-    "level": 1
-  },
-  {
-    "subject": "Feelings",
+    "subject": "Anatomy",
     "level": 1
   }
 ]
