@@ -153,6 +153,46 @@ class Recorder:
                 )
             '''
             )
+            c.execute(
+                '''
+                CREATE INDEX "idx_def_id" ON "defs"
+                (
+                    "id"
+                )
+            '''
+            )
+            c.execute(
+                '''
+                CREATE INDEX "idx_entry_id" ON "entries"
+                (
+                    "id"
+                )
+            '''
+            )
+            c.execute(
+                '''
+                CREATE INDEX "idx_words_entry_id" ON "words"
+                (
+                    "entry_id"
+                )
+            '''
+            )
+            c.execute(
+                '''
+                CREATE INDEX "idx_idioms_entry_id" ON "idioms"
+                (
+                    "entry_id"
+                )
+            '''
+            )
+            c.execute(
+                '''
+                CREATE INDEX "idx_phrvs_entry_id" ON "phrvs"
+                (
+                    "entry_id"
+                )
+            '''
+            )
 
     def get_keys(self):
         sql = '''
@@ -433,13 +473,15 @@ class Recorder:
     def update_def_cn(self, def_id, def_cn):
         self._update_def(def_id, 'def_cn', def_cn)
 
-    def update_def_rate(self, def_id, f_sense, f_word):
+    def update_def_rate(self, rates):
+        updates = [(item["sense"], item["word"], item["id"]) for item in rates]
         sql = f'''
             UPDATE defs
             SET f_sense=?, f_word=?
             WHERE id=?
         '''
-        self._transact(sql, (f_sense, f_word, def_id))
+        self._transact(sql, updates, many=True)
+
 
     def update_synonyms_defs(self, synonym_id, defs):
         sql = f'''
