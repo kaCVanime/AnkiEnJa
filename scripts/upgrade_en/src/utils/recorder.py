@@ -467,8 +467,14 @@ class Recorder:
     def update_def_topic(self, def_id, topics):
         self._update_def(def_id, 'topic', topics)
 
-    def update_def_examples(self, def_id, examples_json):
-        self._update_def(def_id, 'examples', examples_json)
+    def update_def_examples(self, examples):
+        updates = [(egs, id) for id, egs in examples]
+        sql = f'''
+                    UPDATE defs
+                    SET examples=?
+                    WHERE id=?
+                '''
+        self._transact(sql, updates, many=True)
 
     def update_def_cn(self, def_id, def_cn):
         self._update_def(def_id, 'def_cn', def_cn)
@@ -520,14 +526,6 @@ class Recorder:
                 {label_filter}
             ) as words
             ON words.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.f_sense is NULL AND d.f_word is NULL)
-            ORDER BY (
-                CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
-                CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.topic='' THEN 1 ELSE 0 END +
-                CASE WHEN d.f_sense IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.f_word IS NULL THEN 1 ELSE 0 END
-            ) ASC, RANDOM();
         '''
         cursor = self.connection.execute(sql)
 
@@ -548,14 +546,6 @@ class Recorder:
                 ON d.entry_id = entries.id
                 INNER JOIN idioms
                 ON idioms.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.f_sense is NULL AND d.f_word is NULL)
-            ORDER BY (
-                CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
-                CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.topic='' THEN 1 ELSE 0 END +
-                CASE WHEN d.f_sense IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.f_word IS NULL THEN 1 ELSE 0 END
-            ) ASC, RANDOM();
         '''
         cursor = self.connection.execute(sql)
         return iter(SQLResultIterator(cursor, [*self.common_def_fields, 'usage']))
@@ -578,14 +568,6 @@ class Recorder:
                 {label_filter}
             ) as phrvs
             ON phrvs.entry_id = entries.id
-            WHERE d.def_cn='' OR d.examples IS NULL OR d.topic='' OR (d.f_sense is NULL AND d.f_word is NULL)
-            ORDER BY (
-                CASE WHEN d.def_cn='' THEN 1 ELSE 0 END +
-                CASE WHEN d.examples IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.topic='' THEN 1 ELSE 0 END +
-                CASE WHEN d.f_sense IS NULL THEN 1 ELSE 0 END +
-                CASE WHEN d.f_word IS NULL THEN 1 ELSE 0 END
-            ) ASC, RANDOM();
         '''
         cursor = self.connection.execute(sql)
 
@@ -616,6 +598,18 @@ class Recorder:
             WHERE id=?
         '''
         self._transact(sql, updates, many=True)
+
+    def get_def_examples(self, did):
+        cursor = self.connection.execute('''
+            SELECT examples
+            FROM defs
+            WHERE id=?
+        ''', (did,))
+        result = cursor.fetchone()
+        if not result:
+            return None
+        egs = result[0]
+        return json.loads(egs) if egs else []
 
 
 

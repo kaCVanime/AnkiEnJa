@@ -10,13 +10,13 @@ def random_line(afile):
         line = aline
     return line
 
-with open('batch/rate0.jsonl', 'r', encoding='utf-8') as f:
+with open('batch/translate0.jsonl', 'r', encoding='utf-8') as f:
     line = random_line(f)
     obj = json.loads(line)
     print(
             f'''top_p: {obj["top_p"]}
 temperature: {obj["temperature"]}
-            {obj["body"]["messages"][1]["content"]}
+{obj["body"]["messages"][1]["content"]}
     '''
     )
     # print('------------')

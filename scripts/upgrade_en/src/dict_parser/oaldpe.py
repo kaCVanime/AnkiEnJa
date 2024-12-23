@@ -114,7 +114,7 @@ class OaldpeParser(Base):
 
     def _parse_labels(self, box):
         if not box:
-            return None
+            return ''
         labels = box.find_all('span', class_='labels', recursive=False)
         for label in labels:
             labelx = label.find('labelx')

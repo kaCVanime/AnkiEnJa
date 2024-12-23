@@ -114,3 +114,128 @@ class RateParser(ResultParser):
 
             if buffer:
                 recorder.update_def_rate(buffer)
+
+
+class SenseParser(ResultParser):
+    id_suffix = '-sense'
+    def __init__(self, fp):
+        super().__init__(fp)
+
+    def get_stats(self):
+        pass
+
+    def get_random_result(self):
+        fp = self.fp[random.randrange(0, len(self.fp))]
+        with open(fp, 'r', encoding='utf-8') as f:
+            line = random_line(f)
+            obj = json.loads(line)
+            raw = self.get_raw_from_obj(obj)
+            print(self.get_result_from_raw(raw))
+            print('-----------------')
+            print(obj["custom_id"])
+            print(raw)
+
+    def write(self):
+        from ...utils import Recorder
+        from ..qwen.qwen import Senser
+        senser = Senser()
+        recorder = Recorder()
+
+        max_buffer = 1000
+        for fp in tqdm(self.fp, desc='Handling files'):
+            buffer = []
+            with open(fp, 'r', encoding='utf-8') as f:
+                for line in tqdm(f, desc='Processing results', leave=False):
+                    obj = json.loads(line)
+                    custom_id = obj["custom_id"]
+                    try:
+                        if len(buffer) >= max_buffer:
+                            recorder.update_def_examples(buffer)
+                            buffer = []
+
+                        tid = self.get_true_id(custom_id)
+                        result = self.get_result_from_raw(self.get_raw_from_obj(obj))
+                        senser.validate(result)
+                        examples = recorder.get_def_examples(tid)
+                        if examples is None:
+                            continue
+                        len_egs = len(examples)
+
+                        for idx, eg in enumerate(result):
+                            examples.append(
+                                {
+                                    "en": eg,
+                                    "cn": "",
+                                    "name": f'{tid}_{len_egs + idx}',
+                                    "ai": True,
+                                }
+                            )
+                        buffer.append((tid, json.dumps(examples, ensure_ascii=False)))
+                    except Exception as e:
+                        pass
+                        print(custom_id, str(e))
+
+            if buffer:
+                recorder.update_def_examples(buffer)
+
+
+class TranslateParser(ResultParser):
+    id_suffix = '-translate'
+    def __init__(self, fp):
+        super().__init__(fp)
+
+    def get_stats(self):
+        pass
+
+    def get_random_result(self):
+        fp = self.fp[random.randrange(0, len(self.fp))]
+        with open(fp, 'r', encoding='utf-8') as f:
+            line = random_line(f)
+            obj = json.loads(line)
+            raw = self.get_raw_from_obj(obj)
+            print(self.get_result_from_raw(raw))
+            print('-----------------')
+            print(obj["custom_id"])
+            print(raw)
+
+    def write(self):
+        from ...utils import Recorder
+        from ..qwen.qwen import Translator
+        translator = Translator()
+        recorder = Recorder()
+
+        max_buffer = 1000
+        for fp in tqdm(self.fp, desc='Handling files'):
+            buffer = []
+            with open(fp, 'r', encoding='utf-8') as f:
+                for line in tqdm(f, desc='Processing results', leave=False):
+                    obj = json.loads(line)
+                    custom_id = obj["custom_id"]
+                    try:
+                        if len(buffer) >= max_buffer:
+                            recorder.update_def_examples(buffer)
+                            buffer = []
+
+                        tid = self.get_true_id(custom_id)
+                        result = self.get_result_from_raw(self.get_raw_from_obj(obj))
+                        if not result:
+                            continue
+
+                        examples = recorder.get_def_examples(tid)
+                        if examples is None:
+                            continue
+
+                        translator.validate(result, {"examples": examples})
+
+                        ai_egs = list(filter(lambda eg: eg.get("ai", False), examples))
+
+                        for idx, eg in enumerate(ai_egs):
+                            eg["cn"] = translator.get_ai_translation(result[idx])
+
+                        buffer.append((tid, json.dumps(examples, ensure_ascii=False)))
+                    except Exception as e:
+                        pass
+                        print(custom_id, str(e))
+
+            if buffer:
+                recorder.update_def_examples(buffer)

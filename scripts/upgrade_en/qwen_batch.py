@@ -33,7 +33,7 @@ def run_batch(id):
 def get_batch(id):
     return client.batches.retrieve(id)
 
-def list_batch(status):
+def list_batch(status=None):
     data = client.batches.list(limit=20).data
     if status:
         return [d for d in data if d.status == status]
@@ -69,20 +69,21 @@ def remove_todos():
     for fb in file_list:
         del_file(fb.id)
 
-def download_batch_outputs(output_path, created_at):
+def download_batch_outputs(output_path, created_at, prefix=''):
     if not output_path:
         output_path = Path('.')
     if not created_at:
         created_at = float('-inf')
-    ids = [f.output_file_id for f in filter(lambda t: t.created_at > created_at, list_batch(status='completed'))]
+    ids = [f.output_file_id for f in filter(lambda t: t.created_at >= created_at, list_batch(status='completed'))]
     for n in ids:
-        p = output_path / f'{n}.jsonl'
+        p = output_path / f'{prefix}{n}.jsonl'
         if not p.is_file():
             download_file(n, p)
 
 def main():
-    # upload_and_run()
-    bs = list_batch(status='completed')
+    # upload_and_run('translate*.jsonl')
+    # bs = list_batch()
+    download_batch_outputs(Path('./batch_results'), created_at=1734939868, prefix='translate-')
 
     # print(get_batch(bid))
     # print(list_batch().model_dump_json(indent=4))

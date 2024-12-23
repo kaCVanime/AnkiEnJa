@@ -126,7 +126,7 @@ class Base(ABC):
         return query_qwen(self.current_instruction, question)
 
     @abstractmethod
-    def validate(self, result, entries):
+    def validate(self, result, entries=None):
         assert isinstance(result, list), "ai response is not a valid list"
 
         return True
@@ -178,23 +178,45 @@ class Translator(Base):
                 delimiter.join(b)
             )
 
-    def validate(self, results, entry):
-        super().validate(results, entry)
+    def _normalize(self, s):
+        s = s.strip()
+        s = re.sub('[“”‘’"\',.\s]', '', s)
+        return s
 
-        assert len(results) == len(
-            [x["en"] for x in entry["examples"] if x.get("ai", False)]
-        ), "examples length not match"
+    def get_ai_translation(self, s):
+        if type(s) is str:
+            return s
+        elif type(s) is dict:
+            return s.get('translation') or s.get('final_translation') or s.get('最终译文') or s.get('译文') or s.get('第三轮翻译')
 
-        for eg in results:
-            assert type(eg) is str, 'invalid eg type'
+        raise NotImplementedError('unknown key')
+
+    def validate(self, results, entry=None):
+        super().validate(results)
+
+        ens = [x["en"] for x in entry["examples"] if x.get("ai", False)]
+
+        assert len(results) == len(ens), "examples length not match"
+
+        for idx, eg in enumerate(results):
+            if type(eg) is dict:
+                # if not ('original' in eg and 'translation' in eg):
+                #     pass
+                pass
+                # assert 'original' in eg and 'translation' in eg, 'missing keys'
+                # assert self._normalize(eg['original']) == self._normalize(ens[idx]), 'mismatching sentence'
+            else:
+                assert type(eg) is str, 'invalid eg type'
+
 
     def construct_question(self, entry):
-        header = f'''
+        header = textwrap.dedent(f'''
             关键词: {self._format_hint_value(entry, 'word', False, value=self._get_keyword(entry))}
             关键词释义: {self._format_hint_value(entry, 'definition', False, value=self._get_sense(entry))}
             需要翻译的句子
-        '''
-        s = [f'{idx + 1}. {x["en"]}' for idx, x in entry["examples"] if x.get("ai", False)]
+        ''')
+        tegs = [eg for eg in entry["examples"] if eg.get("ai", False)]
+        s = [f'{idx + 1}. {x["en"]}' for idx, x in enumerate(tegs)]
 
         return textwrap.dedent(header + '\n'.join(s))
 
@@ -235,7 +257,7 @@ class Senser(Base):
         '''
         )
 
-    def validate(self, results, entries):
+    def validate(self, results, entries=None):
         super().validate(results, entries)
 
         assert len(results) >= 7, 'not making enough examples'
@@ -361,3 +383,10 @@ def format_topic(entry):
     if not s:
         return ''
     return f'({s})'
+
+
+def compare(s1, s2):
+    assert len(s1) == len(s2)
+    for idx, c in enumerate(s1):
+        if c != s2[idx]:
+            print(idx, c, s2[idx])
