@@ -383,10 +383,3 @@ def format_topic(entry):
     if not s:
         return ''
     return f'({s})'
-
-
-def compare(s1, s2):
-    assert len(s1) == len(s2)
-    for idx, c in enumerate(s1):
-        if c != s2[idx]:
-            print(idx, c, s2[idx])

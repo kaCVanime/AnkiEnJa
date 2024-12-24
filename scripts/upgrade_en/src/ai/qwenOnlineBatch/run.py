@@ -21,8 +21,11 @@ rater = RateBatcher()
 def get_taskers(entry):
     taskers = []
 
-    if any([eg.get("ai", False) for eg in entry["examples"]]):
+    if any([not bool(eg["cn"]) for eg in entry["examples"]]):
         taskers.append(translator)
+
+    # if any([eg.get("ai", False) for eg in entry["examples"]]):
+    #     taskers.append(translator)
 
     # if not entry["f_sense"] and not entry["f_word"] and not (entry["cefr"] == 'A1' or entry["cefr"] == 'A2'):
     #     taskers.append(rater)

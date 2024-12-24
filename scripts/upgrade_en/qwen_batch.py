@@ -81,13 +81,10 @@ def download_batch_outputs(output_path, created_at, prefix=''):
             download_file(n, p)
 
 def main():
-    # upload_and_run('translate*.jsonl')
+    # upload_and_run('translate0.jsonl')
     # bs = list_batch()
-    download_batch_outputs(Path('./batch_results'), created_at=1734939868, prefix='translate-')
+    # download_batch_outputs(Path('./batch_results'), created_at=1735004204, prefix='translate-a-')
 
-    # print(get_batch(bid))
-    # print(list_batch().model_dump_json(indent=4))
-    # download_file("file-batch_output-vu4fbUwHQZpXQmmaofwlf2GZ", Path('./batch_results') / f'test1w.jsonl')
     pass
 
 if __name__ == '__main__':

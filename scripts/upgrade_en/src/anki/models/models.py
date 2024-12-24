@@ -1,21 +1,18 @@
 from .base import ModelBase
 
 class ModelSkills(ModelBase):
-    name = "Skills"
+    name = "KEXP3_Skills"
     fields = [
         "id",
         "word",
-        "cefr",
         "AmEPhonetic",
         "BrEPhonetic",
-        "pronunciation",
-        "pos",
         "usage",
-        "labels",
         "definition",
         "def_cn",
         "examples",
-        "brief",
+        "AmEPronounciation",
+        "BrEPronounciation",
         "audio",
     ]
     is_cloze = False
@@ -29,16 +26,11 @@ class ModelSkills(ModelBase):
             "Name": "Write",
             "Front": "Write front {{id}}",
             "Back": "Write front {{id}}",
-        },
-        {
-            "Name": "Listen",
-            "Front": "Listen Front {{id}}",
-            "Back": "Listen Back {{id}}",
         }
     ]
 
 class ModelSynonyms(ModelBase):
-    name = "Synonyms"
+    name = "KEXP3_Synonyms"
     fields = [
         "id",
         "word",

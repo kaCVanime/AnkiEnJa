@@ -1,11 +1,10 @@
 from loguru import logger
-from src.anki.manager import AnkiManager, results_recorder
+from src.anki.manager import AnkiManager
 
 
 logger.remove()
 logger.add('add_to_anki.log', level='INFO')
 
-results_recorder.start()
-m = AnkiManager('KEXP2')
+m = AnkiManager('KEXP3')
 
 m.run()
