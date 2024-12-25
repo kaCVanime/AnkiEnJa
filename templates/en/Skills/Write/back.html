@@ -2,31 +2,21 @@
   <header>
     <h2 id="term" class="center">{{word}}</h2>
     <div class="center flex-col">
-      <span class="phonetic BrEPhonetic italic">{{BrEPhonetic}}</span>
+      <span class="phonetic BrEPhonetic italic hide">{{BrEPhonetic}}</span>
       <span class="phonetic AmEPhonetic italic">{{AmEPhonetic}}</span>
     </div>
-    <div id="frequency-tag">
-      <span class="bar-1"></span>
-      <span class="bar-2"></span>
-      <span class="bar-3"></span>
-      <span class="bar-4"></span>
-      <span class="bar-4"></span>
-    </div>
+    <div id="topic-box"></div>
   </header>
   <main>
     <div class="center italic label mt-10 mb-10">{{usage}}</div>
-    {{type:word}}
     <div id="eg-box"></div>
     <div id="def-box">
       <span class="definition">{{definition}}</span>
       <span class="def_cn">{{def_cn}}</span>
     </div>
-    <div id="brief" class="mt-10">{{brief}}</div>
+    {{type:word}}
     <div id="error" class="hide"></div>
   </main>
-  <footer>
-    <div id="topic-box"></div>
-  </footer>
 </div>
 <script>
   var examplesJson = `{{examples}}`
@@ -40,34 +30,17 @@
   function addTags(ts) {
     const tags = ts.split(" ")
 
-    var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+    var frequencyTag = tags.filter(tag => tag.startsWith("K_"))
     var originalTags = tags.filter(tag => tag.startsWith("E_"))
     var cefrTags = tags.filter(tag => tag.startsWith("CEFR_"))
-    var aiTags = tags.filter(tag => !tag.startsWith("K_") && !tag.startsWith("E_") && !tag.startsWith("CEFR_"))
-    setFrequency(frequencyTag)
+    var aiTags = tags.filter(tag => !tag.startsWith("K_") && !tag.startsWith("E_") && !tag.startsWith("CEFR_") && !tag.startsWith("POS_"))
+    var posTags = tags.filter(tag => tag.startsWith("POS_"))
+
+    posTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("POS_", ""), ["tag", "pos-tag"]))
+    frequencyTag.forEach(tag => addSpanElements(topicBoxEl, tag.replace("K_", ""), ["tag", "frequency-tag"]))
     cefrTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("CEFR_", ""), ["tag", "cefr-tag"]))
     originalTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("E_", ""), ["tag", "original-tag"]))
     aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
-  }
-
-  function setFrequency(tag) {
-    const el = document.getElementById("frequency-tag")
-    switch (tag) {
-      case 'K_1_required':
-        el.classList.add('star-5')
-        break
-      case 'K_2_daily':
-        el.classList.add('star-4')
-        break
-      case 'K_3_usual':
-        el.classList.add('star-3')
-        break
-      case 'K_4_rare':
-        el.classList.add('star-1')
-        break
-      default:
-        el.classList.add('star-1')
-    }
   }
 
   function parseJson(json) {

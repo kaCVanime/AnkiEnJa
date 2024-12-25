@@ -1,22 +1,15 @@
-<div id=deck deck_name="{{Deck}}"></div>
 <div class="root">
   <header>
-    <h2 id="term" class="center transparent">{{word}}</h2>
-    <div class="center transparent flex-col">
-      <span class="phonetic BrEPhonetic italic">{{BrEPhonetic}}</span>
+    <h2 id="term" class="center">{{word}}</h2>
+    <div class="center flex-col">
+      <span class="phonetic BrEPhonetic italic hide">{{BrEPhonetic}}</span>
       <span class="phonetic AmEPhonetic italic">{{AmEPhonetic}}</span>
     </div>
-    <div id="frequency-tag">
-      <span class="bar-1"></span>
-      <span class="bar-2"></span>
-      <span class="bar-3"></span>
-      <span class="bar-4"></span>
-      <span class="bar-4"></span>
-    </div>
+    <div id="topic-box"></div>
   </header>
+
   <main>
-    <div class="center italic label mt-10 mb-10 transparent">{{usage}}</div>
-    {{type:word}}
+    <div class="center italic label mt-10">{{usage}}</div>
     <div id="eg-box"></div>
     <div id="def-box">
       <span class="definition">{{definition}}</span>
@@ -24,12 +17,10 @@
     </div>
     <div id="error" class="hide"></div>
   </main>
-  <footer>
-    <div id="topic-box"></div>
-  </footer>
 </div>
 <script>
   var examplesJson = `{{examples}}`
+
 
   var egBoxEl = document.getElementById("eg-box")
   var errEl = document.getElementById("error")
@@ -40,35 +31,19 @@
   function addTags(ts) {
     const tags = ts.split(" ")
 
-    var frequencyTag = tags.find(tag => tag.startsWith("K_"))
+    var frequencyTag = tags.filter(tag => tag.startsWith("K_"))
     var originalTags = tags.filter(tag => tag.startsWith("E_"))
     var cefrTags = tags.filter(tag => tag.startsWith("CEFR_"))
-    var aiTags = tags.filter(tag => !tag.startsWith("K_") && !tag.startsWith("E_") && !tag.startsWith("CEFR_"))
-    setFrequency(frequencyTag)
+    var aiTags = tags.filter(tag => !tag.startsWith("K_") && !tag.startsWith("E_") && !tag.startsWith("CEFR_") && !tag.startsWith("POS_"))
+    var posTags = tags.filter(tag => tag.startsWith("POS_"))
+
+    posTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("POS_", ""), ["tag", "pos-tag"]))
+    frequencyTag.forEach(tag => addSpanElements(topicBoxEl, tag.replace("K_", ""), ["tag", "frequency-tag"]))
     cefrTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("CEFR_", ""), ["tag", "cefr-tag"]))
     originalTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("E_", ""), ["tag", "original-tag"]))
     aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
   }
 
-  function setFrequency(tag) {
-    const el = document.getElementById("frequency-tag")
-    switch (tag) {
-      case 'K_1_required':
-        el.classList.add('star-5')
-        break
-      case 'K_2_daily':
-        el.classList.add('star-4')
-        break
-      case 'K_3_usual':
-        el.classList.add('star-3')
-        break
-      case 'K_4_rare':
-        el.classList.add('star-1')
-        break
-      default:
-        el.classList.add('star-1')
-    }
-  }
 
   function parseJson(json) {
     if (json.startsWith('"')) json = json.slice(1)
@@ -111,25 +86,20 @@
     return div
   }
 
-  function getRandom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-  }
-
-  function addRandomExample() {
+  function addExample() {
+    const egName = localStorage.getItem("KEXP2_READ")
+    if (!egName) return;
     const exampleData = parseJson(examplesJson) || []
-    const picked = getRandom(exampleData)
+    const picked = exampleData.find(item => item.name === egName)
     const exampleEl = makeElement(picked)
     if (exampleEl) {
       egBoxEl.appendChild(exampleEl)
-      localStorage.setItem("KEXP2_WRITE", picked.name)
-    } else {
-      localStorage.removeItem("KEXP2_WRITE")
     }
   }
 
   try {
     addTags(tags)
-    addRandomExample()
+    addExample()
   } catch (err) {
     console.log(err);
     errEl.classList.remove('hide')
