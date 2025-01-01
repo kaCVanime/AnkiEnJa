@@ -132,29 +132,6 @@ header {
     position: relative;
 }
 
-#frequency-tag {
-    position: absolute;
-    top: -10px;
-    left: 5px;
-    display: flex;
-    height: 15px;
-    margin-bottom: 8px;
-}
-#frequency-tag span {
-    display: inline-block;
-    height: 100%;
-    width: 6px;
-    background: #b6e9b6;
-    margin-right: 4px;
-}
-#frequency-tag.star-1 span:nth-child(-n+1),
-#frequency-tag.star-2 span:nth-child(-n+2),
-#frequency-tag.star-3 span:nth-child(-n+3),
-#frequency-tag.star-4 span:nth-child(-n+4),
-#frequency-tag.star-5 span:nth-child(-n+5)
-{
-    background: #146c14;
-}
 footer {
     margin-top: 20px;
     border-top: 1px solid;
@@ -170,9 +147,9 @@ footer {
     margin-top: 10px;
 }
 #topic-box .tag {
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 16px;
     color: var(--tag-color);
 }
 

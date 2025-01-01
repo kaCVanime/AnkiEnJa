@@ -33,13 +33,11 @@
 
     var frequencyTag = tags.filter(tag => tag.startsWith("K_"))
     var originalTags = tags.filter(tag => tag.startsWith("E_"))
-    var cefrTags = tags.filter(tag => tag.startsWith("CEFR_"))
-    var aiTags = tags.filter(tag => !tag.startsWith("K_") && !tag.startsWith("E_") && !tag.startsWith("CEFR_") && !tag.startsWith("POS_"))
+    var aiTags = tags.filter(tag => !tag.startsWith("K_") && !tag.startsWith("E_") && !tag.startsWith("CEFR_") && !tag.startsWith("POS_") && tag !== "leech")
     var posTags = tags.filter(tag => tag.startsWith("POS_"))
 
     posTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("POS_", ""), ["tag", "pos-tag"]))
     frequencyTag.forEach(tag => addSpanElements(topicBoxEl, tag.replace("K_", ""), ["tag", "frequency-tag"]))
-    cefrTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("CEFR_", ""), ["tag", "cefr-tag"]))
     originalTags.forEach(tag => addSpanElements(topicBoxEl, tag.replace("E_", ""), ["tag", "original-tag"]))
     aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
   }
