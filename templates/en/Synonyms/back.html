@@ -2,13 +2,6 @@
   <header>
     <h5 id="term" class="center"></h5>
     <h3 id="words" class="center">{{word}}</h3>
-    <div id="frequency-tag">
-      <span class="bar-1"></span>
-      <span class="bar-2"></span>
-      <span class="bar-3"></span>
-      <span class="bar-4"></span>
-      <span class="bar-4"></span>
-    </div>
   </header>
 
   <main>
@@ -36,30 +29,8 @@
   function addTags(ts) {
     const tags = ts.split(" ")
 
-    var frequencyTag = tags.find(tag => tag.startsWith("K_"))
     var aiTags = tags.filter(tag => !tag.startsWith("K_"))
-    setFrequency(frequencyTag)
     aiTags.forEach(tag => addSpanElements(topicBoxEl, tag, ["tag", "ai-tag"]))
-  }
-
-  function setFrequency(tag) {
-    const el = document.getElementById("frequency-tag")
-    switch (tag) {
-      case 'K_1_required':
-        el.classList.add('star-5')
-        break
-      case 'K_2_daily':
-        el.classList.add('star-4')
-        break
-      case 'K_3_usual':
-        el.classList.add('star-3')
-        break
-      case 'K_4_rare':
-        el.classList.add('star-1')
-        break
-      default:
-        el.classList.add('star-1')
-    }
   }
 
   function parseJson(json) {
