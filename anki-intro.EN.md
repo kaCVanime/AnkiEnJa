@@ -22,7 +22,7 @@
 2. 进阶使用教程
 
 ### 讨论交流、问题反馈
-![QQ频道](https://i.postimg.cc/mDf6gd3Z/20250115104103.jpg)
+<img src="https://i.postimg.cc/mDf6gd3Z/20250115104103.jpg" alt="QQ频道" width="200" />
 
 > 更新日志  
 > 2025-1-15 调整tag位置  
