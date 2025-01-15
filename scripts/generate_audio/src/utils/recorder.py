@@ -64,6 +64,7 @@ class Recorder:
                     eg_id TEXT,
                     model_id INTEGER,
                     speed REAL,
+                    path TEXT,
                     FOREIGN KEY(eg_id) REFERENCES examples(id),
                     FOREIGN KEY(model_id) REFERENCES models(id)
                 )
