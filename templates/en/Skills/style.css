@@ -141,15 +141,15 @@ footer {
 #topic-box {
     display: flex;
     align-items: center;
-    justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: -10px;
+    margin-bottom: 10px;
 }
 #topic-box .tag {
     padding: 6px 10px;
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 14px;
     color: var(--tag-color);
 }
 
