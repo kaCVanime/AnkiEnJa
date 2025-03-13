@@ -101,9 +101,39 @@
     }
   }
 
+  function setDefCNVisibility() {
+    const showDefCN = localStorage.getItem("KEXP_show_Def_CN")
+    const el = document.querySelector(".def_cn")
+    if (!el) return;
+    if (showDefCN) {
+      el.classList.remove('hide')
+    } else {
+      el.classList.add('hide')
+    }
+  }
+
+  function toggleDefCN() {
+    const showDefCN = localStorage.getItem("KEXP_show_Def_CN")
+    if (showDefCN) {
+      localStorage.removeItem("KEXP_show_Def_CN")
+    } else {
+      localStorage.setItem("KEXP_show_Def_CN", "true")
+    }
+    setDefCNVisibility()
+  }
+
+  function handleClickDef() {
+    const defBoxEl = document.getElementById('def-box')
+    if (defBoxEl) {
+      defBoxEl.addEventListener("click", toggleDefCN)
+    }
+  }
+
   try {
+    setDefCNVisibility()
     addTags(tags)
     addRandomExample()
+    handleClickDef()
   } catch (err) {
     console.log(err);
     errEl.classList.remove('hide')
