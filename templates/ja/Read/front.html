@@ -106,11 +106,12 @@
     }
   }
 
-  function addSpanElements(parent, content, classlist = []) {
+  function addSpanElements(parent, content, classlist = [], id) {
     if (!content) return parent;
     const el = document.createElement("span");
     el.textContent = content
     el.classList.add(...classlist);
+    if (id) el.id = id;
     parent.appendChild(el)
     return el
   }

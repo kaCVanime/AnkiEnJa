@@ -53,11 +53,12 @@
     }
   }
 
-  function addSpanElements(parent, content, classlist = []) {
+  function addSpanElements(parent, content, classlist = [], id) {
     if (!content) return parent;
     const el = document.createElement("span");
     el.textContent = content
     el.classList.add(...classlist);
+    if (id) el.id = id;
     parent.appendChild(el)
     return el
   }
@@ -70,8 +71,8 @@
     return addSpanElements(parent, content, ["usage"])
   }
 
-  function addContent(parent, content) {
-    return addSpanElements(parent, content, ["content"])
+  function addContent(parent, content, classList = [], id) {
+    return addSpanElements(parent, content, ["content", ...classList], id)
   }
 
   function makeElement(item) {
@@ -79,7 +80,8 @@
     const div = document.createElement("div")
     if (item.labels) addLabel(div, item.labels)
     if (item.usage) addUsage(div, item.usage)
-    addContent(div, item.en)
+    addContent(div, item.en, undefined, 'eg-q')
+    addContent(div, item.cn, ['hide'], 'eg-a')
     return div
   }
 
@@ -94,9 +96,28 @@
     }
   }
 
+  function handleClickExample() {
+    if (egBoxEl) {
+      egBoxEl.addEventListener('click', switchQA)
+    }
+  }
+  function switchQA() {
+    // don't switch if user wants to select text
+    const selection = document.getSelection()
+    if (selection.toString().trim() !== '') return;
+
+    const q = egBoxEl.querySelector('#eg-q')
+    const a = egBoxEl.querySelector('#eg-a')
+    if (q && a) {
+      q.classList.toggle('hide')
+      a.classList.toggle('hide')
+    }
+  }
+
   try {
     addTags(tags)
     addExample()
+    handleClickExample()
   } catch (err) {
     console.log(err);
     errEl.classList.remove('hide')
